@@ -1,8 +1,8 @@
 {
-  "name": "@minimal-kit/cra-js",
-  "author": "Minimals",
+  "name": "@radiall/erp",
+  "author": "Wolfizer",
   "version": "5.1.0",
-  "description": "Cra & JavaScript",
+  "description": "Radiall",
   "private": true,
   "scripts": {
     "start": "react-scripts start",

@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -14,10 +15,16 @@ import { PasswordIcon } from 'src/assets/icons';
 // components
 import Iconify from 'src/components/iconify';
 import FormProvider, { RHFTextField } from 'src/components/hook-form';
+import axiosInstance from 'src/utils/axios';
+import { useSnackbar } from 'notistack';
+import { useRouter } from 'src/routes/hook';
+import { Card } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
 export default function ModernForgotPasswordView() {
+  const { enqueueSnackbar } = useSnackbar();
+  const router = useRouter();
   const ForgotPasswordSchema = Yup.object().shape({
     email: Yup.string().required('Email is required').email('Email must be a valid email address'),
   });
@@ -38,10 +45,25 @@ export default function ModernForgotPasswordView() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      console.info('DATA', data);
+      const inputData = {
+        email: data.email,
+      };
+      const { data: response } = await axiosInstance.post('/sendResetPasswordLink', inputData);
+      console.log(response);
+      enqueueSnackbar(response?.message, { variant: 'success' });
+      router.push(paths.auth.jwt.login);
     } catch (error) {
       console.error(error);
+      enqueueSnackbar(
+        typeof error === 'string'
+          ? error
+          : error?.error?.message
+          ? error?.error?.message
+          : error?.message,
+        {
+          variant: 'error',
+        }
+      );
     }
   });
 
@@ -55,15 +77,13 @@ export default function ModernForgotPasswordView() {
         type="submit"
         variant="contained"
         loading={isSubmitting}
-        endIcon={<Iconify icon="eva:arrow-ios-forward-fill" />}
-        sx={{ justifyContent: 'space-between', pl: 2, pr: 1.5 }}
       >
         Send Request
       </LoadingButton>
 
       <Link
         component={RouterLink}
-        href={paths.authDemo.modern.login}
+        href={paths.auth.jwt.login}
         color="inherit"
         variant="subtitle2"
         sx={{
@@ -93,10 +113,19 @@ export default function ModernForgotPasswordView() {
   );
 
   return (
-    <FormProvider methods={methods} onSubmit={onSubmit}>
-      {renderHead}
+    <Card
+      sx={{
+        py: 5,
+        px: 3,
+        maxWidth: 720,
+        width: '100%',
+      }}
+    >
+      <FormProvider methods={methods} onSubmit={onSubmit}>
+        {renderHead}
 
-      {renderForm}
-    </FormProvider>
+        {renderForm}
+      </FormProvider>
+    </Card>
   );
 }
