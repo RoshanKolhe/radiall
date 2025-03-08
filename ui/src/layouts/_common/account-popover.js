@@ -11,8 +11,6 @@ import Typography from '@mui/material/Typography';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
-// hooks
-import { useMockedUser } from 'src/hooks/use-mocked-user';
 // auth
 import { useAuthContext } from 'src/auth/hooks';
 // components
@@ -25,15 +23,13 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 const OPTIONS = [
   {
     label: 'Home',
+    permissions: ['production_head', 'initiator', 'validator'],
     linkTo: '/',
   },
   {
     label: 'Profile',
-    linkTo: paths.dashboard.user.profile,
-  },
-  {
-    label: 'Settings',
-    linkTo: paths.dashboard.user.account,
+    linkTo: paths.dashboard.profile,
+    permissions: ['production_head', 'initiator', 'validator'],
   },
 ];
 
@@ -42,9 +38,7 @@ const OPTIONS = [
 export default function AccountPopover() {
   const router = useRouter();
 
-  const { user } = useMockedUser();
-
-  const { logout } = useAuthContext();
+  const { logout, user } = useAuthContext();
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -66,6 +60,10 @@ export default function AccountPopover() {
     router.push(path);
   };
 
+  const filteredOptions = OPTIONS.filter((option) =>
+    option.permissions.includes(user?.permissions[0])
+  );
+
   return (
     <>
       <IconButton
@@ -85,8 +83,8 @@ export default function AccountPopover() {
         }}
       >
         <Avatar
-          src={user?.photoURL}
-          alt={user?.displayName}
+          src={user?.avatar?.fileUrl}
+          alt={user?.fullName}
           sx={{
             width: 36,
             height: 36,
@@ -98,7 +96,7 @@ export default function AccountPopover() {
       <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 200, p: 0 }}>
         <Box sx={{ p: 2, pb: 1.5 }}>
           <Typography variant="subtitle2" noWrap>
-            {user?.displayName}
+            {`${user?.firstName} ${user?.lastName}`}
           </Typography>
 
           <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
@@ -109,7 +107,7 @@ export default function AccountPopover() {
         <Divider sx={{ borderStyle: 'dashed' }} />
 
         <Stack sx={{ p: 1 }}>
-          {OPTIONS.map((option) => (
+          {filteredOptions.map((option) => (
             <MenuItem key={option.label} onClick={() => handleClickItem(option.linkTo)}>
               {option.label}
             </MenuItem>

@@ -12,7 +12,7 @@ export default function GuestGuard({ children }) {
   const router = useRouter();
 
   const { authenticated } = useAuthContext();
-
+  console.log(authenticated);
   const check = useCallback(() => {
     if (authenticated) {
       router.replace(paths.dashboard.root);

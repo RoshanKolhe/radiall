@@ -17,7 +17,7 @@ const loginPaths = {
 export default function AuthGuard({ children }) {
   const router = useRouter();
 
-  const { authenticated, method } = useAuthContext();
+  const { authenticated } = useAuthContext();
 
   const [checked, setChecked] = useState(false);
 
