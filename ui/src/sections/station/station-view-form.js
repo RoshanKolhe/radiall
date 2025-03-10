@@ -15,11 +15,6 @@ import { useGetDepartments } from 'src/api/department';
 // ----------------------------------------------------------------------
 
 export default function StationViewForm({ currentStation }) {
-
-  const { departments, departmentsLoading, departmentsEmpty, refreshDepartments } =
-    useGetDepartments();
-
-
   const NewStationSchema = Yup.object().shape({
     station: Yup.string().required('Tool Type is required'),
     description: Yup.string(),
@@ -40,14 +35,7 @@ export default function StationViewForm({ currentStation }) {
     defaultValues,
   });
 
-  const {
-    reset,
-    watch,
-    control,
-    setValue,
-    handleSubmit,
-    formState: { isSubmitting },
-  } = methods;
+  const { reset, watch } = methods;
 
   const values = watch();
   useEffect(() => {
