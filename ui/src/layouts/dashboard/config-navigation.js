@@ -27,6 +27,7 @@ const ICONS = {
   toolType: icon('ic_toolType'),
   manufacturer: icon('ic_manufacturer'),
   supplier: icon('ic_supplier'),
+  storageLocation: icon('ic_storageLocation'),
   file: icon('ic_file'),
   lock: icon('ic_lock'),
   tour: icon('ic_tour'),
@@ -134,6 +135,24 @@ export function useNavData() {
               {
                 title: t('create'),
                 path: paths.dashboard.supplier.new,
+                roles: ['production_head'],
+              },
+            ],
+          },
+          {
+            title: t('Storage Location Master'),
+            path: paths.dashboard.storageLocation.root,
+            icon: ICONS.storageLocation,
+            roles: ['production_head'],
+            children: [
+              {
+                title: t('list'),
+                path: paths.dashboard.storageLocation.list,
+                roles: ['production_head'],
+              },
+              {
+                title: t('create'),
+                path: paths.dashboard.storageLocation.new,
                 roles: ['production_head'],
               },
             ],

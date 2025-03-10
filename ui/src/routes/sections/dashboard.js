@@ -37,6 +37,12 @@ const SupplierCreatePage = lazy(() => import('src/pages/dashboard/supplier/new')
 const SupplierEditPage = lazy(() => import('src/pages/dashboard/supplier/edit'));
 const SupplierViewPage = lazy(() => import('src/pages/dashboard/supplier/view'));
 
+// STORAGE LOCATION
+const StorageLocationListPage = lazy(() => import('src/pages/dashboard/storageLocation/list'));
+const StorageLocationCreatePage = lazy(() => import('src/pages/dashboard/storageLocation/new'));
+const StorageLocationEditPage = lazy(() => import('src/pages/dashboard/storageLocation/edit'));
+const StorageLocationViewPage = lazy(() => import('src/pages/dashboard/storageLocation/view'));
+
 // BLANK PAGE
 const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
 
@@ -96,6 +102,16 @@ export const dashboardRoutes = [
           { path: 'new', element: <SupplierCreatePage /> },
           { path: ':id/edit', element: <SupplierEditPage /> },
           { path: ':id/view', element: <SupplierViewPage /> },
+        ],
+      },
+      {
+        path: 'storageLocation',
+        children: [
+          { element: <StorageLocationListPage />, index: true },
+          { path: 'list', element: <StorageLocationListPage /> },
+          { path: 'new', element: <StorageLocationCreatePage /> },
+          { path: ':id/edit', element: <StorageLocationEditPage /> },
+          { path: ':id/view', element: <StorageLocationViewPage /> },
         ],
       },
 

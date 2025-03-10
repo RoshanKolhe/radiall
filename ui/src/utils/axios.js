@@ -60,4 +60,9 @@ export const endpoints = {
     filterList: (filter) => `/suppliers?${filter}`,
     details: (id) => `/suppliers/${id}`,
   },
+  storageLocation: {
+    list: '/storage-locations', 
+    filterList: (filter) => `/storage-locations?${filter}`,
+    details: (id) => `/storage-locations/${id}`,
+  },
 };
