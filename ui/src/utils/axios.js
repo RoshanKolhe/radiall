@@ -45,4 +45,9 @@ export const endpoints = {
     filterList: (filter) => `/departments?${filter}`,
     details: (id) => `/departments/${id}`,
   },
+  toolType: {
+    list: '/tool-types',
+    filterList: (filter) => `/tool-types?${filter}`,
+    details: (id) => `/tool-types/${id}`,
+  },
 };

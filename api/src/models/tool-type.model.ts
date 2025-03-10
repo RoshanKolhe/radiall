@@ -1,8 +1,7 @@
-import {Entity, model, property, hasMany} from '@loopback/repository';
-import {User} from './user.model';
+import {Entity, model, property} from '@loopback/repository';
 
 @model()
-export class Department extends Entity {
+export class ToolType extends Entity {
   @property({
     type: 'number',
     id: true,
@@ -14,7 +13,7 @@ export class Department extends Entity {
     type: 'string',
     required: true,
   })
-  name: string;
+  toolType: string;
 
   @property({
     type: 'string',
@@ -53,16 +52,13 @@ export class Department extends Entity {
   })
   remark?: string;
 
-  @hasMany(() => User)
-  users: User[];
-
-  constructor(data?: Partial<Department>) {
+  constructor(data?: Partial<ToolType>) {
     super(data);
   }
 }
 
-export interface DepartmentRelations {
+export interface ToolTypeRelations {
   // describe navigational properties here
 }
 
-export type DepartmentWithRelations = Department & DepartmentRelations;
+export type ToolTypeWithRelations = ToolType & ToolTypeRelations;

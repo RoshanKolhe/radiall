@@ -368,6 +368,11 @@ export const USER_STATUS_OPTIONS = [
   { value: '0', label: 'In-Active' },
 ];
 
+export const COMMON_STATUS_OPTIONS = [
+  { value: '1', label: 'Active' },
+  { value: '0', label: 'In-Active' },
+];
+
 export const _roles = ['Production Head', 'Validator', 'Initiator'];
 
 export const formatTime = (isoString) => {
