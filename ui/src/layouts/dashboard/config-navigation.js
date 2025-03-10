@@ -100,6 +100,24 @@ export function useNavData() {
               },
             ],
           },
+          {
+            title: t('Manufacturer Master'),
+            path: paths.dashboard.manufacturer.root,
+            icon: ICONS.toolType,
+            roles: ['production_head'],
+            children: [
+              {
+                title: t('list'),
+                path: paths.dashboard.manufacturer.list,
+                roles: ['production_head'],
+              },
+              {
+                title: t('create'),
+                path: paths.dashboard.manufacturer.new,
+                roles: ['production_head'],
+              },
+            ],
+          },
         ],
       },
     ],

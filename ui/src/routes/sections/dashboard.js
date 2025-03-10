@@ -25,6 +25,12 @@ const ToolTypeCreatePage = lazy(() => import('src/pages/dashboard/toolType/new')
 const ToolTypeEditPage = lazy(() => import('src/pages/dashboard/toolType/edit'));
 const ToolTypeViewPage = lazy(() => import('src/pages/dashboard/toolType/view'));
 
+// MANUFACTURER
+const ManufacturerListPage = lazy(() => import('src/pages/dashboard/manufacturer/list'));
+const ManufacturerCreatePage = lazy(() => import('src/pages/dashboard/manufacturer/new'));
+const ManufacturerEditPage = lazy(() => import('src/pages/dashboard/manufacturer/edit'));
+const ManufacturerViewPage = lazy(() => import('src/pages/dashboard/manufacturer/view'));
+
 // BLANK PAGE
 const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
 
@@ -64,6 +70,16 @@ export const dashboardRoutes = [
           { path: 'new', element: <ToolTypeCreatePage /> },
           { path: ':id/edit', element: <ToolTypeEditPage /> },
           { path: ':id/view', element: <ToolTypeViewPage /> },
+        ],
+      },
+      {
+        path: 'manufacturer',
+        children: [
+          { element: <ManufacturerListPage />, index: true },
+          { path: 'list', element: <ManufacturerListPage /> },
+          { path: 'new', element: <ManufacturerCreatePage /> },
+          { path: ':id/edit', element: <ManufacturerEditPage /> },
+          { path: ':id/view', element: <ManufacturerViewPage /> },
         ],
       },
 

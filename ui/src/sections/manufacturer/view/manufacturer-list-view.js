@@ -37,19 +37,18 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
-import { useGetToolTypes } from 'src/api/toolType';
-import { useAuthContext } from 'src/auth/hooks';
+import { useGetManufacturers } from 'src/api/manufacturer';
 import { _roles, COMMON_STATUS_OPTIONS } from 'src/utils/constants';
-import ToolTypeTableRow from '../toolType-table-row';
-import ToolTypeTableToolbar from '../toolType-table-toolbar';
-import ToolTypeTableFiltersResult from '../toolType-table-filters-result';
+import ManufacturerTableRow from '../manufacturer-table-row';
+import ManufacturerTableToolbar from '../manufacturer-table-toolbar';
+import ManufacturerTableFiltersResult from '../manufacturer-table-filters-result';
 
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...COMMON_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: 'toolType', label: 'Tool Type', width: 180 },
+  { id: 'manufacturer', label: 'Manufacturer', width: 180 },
   { id: 'description', label: 'Description' },
   { id: 'status', label: 'Status', width: 100 },
   { id: '', width: 88 },
@@ -63,7 +62,7 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export default function ToolTypeListView() {
+export default function ManufacturerListView() {
   const table = useTable();
 
   const settings = useSettingsContext();
@@ -76,7 +75,7 @@ export default function ToolTypeListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const { toolTypes, toolTypesLoading, toolTypesEmpty, refreshToolTypes } = useGetToolTypes();
+  const { manufacturers, manufacturersLoading, manufacturersEmpty, refreshManufacturers } = useGetManufacturers();
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -129,14 +128,14 @@ export default function ToolTypeListView() {
 
   const handleEditRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.toolType.edit(id));
+      router.push(paths.dashboard.manufacturer.edit(id));
     },
     [router]
   );
 
   const handleViewRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.toolType.view(id));
+      router.push(paths.dashboard.manufacturer.view(id));
     },
     [router]
   );
@@ -153,10 +152,10 @@ export default function ToolTypeListView() {
   }, []);
 
   useEffect(() => {
-    if (toolTypes) {
-      setTableData(toolTypes);
+    if (manufacturers) {
+      setTableData(manufacturers);
     }
-  }, [toolTypes]);
+  }, [manufacturers]);
 
   return (
     <>
@@ -165,17 +164,17 @@ export default function ToolTypeListView() {
           heading="List"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Tool Type', href: paths.dashboard.toolType.root },
+            { name: 'Manufacturer', href: paths.dashboard.manufacturer.root },
             { name: 'List' },
           ]}
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.toolType.new}
+              href={paths.dashboard.manufacturer.new}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              New Tool Type
+              New Manufacturer
             </Button>
           }
           sx={{
@@ -210,16 +209,16 @@ export default function ToolTypeListView() {
                     }
                   >
                     {tab.value === 'all' && tableData.length}
-                    {tab.value === '1' && tableData.filter((toolType) => toolType.isActive).length}
+                    {tab.value === '1' && tableData.filter((manufacturer) => manufacturer.isActive).length}
 
-                    {tab.value === '0' && tableData.filter((toolType) => !toolType.isActive).length}
+                    {tab.value === '0' && tableData.filter((manufacturer) => !manufacturer.isActive).length}
                   </Label>
                 }
               />
             ))}
           </Tabs>
 
-          <ToolTypeTableToolbar
+          <ManufacturerTableToolbar
             filters={filters}
             onFilters={handleFilters}
             //
@@ -227,7 +226,7 @@ export default function ToolTypeListView() {
           />
 
           {canReset && (
-            <ToolTypeTableFiltersResult
+            <ManufacturerTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
               //
@@ -283,7 +282,7 @@ export default function ToolTypeListView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <ToolTypeTableRow
+                      <ManufacturerTableRow
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}
@@ -363,26 +362,26 @@ function applyFilter({ inputData, comparator, filters }) {
   inputData = stabilizedThis.map((el) => el[0]);
 
   if (name) {
-    inputData = inputData.filter((toolType) =>
-      Object.values(toolType).some((value) =>
+    inputData = inputData.filter((manufacturer) =>
+      Object.values(manufacturer).some((value) =>
         String(value).toLowerCase().includes(name.toLowerCase())
       )
     );
   }
 
   if (status !== 'all') {
-    inputData = inputData.filter((toolType) =>
-      status === '1' ? toolType.isActive : !toolType.isActive
+    inputData = inputData.filter((manufacturer) =>
+      status === '1' ? manufacturer.isActive : !manufacturer.isActive
     );
   }
 
   if (role.length) {
     inputData = inputData.filter(
-      (toolType) =>
-        toolType.permissions &&
-        toolType.permissions.some((toolTypeRole) => {
-          console.log(toolTypeRole);
-          const mappedRole = roleMapping[toolTypeRole];
+      (manufacturer) =>
+        manufacturer.permissions &&
+        manufacturer.permissions.some((manufacturerRole) => {
+          console.log(manufacturerRole);
+          const mappedRole = roleMapping[manufacturerRole];
           console.log('Mapped Role:', mappedRole); // Check the mapped role
           return mappedRole && role.includes(mappedRole);
         })
