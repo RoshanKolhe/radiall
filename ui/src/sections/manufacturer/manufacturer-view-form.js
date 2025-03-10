@@ -14,7 +14,7 @@ import { useGetDepartments } from 'src/api/department';
 
 // ----------------------------------------------------------------------
 
-export default function ManufacturerNewEditForm({ currentManufacturer }) {
+export default function ManufacturerViewForm({ currentManufacturer }) {
 
   const { departments, departmentsLoading, departmentsEmpty, refreshDepartments } =
     useGetDepartments();
@@ -92,6 +92,6 @@ export default function ManufacturerNewEditForm({ currentManufacturer }) {
   );
 }
 
-ManufacturerNewEditForm.propTypes = {
+ManufacturerViewForm.propTypes = {
   currentManufacturer: PropTypes.object,
 };

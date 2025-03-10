@@ -40,7 +40,7 @@ import { useGetDepartments } from 'src/api/department';
 
 // ----------------------------------------------------------------------
 
-export default function ToolTypeNewEditForm({ currentToolType }) {
+export default function ToolTypeViewForm({ currentToolType }) {
   const router = useRouter();
 
   const { enqueueSnackbar } = useSnackbar();
@@ -122,6 +122,6 @@ export default function ToolTypeNewEditForm({ currentToolType }) {
   );
 }
 
-ToolTypeNewEditForm.propTypes = {
+ToolTypeViewForm.propTypes = {
   currentToolType: PropTypes.object,
 };

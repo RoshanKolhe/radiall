@@ -16,7 +16,7 @@ import { COMMON_STATUS_OPTIONS } from 'src/utils/constants';
 
 // ----------------------------------------------------------------------
 
-export default function StorageLocationNewEditForm({ currentStorageLocation }) {
+export default function StorageLocationViewForm({ currentStorageLocation }) {
   const NewStorageLocationSchema = Yup.object().shape({
     storageLocation: Yup.string().required('Storage Location is required'),
     description: Yup.string(),
@@ -81,6 +81,6 @@ export default function StorageLocationNewEditForm({ currentStorageLocation }) {
   );
 }
 
-StorageLocationNewEditForm.propTypes = {
+StorageLocationViewForm.propTypes = {
   currentStorageLocation: PropTypes.object,
 };
