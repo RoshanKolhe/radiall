@@ -25,6 +25,7 @@ const ICONS = {
   mail: icon('ic_mail'),
   user: icon('ic_user'),
   toolType: icon('ic_toolType'),
+  manufacturer: icon('ic_manufacturer'),
   file: icon('ic_file'),
   lock: icon('ic_lock'),
   tour: icon('ic_tour'),
@@ -103,7 +104,7 @@ export function useNavData() {
           {
             title: t('Manufacturer Master'),
             path: paths.dashboard.manufacturer.root,
-            icon: ICONS.toolType,
+            icon: ICONS.manufacturer,
             roles: ['production_head'],
             children: [
               {
