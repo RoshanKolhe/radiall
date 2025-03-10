@@ -1,4 +1,5 @@
 import {belongsTo, Entity, model, property} from '@loopback/repository';
+import {Department} from './department.model';
 
 @model()
 export class User extends Entity {
@@ -120,6 +121,9 @@ export class User extends Entity {
     default: false,
   })
   isDeleted: boolean;
+
+  @belongsTo(() => Department)
+  departmentId: number;
 
   constructor(data?: Partial<User>) {
     super(data);

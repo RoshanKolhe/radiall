@@ -19,25 +19,25 @@ import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFSelect, RHFTextField } from 'src/components/hook-form';
 import { states, USER_STATUS_OPTIONS } from 'src/utils/constants';
 import axiosInstance from 'src/utils/axios';
+import { useGetDepartments } from 'src/api/department';
 
 // ----------------------------------------------------------------------
 
 export default function UserQuickEditForm({ currentUser, open, onClose, refreshUsers }) {
-  console.log(currentUser);
   const { enqueueSnackbar } = useSnackbar();
+
+  const { departments, departmentsLoading, departmentsEmpty, refreshDepartments } =
+    useGetDepartments();
 
   const NewUserSchema = Yup.object().shape({
     firstName: Yup.string().required('First Name is required'),
     lastName: Yup.string().required('Last Name is required'),
     email: Yup.string().required('Email is required').email('Email must be a valid email address'),
     employeeId: Yup.string().required('Employee Id is required'),
+    department: Yup.string().required('Department is required'),
     phoneNumber: Yup.string()
       .required('Phone number is required')
       .matches(/^[0-9]{10}$/, 'Phone number must be exactly 10 digits'),
-    dob: Yup.string(),
-    address: Yup.string(),
-    state: Yup.string(),
-    city: Yup.string(),
     role: Yup.string().required('Role is required'),
     zipCode: Yup.string(),
     avatarUrl: Yup.mixed().nullable(),
@@ -49,15 +49,11 @@ export default function UserQuickEditForm({ currentUser, open, onClose, refreshU
       firstName: currentUser?.firstName || '',
       lastName: currentUser?.lastName || '',
       role: currentUser?.permissions[0] || '',
-      dob: currentUser?.dob || '',
       employeeId: currentUser?.employeeId || '',
       email: currentUser?.email || '',
       isActive: currentUser?.isActive ? '1' : '0' || '',
-
+      department: currentUser?.departmentId || '',
       phoneNumber: currentUser?.phoneNumber || '',
-      address: currentUser?.fullAddress || '',
-      city: currentUser?.city || '',
-      state: currentUser?.state || '',
       password: '',
       confirmPassword: '',
     }),
@@ -85,11 +81,8 @@ export default function UserQuickEditForm({ currentUser, open, onClose, refreshU
         permissions: [formData.role],
         phoneNumber: formData.phoneNumber,
         isActive: formData.isActive,
-        dob: formData.dob,
-        fullAddress: formData.address,
-        city: formData.city,
-        state: formData.state,
         employeeId: formData.employeeId,
+        departmentId: Number(formData.department),
       };
       await axiosInstance.patch(`/api/users/${currentUser.id}`, inputData);
       refreshUsers();
@@ -146,37 +139,6 @@ export default function UserQuickEditForm({ currentUser, open, onClose, refreshU
             <RHFTextField name="email" label="Email Address" />
             <RHFTextField type="number" name="phoneNumber" label="Phone Number" />
             <RHFTextField name="employeeId" label="Employee Id" />
-
-            <Controller
-              name="dob"
-              control={control}
-              render={({ field, fieldState: { error } }) => (
-                <DatePicker
-                  label="DOB"
-                  value={new Date(field.value)}
-                  onChange={(newValue) => {
-                    field.onChange(newValue);
-                  }}
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      error: !!error,
-                      helperText: error?.message,
-                    },
-                  }}
-                />
-              )}
-            />
-
-            <RHFSelect fullWidth name="state" label="State">
-              {states.map((option) => (
-                <MenuItem key={option.id} value={option.id}>
-                  {option.name}
-                </MenuItem>
-              ))}
-            </RHFSelect>
-            <RHFTextField name="city" label="City" />
-            <RHFTextField name="address" label="Address" />
             <RHFSelect fullWidth name="role" label="Role">
               {[
                 { value: 'production_head', name: 'Production Head' },
@@ -184,6 +146,13 @@ export default function UserQuickEditForm({ currentUser, open, onClose, refreshU
                 { value: 'validator', name: 'Validator' },
               ].map((option) => (
                 <MenuItem key={option.value} value={option.value}>
+                  {option.name}
+                </MenuItem>
+              ))}
+            </RHFSelect>
+            <RHFSelect fullWidth name="department" label="Department">
+              {departments.map((option) => (
+                <MenuItem key={option.id} value={option.id}>
                   {option.name}
                 </MenuItem>
               ))}

@@ -26,6 +26,7 @@ import { IconButton, InputAdornment, MenuItem } from '@mui/material';
 import { states } from 'src/utils/constants';
 import axiosInstance from 'src/utils/axios';
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useGetDepartments } from 'src/api/department';
 
 // ----------------------------------------------------------------------
 
@@ -34,6 +35,9 @@ export default function UserViewForm({ currentUser }) {
 
   const { enqueueSnackbar } = useSnackbar();
 
+  const { departments, departmentsLoading, departmentsEmpty, refreshDepartments } =
+    useGetDepartments();
+
   const password = useBoolean();
 
   const NewUserSchema = Yup.object().shape({
@@ -41,6 +45,7 @@ export default function UserViewForm({ currentUser }) {
     lastName: Yup.string().required('Last Name is required'),
     email: Yup.string().required('Email is required').email('Email must be a valid email address'),
     employeeId: Yup.string().required('Employee Id is required'),
+    department: Yup.string().required('Department is required'),
     password: !currentUser
       ? Yup.string()
           .min(6, 'Password must be at least 6 characters')
@@ -77,6 +82,7 @@ export default function UserViewForm({ currentUser }) {
       phoneNumber: currentUser?.phoneNumber || '',
       address: currentUser?.fullAddress || '',
       city: currentUser?.city || '',
+      department: currentUser?.departmentId || '',
       state: currentUser?.state || '',
       password: '',
       confirmPassword: '',
@@ -115,6 +121,7 @@ export default function UserViewForm({ currentUser }) {
         fullAddress: formData.address,
         city: formData.city,
         state: formData.state,
+        departmentId: Number(formData.department),
         employeeId: formData.employeeId,
       };
       if (formData.avatarUrl) {
@@ -299,6 +306,13 @@ export default function UserViewForm({ currentUser }) {
                   { value: 'validator', name: 'Validator' },
                 ].map((option) => (
                   <MenuItem key={option.value} value={option.value}>
+                    {option.name}
+                  </MenuItem>
+                ))}
+              </RHFSelect>
+              <RHFSelect fullWidth name="department" label="Department" disabled>
+                {departments.map((option) => (
+                  <MenuItem key={option.id} value={option.id}>
                     {option.name}
                   </MenuItem>
                 ))}

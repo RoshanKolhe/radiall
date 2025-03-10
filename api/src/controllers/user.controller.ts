@@ -55,6 +55,12 @@ export class UserController {
     public jwtService: JWTService,
   ) {}
 
+  @authenticate({
+    strategy: 'jwt',
+    options: {
+      required: [PermissionKeys.PRODUCTION_HEAD],
+    },
+  })
   @post('/register', {
     responses: {
       '200': {
@@ -192,7 +198,11 @@ export class UserController {
         isDeleted: false,
       },
       fields: {password: false, otp: false, otpExpireAt: false},
-      include: [{relation: 'creator'}, {relation: 'updater'}],
+      include: [
+        {relation: 'creator'},
+        {relation: 'updater'},
+        {relation: 'department'},
+      ],
     };
     return this.userRepository.find(filter);
   }
@@ -223,6 +233,7 @@ export class UserController {
         otp: false,
         otpExpireAt: false,
       },
+      include: ['department'],
     });
     return Promise.resolve({
       ...user,

@@ -5,8 +5,9 @@ import {
   repository,
 } from '@loopback/repository';
 import {RadiallDataSource} from '../datasources';
-import {User, UserRelations} from '../models';
+import {User, UserRelations, Department} from '../models';
 import {TimeStampRepositoryMixin} from '../mixins/timestamp-repository-mixin';
+import {DepartmentRepository} from './department.repository';
 
 export type Credentials = {
   email?: string;
@@ -27,12 +28,16 @@ export class UserRepository extends TimeStampRepositoryMixin<
 
   public readonly deleter: BelongsToAccessor<User, typeof User.prototype.id>;
 
+  public readonly department: BelongsToAccessor<Department, typeof User.prototype.id>;
+
   constructor(
     @inject('datasources.radiall') dataSource: RadiallDataSource,
     @repository.getter('UserRepository')
-    protected userRepositoryGetter: Getter<UserRepository>,
+    protected userRepositoryGetter: Getter<UserRepository>, @repository.getter('DepartmentRepository') protected departmentRepositoryGetter: Getter<DepartmentRepository>,
   ) {
     super(User, dataSource);
+    this.department = this.createBelongsToAccessorFor('department', departmentRepositoryGetter,);
+    this.registerInclusionResolver('department', this.department.inclusionResolver);
     this.deleter = this.createBelongsToAccessorFor(
       'deleter',
       userRepositoryGetter,

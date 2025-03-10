@@ -40,4 +40,9 @@ export const endpoints = {
     search: '/api/user/search',
     getDashboradCounts: '/getDashboardCounts',
   },
+  department: {
+    list: '/departments',
+    filterList: (filter) => `/departments?${filter}`,
+    details: (id) => `/departments/${id}`,
+  },
 };
