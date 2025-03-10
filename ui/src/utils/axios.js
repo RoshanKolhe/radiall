@@ -55,4 +55,9 @@ export const endpoints = {
     filterList: (filter) => `/manufacturers?${filter}`,
     details: (id) => `/manufacturers/${id}`,
   },
+  supplier: {
+    list: '/suppliers',
+    filterList: (filter) => `/suppliers?${filter}`,
+    details: (id) => `/suppliers/${id}`,
+  },
 };

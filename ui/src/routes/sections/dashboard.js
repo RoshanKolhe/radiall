@@ -31,6 +31,12 @@ const ManufacturerCreatePage = lazy(() => import('src/pages/dashboard/manufactur
 const ManufacturerEditPage = lazy(() => import('src/pages/dashboard/manufacturer/edit'));
 const ManufacturerViewPage = lazy(() => import('src/pages/dashboard/manufacturer/view'));
 
+// SUPPLIER
+const SupplierListPage = lazy(() => import('src/pages/dashboard/supplier/list'));
+const SupplierCreatePage = lazy(() => import('src/pages/dashboard/supplier/new'));
+const SupplierEditPage = lazy(() => import('src/pages/dashboard/supplier/edit'));
+const SupplierViewPage = lazy(() => import('src/pages/dashboard/supplier/view'));
+
 // BLANK PAGE
 const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
 
@@ -80,6 +86,16 @@ export const dashboardRoutes = [
           { path: 'new', element: <ManufacturerCreatePage /> },
           { path: ':id/edit', element: <ManufacturerEditPage /> },
           { path: ':id/view', element: <ManufacturerViewPage /> },
+        ],
+      },
+      {
+        path: 'supplier',
+        children: [
+          { element: <SupplierListPage />, index: true },
+          { path: 'list', element: <SupplierListPage /> },
+          { path: 'new', element: <SupplierCreatePage /> },
+          { path: ':id/edit', element: <SupplierEditPage /> },
+          { path: ':id/view', element: <SupplierViewPage /> },
         ],
       },
 
