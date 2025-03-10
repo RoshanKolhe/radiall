@@ -60,8 +60,13 @@ export const endpoints = {
     filterList: (filter) => `/suppliers?${filter}`,
     details: (id) => `/suppliers/${id}`,
   },
+  station: {
+    list: '/stations',
+    filterList: (filter) => `/stations?${filter}`,
+    details: (id) => `/stations/${id}`,
+  },
   storageLocation: {
-    list: '/storage-locations', 
+    list: '/storage-locations',
     filterList: (filter) => `/storage-locations?${filter}`,
     details: (id) => `/storage-locations/${id}`,
   },

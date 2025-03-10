@@ -14,29 +14,29 @@ import { useGetDepartments } from 'src/api/department';
 
 // ----------------------------------------------------------------------
 
-export default function SupplierViewForm({ currentSupplier }) {
+export default function StationViewForm({ currentStation }) {
 
   const { departments, departmentsLoading, departmentsEmpty, refreshDepartments } =
     useGetDepartments();
 
 
-  const NewSupplierSchema = Yup.object().shape({
-    supplier: Yup.string().required('Tool Type is required'),
+  const NewStationSchema = Yup.object().shape({
+    station: Yup.string().required('Tool Type is required'),
     description: Yup.string(),
     isActive: Yup.boolean(),
   });
 
   const defaultValues = useMemo(
     () => ({
-      supplier: currentSupplier?.supplier || '',
-      description: currentSupplier?.description || '',
-      isActive: currentSupplier?.isActive ? '1' : '0' || '1',
+      station: currentStation?.station || '',
+      description: currentStation?.description || '',
+      isActive: currentStation?.isActive ? '1' : '0' || '1',
     }),
-    [currentSupplier]
+    [currentStation]
   );
 
   const methods = useForm({
-    resolver: yupResolver(NewSupplierSchema),
+    resolver: yupResolver(NewStationSchema),
     defaultValues,
   });
 
@@ -51,10 +51,10 @@ export default function SupplierViewForm({ currentSupplier }) {
 
   const values = watch();
   useEffect(() => {
-    if (currentSupplier) {
+    if (currentStation) {
       reset(defaultValues);
     }
-  }, [currentSupplier, defaultValues, reset]);
+  }, [currentStation, defaultValues, reset]);
 
   return (
     <FormProvider methods={methods}>
@@ -62,7 +62,7 @@ export default function SupplierViewForm({ currentSupplier }) {
         <Grid item xs={12} md={12}>
           <Card sx={{ p: 3 }}>
             <Grid container spacing={2}>
-              {currentSupplier && (
+              {currentStation && (
                 <>
                   <Grid item xs={12} sm={6}>
                     <RHFSelect name="isActive" label="Status" disabled>
@@ -78,7 +78,7 @@ export default function SupplierViewForm({ currentSupplier }) {
               )}
 
               <Grid item xs={12} sm={6}>
-                <RHFTextField name="supplier" label="Tool Type" disabled />
+                <RHFTextField name="station" label="Tool Type" disabled />
               </Grid>
 
               <Grid item xs={12} sm={6}>
@@ -92,6 +92,6 @@ export default function SupplierViewForm({ currentSupplier }) {
   );
 }
 
-SupplierViewForm.propTypes = {
-  currentSupplier: PropTypes.object,
+StationViewForm.propTypes = {
+  currentStation: PropTypes.object,
 };

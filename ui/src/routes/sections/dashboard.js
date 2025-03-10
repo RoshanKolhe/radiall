@@ -43,6 +43,12 @@ const StorageLocationCreatePage = lazy(() => import('src/pages/dashboard/storage
 const StorageLocationEditPage = lazy(() => import('src/pages/dashboard/storageLocation/edit'));
 const StorageLocationViewPage = lazy(() => import('src/pages/dashboard/storageLocation/view'));
 
+// STATION
+const StationListPage = lazy(() => import('src/pages/dashboard/station/list'));
+const StationCreatePage = lazy(() => import('src/pages/dashboard/station/new'));
+const StationEditPage = lazy(() => import('src/pages/dashboard/station/edit'));
+const StationViewPage = lazy(() => import('src/pages/dashboard/station/view'));
+
 // BLANK PAGE
 const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
 
@@ -112,6 +118,17 @@ export const dashboardRoutes = [
           { path: 'new', element: <StorageLocationCreatePage /> },
           { path: ':id/edit', element: <StorageLocationEditPage /> },
           { path: ':id/view', element: <StorageLocationViewPage /> },
+        ],
+      },
+
+      {
+        path: 'station',
+        children: [
+          { element: <StationListPage />, index: true },
+          { path: 'list', element: <StationListPage /> },
+          { path: 'new', element: <StationCreatePage /> },
+          { path: ':id/edit', element: <StationEditPage /> },
+          { path: ':id/view', element: <StationViewPage /> },
         ],
       },
 
