@@ -365,12 +365,12 @@ export const PERMISSION_KEY = 'permission';
 
 export const USER_STATUS_OPTIONS = [
   { value: '1', label: 'Active' },
-  { value: '0', label: 'In-Active' },
+  { value: '0', label: 'Non-Active' },
 ];
 
 export const COMMON_STATUS_OPTIONS = [
   { value: '1', label: 'Active' },
-  { value: '0', label: 'In-Active' },
+  { value: '0', label: 'Non-Active' },
 ];
 
 export const _roles = ['Production Head', 'Validator', 'Initiator'];

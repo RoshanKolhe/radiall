@@ -13,6 +13,8 @@ import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
+import { ListItemText } from '@mui/material';
+import { format } from 'date-fns';
 
 // ----------------------------------------------------------------------
 
@@ -24,7 +26,7 @@ export default function StorageLocationTableRow({
   onSelectRow,
   onDeleteRow,
 }) {
-  const { location, description, isActive } = row;
+  const { location, description, isActive, createdAt } = row;
 
   const confirm = useBoolean();
 
@@ -40,6 +42,19 @@ export default function StorageLocationTableRow({
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{location}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{description}</TableCell>
+        <TableCell>
+          <ListItemText
+            primary={format(new Date(createdAt), 'dd MMM yyyy')}
+            secondary={format(new Date(createdAt), 'p')}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            secondaryTypographyProps={{
+              mt: 0.5,
+              component: 'span',
+              typography: 'caption',
+            }}
+          />
+        </TableCell>
+
         <TableCell>
           <Label
             variant="soft"

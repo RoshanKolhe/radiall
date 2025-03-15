@@ -31,6 +31,7 @@ import { useGetDepartments } from 'src/api/department';
 // ----------------------------------------------------------------------
 
 export default function UserViewForm({ currentUser }) {
+  console.log(currentUser);
   const router = useRouter();
 
   const { enqueueSnackbar } = useSnackbar();
@@ -77,7 +78,7 @@ export default function UserViewForm({ currentUser }) {
       dob: currentUser?.dob || '',
       employeeId: currentUser?.employeeId || '',
       email: currentUser?.email || '',
-      isActive: currentUser?.isActive || true,
+      isActive: !!currentUser?.isActive,
       avatarUrl: currentUser?.avatar?.fileUrl || null,
       phoneNumber: currentUser?.phoneNumber || '',
       address: currentUser?.fullAddress || '',
@@ -105,6 +106,8 @@ export default function UserViewForm({ currentUser }) {
   } = methods;
 
   const values = watch();
+
+  console.log(values);
 
   const onSubmit = handleSubmit(async (formData) => {
     try {
@@ -183,7 +186,7 @@ export default function UserViewForm({ currentUser }) {
                 color={(values.isActive && 'success') || (!values.isActive && 'error') || 'warning'}
                 sx={{ position: 'absolute', top: 24, right: 24 }}
               >
-                {values.isActive ? 'Active' : 'In-Active'}
+                {values.isActive ? 'Active' : 'Non-Active'}
               </Label>
             )}
 

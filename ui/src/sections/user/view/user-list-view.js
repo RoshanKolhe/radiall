@@ -54,6 +54,7 @@ const TABLE_HEAD = [
   { id: 'employeeId', label: 'Employee Id', width: 180 },
   { id: 'phoneNumber', label: 'Phone Number', width: 180 },
   { id: 'role', label: 'Role', width: 180 },
+  { id: 'createdAt', label: 'Created At' },
   { id: 'status', label: 'Status', width: 100 },
   { id: '', width: 88 },
 ];
@@ -68,7 +69,7 @@ const defaultFilters = {
 
 export default function UserListView() {
   const { user: userDetails } = useAuthContext();
-  const table = useTable();
+  const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc' });
 
   const settings = useSettingsContext();
 
