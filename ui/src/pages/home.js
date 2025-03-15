@@ -8,7 +8,7 @@ export default function HomePage() {
   return (
     <>
       <Helmet>
-        <title> Minimal: The starting point for your next project</title>
+        <title> Radiall</title>
       </Helmet>
 
       <HomeView />
