@@ -6,6 +6,7 @@ import { AuthGuard } from 'src/auth/guard';
 import DashboardLayout from 'src/layouts/dashboard';
 // components
 import { LoadingScreen } from 'src/components/loading-screen';
+import { element } from 'prop-types';
 
 // ----------------------------------------------------------------------
 
@@ -48,6 +49,12 @@ const StationListPage = lazy(() => import('src/pages/dashboard/station/list'));
 const StationCreatePage = lazy(() => import('src/pages/dashboard/station/new'));
 const StationEditPage = lazy(() => import('src/pages/dashboard/station/edit'));
 const StationViewPage = lazy(() => import('src/pages/dashboard/station/view'));
+
+// TOOLS MANAGEMENT
+const ToolsListPage = lazy(() => import('src/pages/dashboard/tools_management/list'));
+const ToolsCreatePage = lazy(() => import('src/pages/dashboard/tools_management/new'));
+const ToolsEditPage = lazy(() => import('src/pages/dashboard/tools_management/edit'));
+const ToolsViewPage = lazy(() => import('src/pages/dashboard/tools_management/view'));
 
 // BLANK PAGE
 const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
@@ -130,6 +137,18 @@ export const dashboardRoutes = [
           { path: ':id/edit', element: <StationEditPage /> },
           { path: ':id/view', element: <StationViewPage /> },
         ],
+      },
+
+      // TOOLS MANAGEMENT ROUTES
+      {
+        path: 'tools',
+        children: [
+          { element: <ToolsListPage/>, index: true},
+          { path: 'list', element: <ToolsListPage/>},
+          { path: 'new', element: <ToolsCreatePage/>},
+          { path: ':id/edit', element: <ToolsEditPage/>},
+          { path: ':id/view', element: <ToolsViewPage/>},
+        ]
       },
 
       { path: 'blank', element: <BlankPage /> },

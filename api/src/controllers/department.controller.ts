@@ -52,7 +52,7 @@ export class DepartmentController {
     })
     department: Omit<Department, 'id'>,
   ): Promise<Department> {
-    return this.departmentRepository.create(department);
+    return await this.departmentRepository.create(department);
   }
 
   @authenticate({

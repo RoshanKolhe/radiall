@@ -37,21 +37,29 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
-import { useGetSuppliers } from 'src/api/supplier';
+import { useGetTools } from 'src/api/tools';
 import { _roles, COMMON_STATUS_OPTIONS } from 'src/utils/constants';
-import SupplierTableRow from '../supplier-table-row';
-import SupplierTableToolbar from '../supplier-table-toolbar';
-import SupplierTableFiltersResult from '../supplier-table-filters-result';
+import ToolsTableRow from '../tools-table-row';
+import ToolsTableToolbar from '../tools-table-toolbar';
+import ToolsTableFiltersResult from '../tools-table-filters-result';
 
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...COMMON_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: 'supplier', label: 'Supplier', width: 180 },
-  { id: 'description', label: 'Description', width: 250 },
-  { id: 'status', label: 'Status', width: 100 },
+  { id: 'serialNo', label: 'Serial Number'},
+  { id: 'toolPartNumber', label: 'Tool part number' },
+  { id: 'toolType', label: 'Tool type'},
+  { id: 'qty', label: 'QTY'},
+  { id: 'location', label: 'Location' },
+  { id: 'createdAt', label: 'Created At'},
+  { id: 'status', label: 'Status', width: 100},
+  { id: 'installationStatus', label: 'Installation' },
   { id: '', width: 88 },
+  { id: 'validationStatus', label: 'Internal Validation'},
+  { id: '', width: 88 },
+  { id: '', width: 100 },
 ];
 
 const defaultFilters = {
@@ -62,7 +70,7 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export default function SupplierListView() {
+export default function ToolsListView() {
   const table = useTable();
 
   const settings = useSettingsContext();
@@ -75,7 +83,7 @@ export default function SupplierListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const { suppliers, suppliersLoading, suppliersEmpty, refreshSuppliers } = useGetSuppliers();
+  const { tools, toolsLoading, toolsEmpty, refreshTools } = useGetTools();
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -128,14 +136,14 @@ export default function SupplierListView() {
 
   const handleEditRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.supplier.edit(id));
+      router.push(paths.dashboard.station.edit(id));
     },
     [router]
   );
 
   const handleViewRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.supplier.view(id));
+      router.push(paths.dashboard.station.view(id));
     },
     [router]
   );
@@ -152,10 +160,10 @@ export default function SupplierListView() {
   }, []);
 
   useEffect(() => {
-    if (suppliers) {
-      setTableData(suppliers);
+    if (tools && !toolsEmpty) {
+      setTableData(tools);
     }
-  }, [suppliers]);
+  }, [tools, toolsEmpty]);
 
   return (
     <>
@@ -164,17 +172,17 @@ export default function SupplierListView() {
           heading="List"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Supplier', href: paths.dashboard.supplier.root },
+            { name: 'Tools', href: paths.dashboard.tools.root },
             { name: 'List' },
           ]}
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.supplier.new}
+              href={paths.dashboard.tools.new}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              New Supplier
+              New Tool
             </Button>
           }
           sx={{
@@ -209,16 +217,16 @@ export default function SupplierListView() {
                     }
                   >
                     {tab.value === 'all' && tableData.length}
-                    {tab.value === '1' && tableData.filter((supplier) => supplier.isActive).length}
+                    {tab.value === '1' && tableData.filter((station) => station.isActive).length}
 
-                    {tab.value === '0' && tableData.filter((supplier) => !supplier.isActive).length}
+                    {tab.value === '0' && tableData.filter((station) => !station.isActive).length}
                   </Label>
                 }
               />
             ))}
           </Tabs>
 
-          <SupplierTableToolbar
+          <ToolsTableToolbar
             filters={filters}
             onFilters={handleFilters}
             //
@@ -226,7 +234,7 @@ export default function SupplierListView() {
           />
 
           {canReset && (
-            <SupplierTableFiltersResult
+            <ToolsTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
               //
@@ -282,7 +290,7 @@ export default function SupplierListView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <SupplierTableRow
+                      <ToolsTableRow
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}
@@ -362,26 +370,26 @@ function applyFilter({ inputData, comparator, filters }) {
   inputData = stabilizedThis.map((el) => el[0]);
 
   if (name) {
-    inputData = inputData.filter((supplier) =>
-      Object.values(supplier).some((value) =>
+    inputData = inputData.filter((tool) =>
+      Object.values(tool).some((value) =>
         String(value).toLowerCase().includes(name.toLowerCase())
       )
     );
   }
 
   if (status !== 'all') {
-    inputData = inputData.filter((supplier) =>
-      status === '1' ? supplier.isActive : !supplier.isActive
+    inputData = inputData.filter((tool) =>
+      status === '1' ? tool.isActive : !tool.isActive
     );
   }
 
   if (role.length) {
     inputData = inputData.filter(
-      (supplier) =>
-        supplier.permissions &&
-        supplier.permissions.some((supplierRole) => {
-          console.log(supplierRole);
-          const mappedRole = roleMapping[supplierRole];
+      (station) =>
+        station.permissions &&
+        station.permissions.some((stationRole) => {
+          console.log(stationRole);
+          const mappedRole = roleMapping[stationRole];
           console.log('Mapped Role:', mappedRole); // Check the mapped role
           return mappedRole && role.includes(mappedRole);
         })

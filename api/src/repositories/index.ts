@@ -5,3 +5,7 @@ export * from './manufacturer.repository';
 export * from './supplier.repository';
 export * from './storage-location.repository';
 export * from './station.repository';
+export * from './tools.repository';
+export * from './installation-form.repository';
+export * from './questionery.repository';
+export * from './checklist.repository';

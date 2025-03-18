@@ -1,0 +1,42 @@
+import {Constructor, inject, Getter} from '@loopback/core';
+import {DefaultCrudRepository, repository, BelongsToAccessor} from '@loopback/repository';
+import {RadiallDataSource} from '../datasources';
+import {Tools, ToolsRelations, ToolType, Manufacturer, Supplier, StorageLocation} from '../models';
+import { TimeStampRepositoryMixin } from '../mixins/timestamp-repository-mixin';
+import {ToolTypeRepository} from './tool-type.repository';
+import {ManufacturerRepository} from './manufacturer.repository';
+import {SupplierRepository} from './supplier.repository';
+import {StorageLocationRepository} from './storage-location.repository';
+
+export class ToolsRepository extends TimeStampRepositoryMixin<
+  Tools,
+  typeof Tools.prototype.id,
+  Constructor<
+    DefaultCrudRepository<
+      Tools,
+      typeof Tools.prototype.id,
+      ToolsRelations
+    >
+  >
+>(DefaultCrudRepository) {
+
+  public readonly toolType: BelongsToAccessor<ToolType, typeof Tools.prototype.id>;
+
+  public readonly manufacturer: BelongsToAccessor<Manufacturer, typeof Tools.prototype.id>;
+
+  public readonly supplier: BelongsToAccessor<Supplier, typeof Tools.prototype.id>;
+
+  public readonly storageLocation: BelongsToAccessor<StorageLocation, typeof Tools.prototype.id>;
+
+  constructor(@inject('datasources.radiall') dataSource: RadiallDataSource, @repository.getter('ToolTypeRepository') protected toolTypeRepositoryGetter: Getter<ToolTypeRepository>, @repository.getter('ManufacturerRepository') protected manufacturerRepositoryGetter: Getter<ManufacturerRepository>, @repository.getter('SupplierRepository') protected supplierRepositoryGetter: Getter<SupplierRepository>, @repository.getter('StorageLocationRepository') protected storageLocationRepositoryGetter: Getter<StorageLocationRepository>,) {
+    super(Tools, dataSource);
+    this.storageLocation = this.createBelongsToAccessorFor('storageLocation', storageLocationRepositoryGetter,);
+    this.registerInclusionResolver('storageLocation', this.storageLocation.inclusionResolver);
+    this.supplier = this.createBelongsToAccessorFor('supplier', supplierRepositoryGetter,);
+    this.registerInclusionResolver('supplier', this.supplier.inclusionResolver);
+    this.manufacturer = this.createBelongsToAccessorFor('manufacturer', manufacturerRepositoryGetter,);
+    this.registerInclusionResolver('manufacturer', this.manufacturer.inclusionResolver);
+    this.toolType = this.createBelongsToAccessorFor('toolType', toolTypeRepositoryGetter,);
+    this.registerInclusionResolver('toolType', this.toolType.inclusionResolver);
+  }
+}

@@ -42,7 +42,7 @@ export default function SupplierTableRow({
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{supplier}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{description}</TableCell>
+        <TableCell sx={{ maxWidth : 250, width : '100%' }}>{description}</TableCell>
         <TableCell>
           <Label
             variant="soft"

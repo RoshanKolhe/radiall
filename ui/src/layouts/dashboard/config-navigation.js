@@ -176,6 +176,24 @@ export function useNavData() {
               },
             ],
           },
+          {
+            title: t('Production Means Master'),
+            path: paths.dashboard.tools.root,
+            icon: ICONS.station,
+            roles: ['production_head'],
+            children: [
+              {
+                title: t('list'),
+                path: paths.dashboard.tools.list,
+                roles: ['production_head'],
+              },
+              {
+                title: t('create'),
+                path: paths.dashboard.tools.new,
+                roles: ['production_head'],
+              },
+            ],
+          },
         ],
       },
     ],

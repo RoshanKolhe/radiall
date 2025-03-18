@@ -79,6 +79,7 @@ export const paths = {
       booking: `${ROOTS.DASHBOARD}/booking`,
       file: `${ROOTS.DASHBOARD}/file`,
     },
+    // USER
     user: {
       root: `${ROOTS.DASHBOARD}/user`,
       new: `${ROOTS.DASHBOARD}/user/new`,
@@ -87,6 +88,7 @@ export const paths = {
       edit: (id) => `${ROOTS.DASHBOARD}/user/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/user/${id}/view`,
     },
+    // TOOLTYPE
     toolType: {
       root: `${ROOTS.DASHBOARD}/toolType`,
       new: `${ROOTS.DASHBOARD}/toolType/new`,
@@ -94,6 +96,7 @@ export const paths = {
       edit: (id) => `${ROOTS.DASHBOARD}/toolType/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/toolType/${id}/view`,
     },
+    // MANUFACTURER
     manufacturer: {
       root: `${ROOTS.DASHBOARD}/manufacturer`,
       new: `${ROOTS.DASHBOARD}/manufacturer/new`,
@@ -101,6 +104,7 @@ export const paths = {
       edit: (id) => `${ROOTS.DASHBOARD}/manufacturer/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/manufacturer/${id}/view`,
     },
+    // SUPPLIER
     supplier: {
       root: `${ROOTS.DASHBOARD}/supplier`,
       new: `${ROOTS.DASHBOARD}/supplier/new`,
@@ -108,6 +112,7 @@ export const paths = {
       edit: (id) => `${ROOTS.DASHBOARD}/supplier/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/supplier/${id}/view`,
     },
+    // STORAGE LOCATION
     storageLocation: {
       root: `${ROOTS.DASHBOARD}/storageLocation`,
       new: `${ROOTS.DASHBOARD}/storageLocation/new`,
@@ -115,12 +120,21 @@ export const paths = {
       edit: (id) => `${ROOTS.DASHBOARD}/storageLocation/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/storageLocation/${id}/view`,
     },
+    // STATION
     station: {
       root: `${ROOTS.DASHBOARD}/station`,
       new: `${ROOTS.DASHBOARD}/station/new`,
       list: `${ROOTS.DASHBOARD}/station/list`,
       edit: (id) => `${ROOTS.DASHBOARD}/station/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/station/${id}/view`,
+    },
+    // TOOLS
+    tools:{
+      root: `${ROOTS.DASHBOARD}/tools`,
+      new: `${ROOTS.DASHBOARD}/tools/new`,
+      list: `${ROOTS.DASHBOARD}/tools/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/tools/${id}/edit`,
+      view: (id) => `${ROOTS.DASHBOARD}/tools/${id}/view`,
     },
     product: {
       root: `${ROOTS.DASHBOARD}/product`,
