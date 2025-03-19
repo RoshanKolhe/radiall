@@ -16,7 +16,6 @@ export function useGetTools() {
     mutate();
   };
 
-  console.log(data);
   return {
     tools: data?.data || [],
     toolsLoading: isLoading,

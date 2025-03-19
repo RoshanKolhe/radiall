@@ -114,7 +114,7 @@ export class Tools extends Entity {
   internalValidationStatus: boolean;
 
   @property({
-    type: 'string',
+    type: 'boolean',
   })
   individualManagement: boolean;
 

@@ -18,17 +18,30 @@ import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, {
   RHFTextField,
   RHFSelect,
+  RHFAutocomplete,
 } from 'src/components/hook-form';
-import {  IconButton, InputAdornment, MenuItem, TextField } from '@mui/material';
+import {  IconButton, InputAdornment, MenuItem, TextField, Typography } from '@mui/material';
 import axiosInstance from 'src/utils/axios';
 import Iconify from 'src/components/iconify';
 import { DatePicker } from '@mui/x-date-pickers';
+import { useGetToolTypes } from 'src/api/toolType';
+import { useGetManufacturers } from 'src/api/manufacturer';
+import { useGetSuppliers } from 'src/api/supplier';
+import { useGetStorageLocations } from 'src/api/storageLocation';
 // ----------------------------------------------------------------------
 
-export default function ToolsNewEditForm({ currentTool, toolTypeData, supplierData, manufacturerData, storageLocationData }) {
+export default function ToolsNewEditForm({ currentTool }) {
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
   const [allowEdit, setAllowEdit] = useState(false);
+  const [ toolTypeData, setToolTypeData ] = useState([]); 
+  const [ supplierData, setSupplierData ] = useState([]);
+  const [ manufacturersData, setManufacturersData ] = useState([]); 
+  const [ storageLocationsData, setStorageLocationsData ] = useState([]);
+  const { toolTypes, toolTypesEmpty } = useGetToolTypes();
+  const { manufacturers, manufacturersEmpty } = useGetManufacturers();
+  const { suppliers, suppliersEmpty } = useGetSuppliers();
+  const { storageLocations, storageLocationsEmpty } = useGetStorageLocations();
   const booleanOptions = [
     {label: 'Yes', value: 'true'},
     {label: 'No', value: 'false'}
@@ -36,7 +49,31 @@ export default function ToolsNewEditForm({ currentTool, toolTypeData, supplierDa
   const statusOptions = [
     { value: true, label: 'Active' },
     { value: false, label: 'In-Active' },
-  ]
+  ];
+
+  useEffect(() => {
+    if (toolTypes && !toolTypesEmpty) {
+      setToolTypeData(toolTypes);
+    }
+  }, [toolTypes, toolTypesEmpty]);
+
+  useEffect(() => {
+    if (suppliers && !suppliersEmpty) {
+      setSupplierData(suppliers);
+    }
+  }, [suppliers, suppliersEmpty]);
+
+  useEffect(() => {
+    if (manufacturers && !manufacturersEmpty) {
+      setManufacturersData(manufacturers);
+    }
+  }, [manufacturers, manufacturersEmpty]);
+
+  useEffect(() => {
+    if (storageLocations && !storageLocationsEmpty) {
+      setStorageLocationsData(storageLocations);
+    }
+  }, [storageLocations, storageLocationsEmpty]);
 
   useEffect(() => {
     if(currentTool){
@@ -76,8 +113,6 @@ export default function ToolsNewEditForm({ currentTool, toolTypeData, supplierDa
     assetNumber: Yup.string(),
     isActive: Yup.boolean(),
   });
-
-  console.log(currentTool);
 
   const defaultValues = useMemo(
     () => ({
@@ -119,12 +154,10 @@ export default function ToolsNewEditForm({ currentTool, toolTypeData, supplierDa
     control,
     setValue,
     handleSubmit,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting },
   } = methods;
 
   const values = watch();
-
-  console.log(errors);
 
   const onSubmit = handleSubmit(async (formData) => {
     try {
@@ -150,7 +183,7 @@ export default function ToolsNewEditForm({ currentTool, toolTypeData, supplierDa
       if(currentTool){
         inputData.calibration = formData.calibration;
         inputData.individualManagement = formData.individualManagement;
-        inputData.isMaintainancePlanNeeded = formData.isMaintainancePlanNeeded;
+        inputData.isMaintaincePlanNeeded = formData.isMaintainancePlanNeeded;
         inputData.installationChecklist = formData.installationChecklist;
         inputData.assetNumber = formData.assetNumber;
         inputData.criticalLevel = formData.criticalLevel;
@@ -182,10 +215,12 @@ export default function ToolsNewEditForm({ currentTool, toolTypeData, supplierDa
     }
   }, [currentTool, defaultValues, reset]);
 
-  console.log('tooltypeData', toolTypeData);
-
   const onSearch = async (partNumber) => {
     try{
+      if(partNumber === undefined || partNumber === null || partNumber === ''){
+        enqueueSnackbar('Please Enter Part number to search',{variant : 'error'});
+        return;
+      }
       const response = await axiosInstance.post('/tools/search-tool', {partNumber});
 
       if(response?.data?.success){
@@ -194,8 +229,8 @@ export default function ToolsNewEditForm({ currentTool, toolTypeData, supplierDa
         setValue('description', response?.data?.data?.description);
         setValue('serialNumber', Number(response?.data?.data?.meanSerialNumber) + 1, { shouldValidate: true });
         setValue('supplier', supplierData?.find((supplier) => supplier.id === Number(response?.data?.data?.supplierId))?.id || undefined, { shouldValidate: true });
-        setValue('manufacturer', manufacturerData?.find((manufacturer) => manufacturer.id === Number(response?.data?.data?.manufacturerId))?.id || undefined, { shouldValidate: true });
-        setValue('storageLocation', storageLocationData?.find((location) => location.id === Number(response?.data?.data?.storageLocationId))?.id || undefined, { shouldValidate: true });
+        setValue('manufacturer', manufacturersData?.find((manufacturer) => manufacturer.id === Number(response?.data?.data?.manufacturerId))?.id || undefined, { shouldValidate: true });
+        setValue('storageLocation', storageLocationsData?.find((location) => location.id === Number(response?.data?.data?.storageLocationId))?.id || undefined, { shouldValidate: true });
         setValue('productionMeans', response?.data?.data?.productionMeans);
         setAllowEdit(true);
         enqueueSnackbar('Tool with same part number found',{variant : 'success'});
@@ -219,12 +254,12 @@ export default function ToolsNewEditForm({ currentTool, toolTypeData, supplierDa
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       <Grid container spacing={3}>
-        <Grid item xs={12} md={12}>
+        <Grid item="true" xs={12} md={12}>
           <Card sx={{ p: 3 }}>
             <Grid container spacing={2}>
               {currentTool && (
                 <>
-                  <Grid item xs={12} sm={6}>
+                  <Grid item="true" xs={12} sm={6}>
                     <RHFSelect name="isActive" label="Status">
                       {statusOptions.map((status) => (
                         <MenuItem key={status.value} value={status.value}>
@@ -233,7 +268,7 @@ export default function ToolsNewEditForm({ currentTool, toolTypeData, supplierDa
                       ))}
                     </RHFSelect>
                   </Grid>
-                  <Grid item xs={12} sm={6} />
+                  <Grid item="true" xs={12} sm={6} />
                 </>
               )}
 
@@ -242,7 +277,7 @@ export default function ToolsNewEditForm({ currentTool, toolTypeData, supplierDa
               </Grid> */}
 
               {!currentTool ? 
-                <Grid item xs={12} sm={6}>
+                <Grid item="true" xs={12} sm={6}>
                   <Controller
                     name="partNumber"
                     control={control}
@@ -272,28 +307,28 @@ export default function ToolsNewEditForm({ currentTool, toolTypeData, supplierDa
                     )}
                   />
                 </Grid> : 
-                <Grid item xs={12} sm={6}>
+                <Grid item="true" xs={12} sm={6}>
                   <RHFTextField name="partNumber" label="Tool Part Number" disabled={!allowEdit} />
                 </Grid>
               }
 
-              <Grid item xs={12} sm={6}>
+              <Grid item="true" xs={12} sm={6}>
                 <RHFTextField name="modelNumber" label="Tool Model Number" disabled={!allowEdit} />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid item="true" xs={12} sm={6}>
                 <RHFTextField name="description" label="Description" disabled={!allowEdit} />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid item="true" xs={12} sm={6}>
                 <RHFTextField type='number' name="quantity" label="Qunatity" disabled={!allowEdit} />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid item="true" xs={12} sm={6}>
                 <RHFTextField type='number' name="serialNumber" label="Mean Serial Number" disabled />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              {/* <Grid item="true" xs={12} sm={6}>
                 <RHFSelect name="toolType" label="Tool Type" disabled={!allowEdit} >
                   {toolTypeData?.length > 0 ? toolTypeData?.map((toolType) => (
                     <MenuItem key={toolType?.id} value={toolType?.id}>{toolType?.toolType}</MenuItem>
@@ -301,33 +336,82 @@ export default function ToolsNewEditForm({ currentTool, toolTypeData, supplierDa
                     <MenuItem disabled value=''>No Tool Types Found</MenuItem>
                   )}
                 </ RHFSelect>
+              </Grid> */}
+
+              <Grid item="true" xs={12} sm={6}>
+                <RHFAutocomplete
+                  disabled={!allowEdit}
+                  name="toolType"
+                  label="Tool Type"
+                  options={toolTypeData}
+                  getOptionLabel={(option) => option?.toolType || ''}
+                  isOptionEqualToValue={(option, value) => option?.id === value}
+                  filterOptions={(options, { inputValue }) =>
+                    options?.filter((option) => option?.toolType?.toLowerCase().includes(inputValue?.toLowerCase()))
+                  }
+                  renderOption={(props, option) => (
+                    <li {...props}>
+                      <Typography variant="subtitle2">{option?.toolType}</Typography>
+                    </li>
+                  )}
+                  onChange={(event, value) => {
+                    setValue("toolType", value?.id || "");
+                  }}
+                  value={toolTypeData.find((option) => option.id === watch("toolType")) || null}
+                />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid item="true" xs={12} sm={6}>
                 <RHFTextField name="productionMeans" label="Production Means" disabled={!allowEdit} />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
-                <RHFSelect name="supplier" label="Supplier" disabled={!allowEdit} >
-                  {supplierData?.length > 0 ? supplierData?.map((supplier) => (
-                    <MenuItem key={supplier?.id} value={supplier?.id}>{supplier?.supplier}</MenuItem>
-                  )) : (
-                    <MenuItem disabled value=''>No Suppliers Found</MenuItem>
+              <Grid item="true" xs={12} sm={6}>
+                <RHFAutocomplete
+                  disabled={!allowEdit}
+                  name="supplier"
+                  label="Supplier"
+                  options={supplierData}
+                  getOptionLabel={(option) => option?.supplier || ''}
+                  isOptionEqualToValue={(option, value) => option?.id === value}
+                  filterOptions={(options, { inputValue }) =>
+                    options?.filter((option) => option?.supplier?.toLowerCase().includes(inputValue?.toLowerCase()))
+                  }
+                  renderOption={(props, option) => (
+                    <li {...props}>
+                      <Typography variant="subtitle2">{option?.supplier}</Typography>
+                    </li>
                   )}
-                </ RHFSelect>
+                  onChange={(event, value) => {
+                    setValue("supplier", value?.id || "");
+                  }}
+                  value={supplierData.find((option) => option.id === watch("supplier")) || null}
+                />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
-                <RHFSelect name="manufacturer" label="Manufacturer" disabled={!allowEdit} >
-                  {manufacturerData?.length > 0 ? manufacturerData?.map((manufacturer) => (
-                    <MenuItem key={manufacturer?.id} value={manufacturer?.id}>{manufacturer?.manufacturer}</MenuItem>
-                  )) : (
-                    <MenuItem disabled value=''>No Manufacturer Found</MenuItem>
+              <Grid item="true" xs={12} sm={6}>
+                <RHFAutocomplete
+                  disabled={!allowEdit}
+                  name="manufacturer"
+                  label="Manufacturer"
+                  options={manufacturersData}
+                  getOptionLabel={(option) => option?.manufacturer || ''}
+                  isOptionEqualToValue={(option, value) => option?.id === value}
+                  filterOptions={(options, { inputValue }) =>
+                    options?.filter((option) => option?.manufacturer?.toLowerCase().includes(inputValue?.toLowerCase()))
+                  }
+                  renderOption={(props, option) => (
+                    <li {...props}>
+                      <Typography variant="subtitle2">{option?.manufacturer}</Typography>
+                    </li>
                   )}
-                </ RHFSelect>
+                  onChange={(event, value) => {
+                    setValue("manufacturer", value?.id || "");
+                  }}
+                  value={manufacturersData.find((option) => option.id === watch("manufacturer")) || null}
+                />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid item="true" xs={12} sm={6}>
                 <Controller
                   name="manufacturingDate"
                   control={control}
@@ -351,35 +435,48 @@ export default function ToolsNewEditForm({ currentTool, toolTypeData, supplierDa
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
-                <RHFSelect name="storageLocation" label="Storage Location" disabled={!allowEdit} >
-                  {storageLocationData?.length > 0 ? storageLocationData?.map((location) => (
-                    <MenuItem key={location?.id} value={location?.id}>{location?.location}</MenuItem>
-                  )) : (
-                    <MenuItem disabled value=''>No Locations Found</MenuItem>
+              <Grid item="true" xs={12} sm={6}>
+                <RHFAutocomplete
+                  disabled={!allowEdit}
+                  name="storageLocation"
+                  label="Storage Location"
+                  options={storageLocationsData}
+                  getOptionLabel={(option) => option?.location || ''}
+                  isOptionEqualToValue={(option, value) => option?.id === value}
+                  filterOptions={(options, { inputValue }) =>
+                    options?.filter((option) => option?.location?.toLowerCase().includes(inputValue?.toLowerCase()))
+                  }
+                  renderOption={(props, option) => (
+                    <li {...props}>
+                      <Typography variant="subtitle2">{option?.location}</Typography>
+                    </li>
                   )}
-                </ RHFSelect>
+                  onChange={(event, value) => {
+                    setValue("storageLocation", value?.id || "");
+                  }}
+                  value={storageLocationsData.find((option) => option.id === watch("storageLocation")) || null}
+                />
               </Grid>
 
               {currentTool && (
                 <>
-                  <Grid item xs={12} sm={6}>
+                  <Grid item="true" xs={12} sm={6}>
                     <RHFTextField name="spareList" label="Spare List" disabled={!allowEdit} />
                   </Grid>
 
-                  <Grid item xs={12} sm={6}>
+                  <Grid item="true" xs={12} sm={6}>
                     <RHFTextField name="calibration" label="Calibration" disabled={!allowEdit} />
                   </Grid>
 
-                  <Grid item xs={12} sm={6}>
+                  <Grid item="true" xs={12} sm={6}>
                     <RHFTextField name="technicalDrawing" label="Technical Drawing" disabled={!allowEdit} />
                   </Grid>
 
-                  <Grid item xs={12} sm={6}>
+                  <Grid item="true" xs={12} sm={6}>
                     <RHFTextField name="assetNumber" label="Asset Number" disabled={!allowEdit} />
                   </Grid>
 
-                  <Grid item xs={12} sm={6}>
+                  <Grid item="true" xs={12} sm={6}>
                     <RHFSelect name="isMaintainancePlanNeeded" label="Maintainance Plan" disabled={!allowEdit} >
                       {booleanOptions?.length > 0 ? booleanOptions?.map((opt) => (
                         <MenuItem key={opt?.value} value={opt?.value}>{opt?.label}</MenuItem>
@@ -389,7 +486,7 @@ export default function ToolsNewEditForm({ currentTool, toolTypeData, supplierDa
                     </ RHFSelect>
                   </Grid>
 
-                  <Grid item xs={12} sm={6}>
+                  <Grid item="true" xs={12} sm={6}>
                     <RHFSelect name="individualManagement" label="Individual Management" disabled={!allowEdit} >
                       {booleanOptions?.length > 0 ? booleanOptions?.map((opt) => (
                         <MenuItem key={opt?.value} value={opt?.value}>{opt?.label}</MenuItem>
@@ -399,19 +496,19 @@ export default function ToolsNewEditForm({ currentTool, toolTypeData, supplierDa
                     </ RHFSelect>
                   </Grid>
 
-                  <Grid item xs={12} sm={6}>
+                  <Grid item="true" xs={12} sm={6}>
                     <RHFTextField name="designation" label="Designation" disabled={!allowEdit} />
                   </Grid>
 
-                  <Grid item xs={12} sm={6}>
+                  <Grid item="true" xs={12} sm={6}>
                     <RHFTextField name="criticalLevel" label="Critical Level" disabled={!allowEdit} />
                   </Grid>
 
-                  <Grid item xs={12} sm={6}>
+                  <Grid item="true" xs={12} sm={6}>
                     <RHFTextField name="toolFamily" label="Tool Family" disabled={!allowEdit} />
                   </Grid>
 
-                  <Grid item xs={12} sm={6}>
+                  <Grid item="true" xs={12} sm={6}>
                     <RHFSelect name="installationChecklist" label="Installation Checklist" disabled={!allowEdit} >
                       {booleanOptions?.length > 0 ? booleanOptions?.map((opt) => (
                         <MenuItem key={opt?.value} value={opt?.value}>{opt?.label}</MenuItem>
@@ -438,8 +535,4 @@ export default function ToolsNewEditForm({ currentTool, toolTypeData, supplierDa
 
 ToolsNewEditForm.propTypes = {
   currentTool: PropTypes.object,
-  toolTypeData: PropTypes.array,
-  supplierData: PropTypes.array,
-  manufacturerData: PropTypes.array,
-  storageLocationData: PropTypes.array,
 };

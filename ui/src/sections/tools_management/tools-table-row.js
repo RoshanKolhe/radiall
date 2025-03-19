@@ -56,7 +56,7 @@ export default function ToolsTableRow({
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell> */}
 
-        <TableCell>{meanSerialNumber}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap', pr:'110px' }}>{meanSerialNumber}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{partNumber}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{toolType?.toolType || 'NA'}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{quantity}</TableCell>
@@ -73,7 +73,7 @@ export default function ToolsTableRow({
             }}
           />
         </TableCell>        
-        <TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
           <Label
             variant="soft"
             color={(isActive && 'success') || (!isActive && 'error') || 'default'}
@@ -81,15 +81,15 @@ export default function ToolsTableRow({
             {isActive ? 'Active' : 'In-Active'}
           </Label>
         </TableCell>
-        <TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
           <Label
             variant="soft"
             color={getColorCode(installationStatus)}
           >
             {installationStatus}
           </Label>
-        </TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        </TableCell >
+        <TableCell sx={{px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Installation Form" placement="top" arrow>
               <IconButton
                 onClick={() => {
@@ -100,7 +100,7 @@ export default function ToolsTableRow({
               </IconButton>
           </Tooltip>
         </TableCell>
-        <TableCell>
+        <TableCell sx={{pr:'80px'}}>
           <Label
             variant="soft"
             color={getColorCode(internalValidationStatus)}
@@ -108,7 +108,7 @@ export default function ToolsTableRow({
             {internalValidationStatus}
           </Label>
         </TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        <TableCell sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Internal Validation Form" placement="top" arrow>
               <IconButton
                 onClick={() => {

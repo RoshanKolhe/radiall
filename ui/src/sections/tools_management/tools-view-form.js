@@ -27,7 +27,7 @@ export default function ToolsViewForm({ currentTool }) {
 
   const historySectionColumns = [
     { label: 'Date of Creation:', value: 'createdAt' },
-    { label: 'Date of Installation:', value: 'createdAt' },
+    { label: 'Date of Installation:', value: 'installationDate' },
     { label: 'Area/Location:', value: 'storageLocation.location' },
     { label: 'Status:', value: 'isActive' },
   ];
@@ -104,7 +104,7 @@ export default function ToolsViewForm({ currentTool }) {
         </TableRow>
         {identificationSectionColumns.map((item) => (
           <TableRow key={item.value}>
-            <TableCell sx={{ border: '1px solid black' }}>{item.label}</TableCell>
+            <TableCell sx={{ border: '1px solid black', textDecoration: 'underline', textUnderlineOffset : '4px' }}>{item.label}</TableCell>
             <TableCell sx={{ border: '1px solid black' }}>{getValue(item.value) || 'NA'}</TableCell>
           </TableRow>
         ))}
@@ -125,7 +125,7 @@ export default function ToolsViewForm({ currentTool }) {
         </TableRow>
         {managementSectionColumns.map((item) => (
           <TableRow key={item.value}>
-            <TableCell sx={{ border: '1px solid black' }}>{item.label}</TableCell>
+            <TableCell sx={{ border: '1px solid black', textDecoration: 'underline', textUnderlineOffset : '4px' }}>{item.label}</TableCell>
             <TableCell sx={{ border: '1px solid black' }}>{getValue(item.value) || 'NA'}</TableCell>
           </TableRow>
         ))}
@@ -146,7 +146,7 @@ export default function ToolsViewForm({ currentTool }) {
         </TableRow>
         {historySectionColumns.map((item, index) => (
           <TableRow key={item.value}>
-            <TableCell sx={{ border: '1px solid black !important' }}>{item.label}</TableCell>
+            <TableCell sx={{ border: '1px solid black !important', textDecoration: 'underline', textUnderlineOffset : '4px' }}>{item.label}</TableCell>
             <TableCell sx={{ border: '1px solid black !important' }}>{getValue(item.value) || 'NA'}</TableCell>
           </TableRow>
         ))}

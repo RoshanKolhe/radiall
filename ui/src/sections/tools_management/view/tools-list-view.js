@@ -48,7 +48,7 @@ import ToolsTableFiltersResult from '../tools-table-filters-result';
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...COMMON_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: 'serialNo', label: 'Serial Number'},
+  { id: 'serialNo', label: 'Serial Number', width: 100},
   { id: 'toolPartNumber', label: 'Tool part number' },
   { id: 'toolType', label: 'Tool type'},
   { id: 'qty', label: 'QTY'},
@@ -56,9 +56,9 @@ const TABLE_HEAD = [
   { id: 'createdAt', label: 'Created At'},
   { id: 'status', label: 'Status', width: 100},
   { id: 'installationStatus', label: 'Installation' },
-  { id: '', width: 88 },
+  { id: 'installationView', width: 50},
   { id: 'validationStatus', label: 'Internal Validation'},
-  { id: '', width: 88 },
+  { id: 'validationView', width: 50 },
   { id: '', width: 100 },
 ];
 
