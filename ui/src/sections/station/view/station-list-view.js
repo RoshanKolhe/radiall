@@ -50,6 +50,7 @@ const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...COMMON_STATUS_OPTIONS
 const TABLE_HEAD = [
   { id: 'station', label: 'Station', width: 180 },
   { id: 'description', label: 'Description' },
+  { id: 'createdAt', label: 'Created At' },
   { id: 'status', label: 'Status', width: 100 },
   { id: '', width: 88 },
 ];
@@ -63,7 +64,7 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export default function StationListView() {
-  const table = useTable();
+  const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc' });
 
   const settings = useSettingsContext();
 

@@ -50,6 +50,7 @@ const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...COMMON_STATUS_OPTIONS
 const TABLE_HEAD = [
   { id: 'storageLocation', label: 'Storage Location', width: 180 },
   { id: 'description', label: 'Description' },
+  { id: 'createdAt', label: 'Created At' },
   { id: 'status', label: 'Status', width: 100 },
   { id: '', width: 88 },
 ];
@@ -63,7 +64,7 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export default function StorageLocationListView() {
-  const table = useTable();
+  const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc' });
 
   const settings = useSettingsContext();
 
@@ -75,7 +76,12 @@ export default function StorageLocationListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const { storageLocations, storageLocationsLoading, storageLocationsEmpty, refreshStorageLocations } = useGetStorageLocations();
+  const {
+    storageLocations,
+    storageLocationsLoading,
+    storageLocationsEmpty,
+    refreshStorageLocations,
+  } = useGetStorageLocations();
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -209,9 +215,11 @@ export default function StorageLocationListView() {
                     }
                   >
                     {tab.value === 'all' && tableData.length}
-                    {tab.value === '1' && tableData.filter((storageLocation) => storageLocation.isActive).length}
+                    {tab.value === '1' &&
+                      tableData.filter((storageLocation) => storageLocation.isActive).length}
 
-                    {tab.value === '0' && tableData.filter((storageLocation) => !storageLocation.isActive).length}
+                    {tab.value === '0' &&
+                      tableData.filter((storageLocation) => !storageLocation.isActive).length}
                   </Label>
                 }
               />
