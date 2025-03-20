@@ -37,22 +37,29 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
-import { useGetManufacturers } from 'src/api/manufacturer';
+import { useGetTools } from 'src/api/tools';
 import { _roles, COMMON_STATUS_OPTIONS } from 'src/utils/constants';
-import ManufacturerTableRow from '../manufacturer-table-row';
-import ManufacturerTableToolbar from '../manufacturer-table-toolbar';
-import ManufacturerTableFiltersResult from '../manufacturer-table-filters-result';
+import ToolsTableRow from '../tools-table-row';
+import ToolsTableToolbar from '../tools-table-toolbar';
+import ToolsTableFiltersResult from '../tools-table-filters-result';
 
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...COMMON_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: 'manufacturer', label: 'Manufacturer', width: 180 },
-  { id: 'description', label: 'Description', width: 250 },
-  { id: 'createdAt', label: 'Created At' },
-  { id: 'status', label: 'Status', width: 100 },
+  { id: 'serialNo', label: 'Serial Number'},
+  { id: 'toolPartNumber', label: 'Tool part number' },
+  { id: 'toolType', label: 'Tool type'},
+  { id: 'qty', label: 'QTY'},
+  { id: 'location', label: 'Location' },
+  { id: 'createdAt', label: 'Created At'},
+  { id: 'status', label: 'Status', width: 100},
+  { id: 'installationStatus', label: 'Installation' },
   { id: '', width: 88 },
+  { id: 'validationStatus', label: 'Internal Validation'},
+  { id: '', width: 88 },
+  { id: '', width: 100 },
 ];
 
 const defaultFilters = {
@@ -63,8 +70,8 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export default function ManufacturerListView() {
-  const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc' });
+export default function ToolsListView() {
+  const table = useTable();
 
   const settings = useSettingsContext();
 
@@ -76,8 +83,7 @@ export default function ManufacturerListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const { manufacturers, manufacturersLoading, manufacturersEmpty, refreshManufacturers } =
-    useGetManufacturers();
+  const { tools, toolsLoading, toolsEmpty, refreshTools } = useGetTools();
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -130,14 +136,14 @@ export default function ManufacturerListView() {
 
   const handleEditRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.manufacturer.edit(id));
+      router.push(paths.dashboard.station.edit(id));
     },
     [router]
   );
 
   const handleViewRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.manufacturer.view(id));
+      router.push(paths.dashboard.station.view(id));
     },
     [router]
   );
@@ -154,10 +160,10 @@ export default function ManufacturerListView() {
   }, []);
 
   useEffect(() => {
-    if (manufacturers) {
-      setTableData(manufacturers);
+    if (tools && !toolsEmpty) {
+      setTableData(tools);
     }
-  }, [manufacturers]);
+  }, [tools, toolsEmpty]);
 
   return (
     <>
@@ -166,17 +172,17 @@ export default function ManufacturerListView() {
           heading="List"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Manufacturer', href: paths.dashboard.manufacturer.root },
+            { name: 'Tools', href: paths.dashboard.tools.root },
             { name: 'List' },
           ]}
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.manufacturer.new}
+              href={paths.dashboard.tools.new}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              New Manufacturer
+              New Tool
             </Button>
           }
           sx={{
@@ -211,18 +217,16 @@ export default function ManufacturerListView() {
                     }
                   >
                     {tab.value === 'all' && tableData.length}
-                    {tab.value === '1' &&
-                      tableData.filter((manufacturer) => manufacturer.isActive).length}
+                    {tab.value === '1' && tableData.filter((station) => station.isActive).length}
 
-                    {tab.value === '0' &&
-                      tableData.filter((manufacturer) => !manufacturer.isActive).length}
+                    {tab.value === '0' && tableData.filter((station) => !station.isActive).length}
                   </Label>
                 }
               />
             ))}
           </Tabs>
 
-          <ManufacturerTableToolbar
+          <ToolsTableToolbar
             filters={filters}
             onFilters={handleFilters}
             //
@@ -230,7 +234,7 @@ export default function ManufacturerListView() {
           />
 
           {canReset && (
-            <ManufacturerTableFiltersResult
+            <ToolsTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
               //
@@ -286,7 +290,7 @@ export default function ManufacturerListView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <ManufacturerTableRow
+                      <ToolsTableRow
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}
@@ -366,26 +370,26 @@ function applyFilter({ inputData, comparator, filters }) {
   inputData = stabilizedThis.map((el) => el[0]);
 
   if (name) {
-    inputData = inputData.filter((manufacturer) =>
-      Object.values(manufacturer).some((value) =>
+    inputData = inputData.filter((tool) =>
+      Object.values(tool).some((value) =>
         String(value).toLowerCase().includes(name.toLowerCase())
       )
     );
   }
 
   if (status !== 'all') {
-    inputData = inputData.filter((manufacturer) =>
-      status === '1' ? manufacturer.isActive : !manufacturer.isActive
+    inputData = inputData.filter((tool) =>
+      status === '1' ? tool.isActive : !tool.isActive
     );
   }
 
   if (role.length) {
     inputData = inputData.filter(
-      (manufacturer) =>
-        manufacturer.permissions &&
-        manufacturer.permissions.some((manufacturerRole) => {
-          console.log(manufacturerRole);
-          const mappedRole = roleMapping[manufacturerRole];
+      (station) =>
+        station.permissions &&
+        station.permissions.some((stationRole) => {
+          console.log(stationRole);
+          const mappedRole = roleMapping[stationRole];
           console.log('Mapped Role:', mappedRole); // Check the mapped role
           return mappedRole && role.includes(mappedRole);
         })

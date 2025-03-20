@@ -43,7 +43,7 @@ export default function ManufacturerTableRow({
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{manufacturer}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{description}</TableCell>
+        <TableCell sx={{ maxWidth: 250, width : '100%' }}>{description}</TableCell>
         <TableCell>
           <ListItemText
             primary={format(new Date(createdAt), 'dd MMM yyyy')}

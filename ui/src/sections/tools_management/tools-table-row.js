@@ -1,3 +1,4 @@
+/* eslint-disable no-else-return */
 import PropTypes from 'prop-types';
 // @mui
 import Button from '@mui/material/Button';
@@ -17,10 +18,12 @@ import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router';
+import { paths } from 'src/routes/paths';
 
 // ----------------------------------------------------------------------
 
-export default function SupplierTableRow({
+export default function ToolsTableRow({
   row,
   selected,
   onEditRow,
@@ -28,12 +31,24 @@ export default function SupplierTableRow({
   onSelectRow,
   onDeleteRow,
 }) {
-  const { supplier, description, isActive, createdAt } = row;
+  const navigate = useNavigate();
+  const { meanSerialNumber, partNumber, quantity, createdAt, installationStatus, internalValidationStatus, isActive, toolType, storageLocation } = row;
 
   const confirm = useBoolean();
 
   const popover = usePopover();
 
+  const getColorCode = (data) => {
+    if (data === 'pending') {
+      return 'warning';
+    } else if (data === 'approved') {
+      return 'success';
+    } else if (data === 'rejected') {
+      return 'error';
+    }
+    return 'default'; // or any fallback value
+  };
+  
   return (
     <>
       <TableRow hover selected={selected}>
@@ -41,9 +56,11 @@ export default function SupplierTableRow({
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell> */}
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{supplier}</TableCell>
-
-        <TableCell sx={{ maxWidth : 250, width : '100%' }}>{description}</TableCell>
+        <TableCell>{meanSerialNumber}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{partNumber}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{toolType?.toolType || 'NA'}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{quantity}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{storageLocation?.location || 'NA'}</TableCell>
         <TableCell>
           <ListItemText
             primary={format(new Date(createdAt), 'dd MMM yyyy')}
@@ -55,35 +72,73 @@ export default function SupplierTableRow({
               typography: 'caption',
             }}
           />
-        </TableCell>
+        </TableCell>        
         <TableCell>
           <Label
             variant="soft"
             color={(isActive && 'success') || (!isActive && 'error') || 'default'}
           >
-            {isActive ? 'Active' : 'Non-Active'}
+            {isActive ? 'Active' : 'In-Active'}
           </Label>
+        </TableCell>
+        <TableCell>
+          <Label
+            variant="soft"
+            color={getColorCode(installationStatus)}
+          >
+            {installationStatus}
+          </Label>
+        </TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          <Tooltip title="Installation Form" placement="top" arrow>
+              <IconButton
+                onClick={() => {
+                  onViewRow();
+                }}
+              >
+                <Iconify icon="carbon:view-filled" />
+              </IconButton>
+          </Tooltip>
+        </TableCell>
+        <TableCell>
+          <Label
+            variant="soft"
+            color={getColorCode(internalValidationStatus)}
+          >
+            {internalValidationStatus}
+          </Label>
+        </TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          <Tooltip title="Internal Validation Form" placement="top" arrow>
+              <IconButton
+                onClick={() => {
+                  onViewRow();
+                }}
+              >
+                <Iconify icon="carbon:view-filled" />
+              </IconButton>
+          </Tooltip>
         </TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
+          <Tooltip title="Passport" placement="top" arrow>
+            <IconButton
+              onClick={() => {
+                navigate(paths.dashboard.tools.view(row.id));
+              }}
+            >
+              <Iconify icon="fa-solid:passport" />
+            </IconButton>
+          </Tooltip>
+
           <Tooltip title="Quick Edit" placement="top" arrow>
             <IconButton
               color="default"
               onClick={() => {
-                onEditRow();
+                navigate(paths.dashboard.tools.edit(row.id));
               }}
             >
               <Iconify icon="solar:pen-bold" />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="View" placement="top" arrow>
-            <IconButton
-              onClick={() => {
-                onViewRow();
-              }}
-            >
-              <Iconify icon="carbon:view-filled" />
             </IconButton>
           </Tooltip>
         </TableCell>
@@ -132,7 +187,7 @@ export default function SupplierTableRow({
   );
 }
 
-SupplierTableRow.propTypes = {
+ToolsTableRow.propTypes = {
   onDeleteRow: PropTypes.func,
   onEditRow: PropTypes.func,
   onViewRow: PropTypes.func,

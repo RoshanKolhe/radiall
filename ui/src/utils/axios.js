@@ -70,4 +70,9 @@ export const endpoints = {
     filterList: (filter) => `/storage-locations?${filter}`,
     details: (id) => `/storage-locations/${id}`,
   },
+  // TOOLS
+  tools: {
+    list: '/tools/list',
+    details: (id) => `/tools/${id}`,
+  }
 };

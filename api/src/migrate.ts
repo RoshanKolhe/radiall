@@ -16,6 +16,10 @@ export async function migrate(args: string[]) {
       'Supplier',
       'StorageLocation',
       'Station',
+      'Tools',
+      'InstallationForm',
+      'Questionery',
+      'Checklist',
     ],
   });
 

@@ -49,7 +49,7 @@ const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...COMMON_STATUS_OPTIONS
 
 const TABLE_HEAD = [
   { id: 'supplier', label: 'Supplier', width: 180 },
-  { id: 'description', label: 'Description' },
+  { id: 'description', label: 'Description', width: 250 },
   { id: 'createdAt', label: 'Created At' },
   { id: 'status', label: 'Status', width: 100 },
   { id: '', width: 88 },
