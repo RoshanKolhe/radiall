@@ -129,12 +129,21 @@ export const paths = {
       view: (id) => `${ROOTS.DASHBOARD}/station/${id}/view`,
     },
     // TOOLS
-    tools:{
+    tools: {
       root: `${ROOTS.DASHBOARD}/tools`,
       new: `${ROOTS.DASHBOARD}/tools/new`,
       list: `${ROOTS.DASHBOARD}/tools/list`,
       edit: (id) => `${ROOTS.DASHBOARD}/tools/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/tools/${id}/view`,
+    },
+    // SPARE
+    spare: {
+      root: `${ROOTS.DASHBOARD}/spare`,
+      toolList: `${ROOTS.DASHBOARD}/spare/toolList`,
+      new: (toolId) => `${ROOTS.DASHBOARD}/spare/${toolId}/new`,
+      list: (toolId) => `${ROOTS.DASHBOARD}/spare/${toolId}/list`,
+      edit: (toolId, id) => `${ROOTS.DASHBOARD}/spare/${toolId}/edit/${id}`,
+      view: (toolId, id) => `${ROOTS.DASHBOARD}/spare/${toolId}/view/${id}`,
     },
     product: {
       root: `${ROOTS.DASHBOARD}/product`,

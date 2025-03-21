@@ -50,6 +50,13 @@ const StationCreatePage = lazy(() => import('src/pages/dashboard/station/new'));
 const StationEditPage = lazy(() => import('src/pages/dashboard/station/edit'));
 const StationViewPage = lazy(() => import('src/pages/dashboard/station/view'));
 
+// SPARE
+const SpareToolListPage = lazy(() => import('src/pages/dashboard/spare/tool-list'));
+const SpareListPage = lazy(() => import('src/pages/dashboard/spare/list'));
+const SpareCreatePage = lazy(() => import('src/pages/dashboard/spare/new'));
+const SpareEditPage = lazy(() => import('src/pages/dashboard/spare/edit'));
+const SpareViewPage = lazy(() => import('src/pages/dashboard/spare/view'));
+
 // TOOLS MANAGEMENT
 const ToolsListPage = lazy(() => import('src/pages/dashboard/tools_management/list'));
 const ToolsCreatePage = lazy(() => import('src/pages/dashboard/tools_management/new'));
@@ -139,16 +146,28 @@ export const dashboardRoutes = [
         ],
       },
 
+      {
+        path: 'spare',
+        children: [
+          { element: <SpareToolListPage />, index: true },
+          { path: 'toolList', element: <SpareToolListPage /> },
+          { path: ':id/list', element: <SpareListPage /> },
+          { path: ':id/new', element: <SpareCreatePage /> },
+          { path: ':toolId/edit/:id', element: <SpareEditPage /> },
+          { path: ':toolId/view/:id', element: <SpareViewPage /> },
+        ],
+      },
+
       // TOOLS MANAGEMENT ROUTES
       {
         path: 'tools',
         children: [
-          { element: <ToolsListPage/>, index: true},
-          { path: 'list', element: <ToolsListPage/>},
-          { path: 'new', element: <ToolsCreatePage/>},
-          { path: ':id/edit', element: <ToolsEditPage/>},
-          { path: ':id/view', element: <ToolsViewPage/>},
-        ]
+          { element: <ToolsListPage />, index: true },
+          { path: 'list', element: <ToolsListPage /> },
+          { path: 'new', element: <ToolsCreatePage /> },
+          { path: ':id/edit', element: <ToolsEditPage /> },
+          { path: ':id/view', element: <ToolsViewPage /> },
+        ],
       },
 
       { path: 'blank', element: <BlankPage /> },

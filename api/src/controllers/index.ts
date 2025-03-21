@@ -8,3 +8,4 @@ export * from './storage-location.controller';
 export * from './tools-management.controller';
 export * from './cheklist.controller';
 export * from './questionery.controller';
+export * from './spare.controller';
