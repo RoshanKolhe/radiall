@@ -135,6 +135,7 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/tools/list`,
       edit: (id) => `${ROOTS.DASHBOARD}/tools/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/tools/${id}/view`,
+      installationEdit: (id) => `${ROOTS.DASHBOARD}/tools/${id}/installation-edit`,
     },
     product: {
       root: `${ROOTS.DASHBOARD}/product`,

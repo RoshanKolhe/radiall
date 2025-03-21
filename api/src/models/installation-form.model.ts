@@ -66,7 +66,7 @@ export class InstallationForm extends Entity {
   @property({
     type: 'boolean',
   })
-  isCriticitySecctionDone : boolean;
+  isCriticitySectionDone : boolean;
 
   @property({
     type: 'array',

@@ -8,3 +8,6 @@ export * from './storage-location.controller';
 export * from './tools-management.controller';
 export * from './cheklist.controller';
 export * from './questionery.controller';
+export * from './installation-form.controller';
+export * from './approval-users-user.controller';
+export * from './approval-users-installation-form.controller';

@@ -2,11 +2,10 @@
 import PropTypes from 'prop-types';
 // @mui
 import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
+// import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
@@ -93,7 +92,7 @@ export default function ToolsTableRow({
           <Tooltip title="Installation Form" placement="top" arrow>
               <IconButton
                 onClick={() => {
-                  onViewRow();
+                  navigate(paths.dashboard.tools.installationEdit(row.id));
                 }}
               >
                 <Iconify icon="carbon:view-filled" />

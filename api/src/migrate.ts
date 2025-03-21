@@ -20,6 +20,7 @@ export async function migrate(args: string[]) {
       'InstallationForm',
       'Questionery',
       'Checklist',
+      'ApprovalUsers',
     ],
   });
 

@@ -74,5 +74,9 @@ export const endpoints = {
   tools: {
     list: '/tools/list',
     details: (id) => `/tools/${id}`,
+  },
+  // INSTALLATION FORM
+  installationForm: {
+    details: (toolId) => `/installation-form/form-by-toolId/${toolId}`
   }
 };

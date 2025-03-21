@@ -6,7 +6,6 @@ import { AuthGuard } from 'src/auth/guard';
 import DashboardLayout from 'src/layouts/dashboard';
 // components
 import { LoadingScreen } from 'src/components/loading-screen';
-import { element } from 'prop-types';
 
 // ----------------------------------------------------------------------
 
@@ -55,6 +54,7 @@ const ToolsListPage = lazy(() => import('src/pages/dashboard/tools_management/li
 const ToolsCreatePage = lazy(() => import('src/pages/dashboard/tools_management/new'));
 const ToolsEditPage = lazy(() => import('src/pages/dashboard/tools_management/edit'));
 const ToolsViewPage = lazy(() => import('src/pages/dashboard/tools_management/view'));
+const ToolsInstallationEditPage = lazy(() => import('src/pages/dashboard/tools_management/installation-edit'));
 
 // BLANK PAGE
 const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
@@ -148,6 +148,7 @@ export const dashboardRoutes = [
           { path: 'new', element: <ToolsCreatePage/>},
           { path: ':id/edit', element: <ToolsEditPage/>},
           { path: ':id/view', element: <ToolsViewPage/>},
+          { path: ':id/installation-edit', element: <ToolsInstallationEditPage />}
         ]
       },
 

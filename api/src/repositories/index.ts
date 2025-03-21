@@ -9,3 +9,4 @@ export * from './tools.repository';
 export * from './installation-form.repository';
 export * from './questionery.repository';
 export * from './checklist.repository';
+export * from './approval-users.repository';
