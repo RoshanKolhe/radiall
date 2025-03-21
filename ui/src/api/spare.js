@@ -6,38 +6,38 @@ import { fetcher, endpoints } from 'src/utils/axios';
 
 // ----------------------------------------------------------------------
 
-export function useGetTools() {
-  const URL = endpoints.tools.list;
+export function useGetSpares() {
+  const URL = endpoints.spare.list;
 
   const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher);
 
-  const refreshTools = () => {
+  const refreshSpares = () => {
     // Use the `mutate` function to trigger a revalidation
     mutate();
   };
 
   return {
-    tools: data?.data || [],
-    toolsLoading: isLoading,
-    toolsError: error,
-    toolsValidating: isValidating,
-    toolsEmpty: !isLoading && !data?.data?.length,
-    refreshTools, // Include the refresh function separately
+    spares: data || [],
+    sparesLoading: isLoading,
+    sparesError: error,
+    sparesValidating: isValidating,
+    sparesEmpty: !isLoading && !data?.length,
+    refreshSpares, // Include the refresh function separately
   };
 }
 
 // ----------------------------------------------------------------------
 
-export function useGetTool(toolId) {
-  const URL = toolId ? [endpoints.tools.details(toolId)] : null;
+export function useGetSpare(spareId) {
+  const URL = spareId ? [endpoints.spare.details(spareId)] : null;
   const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
 
   const memoizedValue = useMemo(
     () => ({
-      tool: data?.data,
-      toolLoading: isLoading,
-      toolError: error,
-      toolValidating: isValidating,
+      spare: data,
+      spareLoading: isLoading,
+      spareError: error,
+      spareValidating: isValidating,
     }),
     [data, error, isLoading, isValidating]
   );
@@ -47,27 +47,27 @@ export function useGetTool(toolId) {
 
 // ----------------------------------------------------------------------
 
-export function useGetToolsWithFilter(filter) {
+export function useGetSparesWithFilter(filter) {
   let URL;
   if (filter) {
-    URL = endpoints.tools.filterList(filter);
+    URL = endpoints.spare.filterList(filter);
   } else {
-    URL = endpoints.tools.list;
+    URL = endpoints.spare.list;
   }
 
   const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher);
 
-  const refreshFilterTools = () => {
+  const refreshFilterSpares = () => {
     // Use the `mutate` function to trigger a revalidation
     mutate();
   };
 
   return {
-    filteredTools: data?.data || [],
-    filteredToolsLoading: isLoading,
-    filteredToolsError: error,
-    filteredToolsValidating: isValidating,
-    filteredToolsEmpty: !isLoading && !data?.data?.length,
-    refreshFilterTools,
+    filteredSpares: data || [],
+    filteredSparesLoading: isLoading,
+    filteredSparesError: error,
+    filteredSparesValidating: isValidating,
+    filteredSparesEmpty: !isLoading && !data?.length,
+    refreshFilterSpares, // Include the refresh function separately
   };
 }

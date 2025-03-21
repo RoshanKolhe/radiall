@@ -50,6 +50,7 @@ const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...COMMON_STATUS_OPTIONS
 const TABLE_HEAD = [
   { id: 'manufacturer', label: 'Manufacturer', width: 180 },
   { id: 'description', label: 'Description', width: 250 },
+  { id: 'createdAt', label: 'Created At' },
   { id: 'status', label: 'Status', width: 100 },
   { id: '', width: 88 },
 ];
@@ -63,7 +64,7 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export default function ManufacturerListView() {
-  const table = useTable();
+  const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc' });
 
   const settings = useSettingsContext();
 
@@ -75,7 +76,8 @@ export default function ManufacturerListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const { manufacturers, manufacturersLoading, manufacturersEmpty, refreshManufacturers } = useGetManufacturers();
+  const { manufacturers, manufacturersLoading, manufacturersEmpty, refreshManufacturers } =
+    useGetManufacturers();
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -209,9 +211,11 @@ export default function ManufacturerListView() {
                     }
                   >
                     {tab.value === 'all' && tableData.length}
-                    {tab.value === '1' && tableData.filter((manufacturer) => manufacturer.isActive).length}
+                    {tab.value === '1' &&
+                      tableData.filter((manufacturer) => manufacturer.isActive).length}
 
-                    {tab.value === '0' && tableData.filter((manufacturer) => !manufacturer.isActive).length}
+                    {tab.value === '0' &&
+                      tableData.filter((manufacturer) => !manufacturer.isActive).length}
                   </Label>
                 }
               />

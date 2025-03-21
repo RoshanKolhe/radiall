@@ -51,6 +51,7 @@ const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...COMMON_STATUS_OPTIONS
 const TABLE_HEAD = [
   { id: 'toolType', label: 'Tool Type', width: 180 },
   { id: 'description', label: 'Description' },
+  { id: 'createdAt', label: 'Created At' },
   { id: 'status', label: 'Status', width: 100 },
   { id: '', width: 88 },
 ];
@@ -64,7 +65,7 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export default function ToolTypeListView() {
-  const table = useTable();
+  const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc' });
 
   const settings = useSettingsContext();
 

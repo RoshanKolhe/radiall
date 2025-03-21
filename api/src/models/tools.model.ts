@@ -1,8 +1,9 @@
-import {Entity, model, property, belongsTo} from '@loopback/repository';
+import {Entity, model, property, belongsTo, hasMany} from '@loopback/repository';
 import {ToolType} from './tool-type.model';
 import {Manufacturer} from './manufacturer.model';
 import {Supplier} from './supplier.model';
 import {StorageLocation} from './storage-location.model';
+import {Spare} from './spare.model';
 
 @model()
 export class Tools extends Entity {
@@ -161,6 +162,9 @@ export class Tools extends Entity {
     type: 'string',
   })
   remark?: string;
+
+  @hasMany(() => Spare)
+  spares: Spare[];
 
   constructor(data?: Partial<Tools>) {
     super(data);

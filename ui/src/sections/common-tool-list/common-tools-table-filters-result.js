@@ -11,7 +11,7 @@ import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function UserTableFiltersResult({
+export default function ToolsTableFiltersResult({
   filters,
   onFilters,
   //
@@ -43,7 +43,7 @@ export default function UserTableFiltersResult({
           <Block label="Status:">
             <Chip
               size="small"
-              label={filters.status === '1' ? 'Active' : 'Non-Active'}
+              label={filters.status === '1' ? 'Active' : 'In-Active'}
               onDelete={handleRemoveStatus}
             />
           </Block>
@@ -69,7 +69,7 @@ export default function UserTableFiltersResult({
   );
 }
 
-UserTableFiltersResult.propTypes = {
+ToolsTableFiltersResult.propTypes = {
   filters: PropTypes.object,
   onFilters: PropTypes.func,
   onResetFilters: PropTypes.func,

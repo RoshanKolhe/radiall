@@ -60,6 +60,11 @@ export const endpoints = {
     filterList: (filter) => `/suppliers?${filter}`,
     details: (id) => `/suppliers/${id}`,
   },
+  spare: {
+    list: '/spares',
+    filterList: (filter) => `/spares?${filter}`,
+    details: (id) => `/spares/${id}`,
+  },
   station: {
     list: '/stations',
     filterList: (filter) => `/stations?${filter}`,
@@ -74,6 +79,7 @@ export const endpoints = {
   tools: {
     list: '/tools/list',
     details: (id) => `/tools/${id}`,
+    filterList: (filter) => `/tools?${filter}`,
   },
   // INSTALLATION FORM
   installationForm: {

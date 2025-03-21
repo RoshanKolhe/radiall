@@ -49,6 +49,13 @@ const StationCreatePage = lazy(() => import('src/pages/dashboard/station/new'));
 const StationEditPage = lazy(() => import('src/pages/dashboard/station/edit'));
 const StationViewPage = lazy(() => import('src/pages/dashboard/station/view'));
 
+// SPARE
+const SpareToolListPage = lazy(() => import('src/pages/dashboard/spare/tool-list'));
+const SpareListPage = lazy(() => import('src/pages/dashboard/spare/list'));
+const SpareCreatePage = lazy(() => import('src/pages/dashboard/spare/new'));
+const SpareEditPage = lazy(() => import('src/pages/dashboard/spare/edit'));
+const SpareViewPage = lazy(() => import('src/pages/dashboard/spare/view'));
+
 // TOOLS MANAGEMENT
 const ToolsListPage = lazy(() => import('src/pages/dashboard/tools_management/list'));
 const ToolsCreatePage = lazy(() => import('src/pages/dashboard/tools_management/new'));
@@ -136,6 +143,18 @@ export const dashboardRoutes = [
           { path: 'new', element: <StationCreatePage /> },
           { path: ':id/edit', element: <StationEditPage /> },
           { path: ':id/view', element: <StationViewPage /> },
+        ],
+      },
+
+      {
+        path: 'spare',
+        children: [
+          { element: <SpareToolListPage />, index: true },
+          { path: 'toolList', element: <SpareToolListPage /> },
+          { path: ':id/list', element: <SpareListPage /> },
+          { path: ':id/new', element: <SpareCreatePage /> },
+          { path: ':toolId/edit/:id', element: <SpareEditPage /> },
+          { path: ':toolId/view/:id', element: <SpareViewPage /> },
         ],
       },
 

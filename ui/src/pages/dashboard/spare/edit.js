@@ -1,17 +1,17 @@
 import { Helmet } from 'react-helmet-async';
 // sections
-import { HomeView } from 'src/sections/home/view';
+import SpareEditView from 'src/sections/spare/view/spare-edit-view';
 
 // ----------------------------------------------------------------------
 
-export default function HomePage() {
+export default function SpareEditPage() {
   return (
     <>
       <Helmet>
-        <title> Radiall</title>
+        <title> Dashboard: Spare Edit</title>
       </Helmet>
 
-      <HomeView />
+      <SpareEditView />
     </>
   );
 }

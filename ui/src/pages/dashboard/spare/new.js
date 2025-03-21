@@ -1,17 +1,17 @@
 import { Helmet } from 'react-helmet-async';
 // sections
-import { HomeView } from 'src/sections/home/view';
+import { SpareCreateView } from 'src/sections/spare/view';
 
 // ----------------------------------------------------------------------
 
-export default function HomePage() {
+export default function SpareCreatePage() {
   return (
     <>
       <Helmet>
-        <title> Radiall</title>
+        <title> Dashboard: Create a new toolType</title>
       </Helmet>
 
-      <HomeView />
+      <SpareCreateView />
     </>
   );
 }

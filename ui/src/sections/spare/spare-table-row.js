@@ -20,7 +20,7 @@ import { format } from 'date-fns';
 
 // ----------------------------------------------------------------------
 
-export default function SupplierTableRow({
+export default function SpareTableRow({
   row,
   selected,
   onEditRow,
@@ -28,7 +28,7 @@ export default function SupplierTableRow({
   onSelectRow,
   onDeleteRow,
 }) {
-  const { supplier, description, isActive, createdAt } = row;
+  const { description, stock, isActive, createdAt } = row;
 
   const confirm = useBoolean();
 
@@ -41,9 +41,8 @@ export default function SupplierTableRow({
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell> */}
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{supplier}</TableCell>
-
-        <TableCell sx={{ maxWidth : 250, width : '100%' }}>{description}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{description}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{stock}</TableCell>
         <TableCell>
           <ListItemText
             primary={format(new Date(createdAt), 'dd MMM yyyy')}
@@ -132,7 +131,7 @@ export default function SupplierTableRow({
   );
 }
 
-SupplierTableRow.propTypes = {
+SpareTableRow.propTypes = {
   onDeleteRow: PropTypes.func,
   onEditRow: PropTypes.func,
   onViewRow: PropTypes.func,

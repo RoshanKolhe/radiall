@@ -1,12 +1,13 @@
 import {Constructor, inject, Getter} from '@loopback/core';
-import {DefaultCrudRepository, repository, BelongsToAccessor} from '@loopback/repository';
+import {DefaultCrudRepository, repository, BelongsToAccessor, HasManyRepositoryFactory} from '@loopback/repository';
 import {RadiallDataSource} from '../datasources';
-import {Tools, ToolsRelations, ToolType, Manufacturer, Supplier, StorageLocation} from '../models';
+import {Tools, ToolsRelations, ToolType, Manufacturer, Supplier, StorageLocation, Spare} from '../models';
 import { TimeStampRepositoryMixin } from '../mixins/timestamp-repository-mixin';
 import {ToolTypeRepository} from './tool-type.repository';
 import {ManufacturerRepository} from './manufacturer.repository';
 import {SupplierRepository} from './supplier.repository';
 import {StorageLocationRepository} from './storage-location.repository';
+import {SpareRepository} from './spare.repository';
 
 export class ToolsRepository extends TimeStampRepositoryMixin<
   Tools,
@@ -28,8 +29,12 @@ export class ToolsRepository extends TimeStampRepositoryMixin<
 
   public readonly storageLocation: BelongsToAccessor<StorageLocation, typeof Tools.prototype.id>;
 
-  constructor(@inject('datasources.radiall') dataSource: RadiallDataSource, @repository.getter('ToolTypeRepository') protected toolTypeRepositoryGetter: Getter<ToolTypeRepository>, @repository.getter('ManufacturerRepository') protected manufacturerRepositoryGetter: Getter<ManufacturerRepository>, @repository.getter('SupplierRepository') protected supplierRepositoryGetter: Getter<SupplierRepository>, @repository.getter('StorageLocationRepository') protected storageLocationRepositoryGetter: Getter<StorageLocationRepository>,) {
+  public readonly spares: HasManyRepositoryFactory<Spare, typeof Tools.prototype.id>;
+
+  constructor(@inject('datasources.radiall') dataSource: RadiallDataSource, @repository.getter('ToolTypeRepository') protected toolTypeRepositoryGetter: Getter<ToolTypeRepository>, @repository.getter('ManufacturerRepository') protected manufacturerRepositoryGetter: Getter<ManufacturerRepository>, @repository.getter('SupplierRepository') protected supplierRepositoryGetter: Getter<SupplierRepository>, @repository.getter('StorageLocationRepository') protected storageLocationRepositoryGetter: Getter<StorageLocationRepository>, @repository.getter('SpareRepository') protected spareRepositoryGetter: Getter<SpareRepository>,) {
     super(Tools, dataSource);
+    this.spares = this.createHasManyRepositoryFactoryFor('spares', spareRepositoryGetter,);
+    this.registerInclusionResolver('spares', this.spares.inclusionResolver);
     this.storageLocation = this.createBelongsToAccessorFor('storageLocation', storageLocationRepositoryGetter,);
     this.registerInclusionResolver('storageLocation', this.storageLocation.inclusionResolver);
     this.supplier = this.createBelongsToAccessorFor('supplier', supplierRepositoryGetter,);

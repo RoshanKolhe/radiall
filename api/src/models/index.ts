@@ -10,3 +10,4 @@ export * from './installation-form.model';
 export * from './questionery.model';
 export * from './checklist.model';
 export * from './approval-users.model';
+export * from './spare.model';

@@ -14,7 +14,7 @@ import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 // routes
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hook';
+import { useParams, useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
 // hooks
@@ -37,19 +37,19 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
-import { useGetStations } from 'src/api/station';
+import { useGetSparesWithFilter } from 'src/api/spare';
 import { _roles, COMMON_STATUS_OPTIONS } from 'src/utils/constants';
-import StationTableRow from '../station-table-row';
-import StationTableToolbar from '../station-table-toolbar';
-import StationTableFiltersResult from '../station-table-filters-result';
+import SpareTableRow from '../spare-table-row';
+import SpareTableToolbar from '../spare-table-toolbar';
+import SpareTableFiltersResult from '../spare-table-filters-result';
 
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...COMMON_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: 'station', label: 'Station', width: 180 },
   { id: 'description', label: 'Description' },
+  { id: 'stock', label: 'Qty safety stock' },
   { id: 'createdAt', label: 'Created At' },
   { id: 'status', label: 'Status', width: 100 },
   { id: '', width: 88 },
@@ -63,7 +63,11 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export default function StationListView() {
+export default function SpareListView() {
+  const params = useParams();
+
+  const { id: toolId } = params;
+  console.log(toolId);
   const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc' });
 
   const settings = useSettingsContext();
@@ -76,7 +80,15 @@ export default function StationListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const { stations, stationsLoading, stationsEmpty, refreshStations } = useGetStations();
+  const filter = JSON.stringify({ where: { toolId } });
+  const encodedFilter = encodeURIComponent(filter);
+
+  const {
+    filteredSpares: spares,
+    filteredSparesLoading: sparesLoading,
+    filteredSparesEmpty: sparesEmpty,
+    refreshFilterSpares: refreshSpares,
+  } = useGetSparesWithFilter(encodedFilter);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -129,16 +141,16 @@ export default function StationListView() {
 
   const handleEditRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.station.edit(id));
+      router.push(paths.dashboard.spare.edit(toolId, id));
     },
-    [router]
+    [router, toolId]
   );
 
   const handleViewRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.station.view(id));
+      router.push(paths.dashboard.spare.view(toolId, id));
     },
-    [router]
+    [router, toolId]
   );
 
   const handleFilterStatus = useCallback(
@@ -153,10 +165,10 @@ export default function StationListView() {
   }, []);
 
   useEffect(() => {
-    if (stations) {
-      setTableData(stations);
+    if (spares) {
+      setTableData(spares);
     }
-  }, [stations]);
+  }, [spares]);
 
   return (
     <>
@@ -165,17 +177,17 @@ export default function StationListView() {
           heading="List"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Station', href: paths.dashboard.station.root },
+            { name: 'Spare', href: paths.dashboard.spare.root },
             { name: 'List' },
           ]}
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.station.new}
+              href={paths.dashboard.spare.new(toolId)}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              New Station
+              New Spare
             </Button>
           }
           sx={{
@@ -210,16 +222,16 @@ export default function StationListView() {
                     }
                   >
                     {tab.value === 'all' && tableData.length}
-                    {tab.value === '1' && tableData.filter((station) => station.isActive).length}
+                    {tab.value === '1' && tableData.filter((spare) => spare.isActive).length}
 
-                    {tab.value === '0' && tableData.filter((station) => !station.isActive).length}
+                    {tab.value === '0' && tableData.filter((spare) => !spare.isActive).length}
                   </Label>
                 }
               />
             ))}
           </Tabs>
 
-          <StationTableToolbar
+          <SpareTableToolbar
             filters={filters}
             onFilters={handleFilters}
             //
@@ -227,7 +239,7 @@ export default function StationListView() {
           />
 
           {canReset && (
-            <StationTableFiltersResult
+            <SpareTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
               //
@@ -283,7 +295,7 @@ export default function StationListView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <StationTableRow
+                      <SpareTableRow
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}
@@ -363,26 +375,22 @@ function applyFilter({ inputData, comparator, filters }) {
   inputData = stabilizedThis.map((el) => el[0]);
 
   if (name) {
-    inputData = inputData.filter((station) =>
-      Object.values(station).some((value) =>
-        String(value).toLowerCase().includes(name.toLowerCase())
-      )
+    inputData = inputData.filter((spare) =>
+      Object.values(spare).some((value) => String(value).toLowerCase().includes(name.toLowerCase()))
     );
   }
 
   if (status !== 'all') {
-    inputData = inputData.filter((station) =>
-      status === '1' ? station.isActive : !station.isActive
-    );
+    inputData = inputData.filter((spare) => (status === '1' ? spare.isActive : !spare.isActive));
   }
 
   if (role.length) {
     inputData = inputData.filter(
-      (station) =>
-        station.permissions &&
-        station.permissions.some((stationRole) => {
-          console.log(stationRole);
-          const mappedRole = roleMapping[stationRole];
+      (spare) =>
+        spare.permissions &&
+        spare.permissions.some((spareRole) => {
+          console.log(spareRole);
+          const mappedRole = roleMapping[spareRole];
           console.log('Mapped Role:', mappedRole); // Check the mapped role
           return mappedRole && role.includes(mappedRole);
         })

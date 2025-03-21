@@ -24,6 +24,7 @@ const ICONS = {
   chat: icon('ic_chat'),
   mail: icon('ic_mail'),
   user: icon('ic_user'),
+  spare: icon('ic_spare'),
   toolType: icon('ic_toolType'),
   manufacturer: icon('ic_manufacturer'),
   supplier: icon('ic_supplier'),
@@ -78,6 +79,19 @@ export function useNavData() {
             children: [
               { title: t('list'), path: paths.dashboard.user.list, roles: ['production_head'] },
               { title: t('create'), path: paths.dashboard.user.new, roles: ['production_head'] },
+            ],
+          },
+          {
+            title: t('spare'),
+            path: paths.dashboard.user.root,
+            icon: ICONS.spare,
+            roles: ['production_head'],
+            children: [
+              {
+                title: t('list'),
+                path: paths.dashboard.spare.toolList,
+                roles: ['production_head'],
+              },
             ],
           },
         ],

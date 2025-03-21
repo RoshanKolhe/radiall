@@ -16,6 +16,7 @@ import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
+import { format } from 'date-fns';
 
 // ----------------------------------------------------------------------
 
@@ -27,7 +28,7 @@ export default function StationTableRow({
   onSelectRow,
   onDeleteRow,
 }) {
-  const { station, description, isActive } = row;
+  const { station, description, isActive, createdAt } = row;
 
   const confirm = useBoolean();
 
@@ -44,11 +45,23 @@ export default function StationTableRow({
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{description}</TableCell>
         <TableCell>
+          <ListItemText
+            primary={format(new Date(createdAt), 'dd MMM yyyy')}
+            secondary={format(new Date(createdAt), 'p')}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            secondaryTypographyProps={{
+              mt: 0.5,
+              component: 'span',
+              typography: 'caption',
+            }}
+          />
+        </TableCell>
+        <TableCell>
           <Label
             variant="soft"
             color={(isActive && 'success') || (!isActive && 'error') || 'default'}
           >
-            {isActive ? 'Active' : 'In-Active'}
+            {isActive ? 'Active' : 'Non-Active'}
           </Label>
         </TableCell>
 

@@ -21,6 +21,7 @@ export async function migrate(args: string[]) {
       'Questionery',
       'Checklist',
       'ApprovalUsers',
+      'Spare'
     ],
   });
 
