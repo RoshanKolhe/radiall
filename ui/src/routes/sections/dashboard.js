@@ -6,7 +6,6 @@ import { AuthGuard } from 'src/auth/guard';
 import DashboardLayout from 'src/layouts/dashboard';
 // components
 import { LoadingScreen } from 'src/components/loading-screen';
-import { element } from 'prop-types';
 
 // ----------------------------------------------------------------------
 
@@ -53,9 +52,6 @@ const StationViewPage = lazy(() => import('src/pages/dashboard/station/view'));
 // SPARE
 const SpareToolListPage = lazy(() => import('src/pages/dashboard/spare/tool-list'));
 const SpareListPage = lazy(() => import('src/pages/dashboard/spare/list'));
-const SpareCreatePage = lazy(() => import('src/pages/dashboard/spare/new'));
-const SpareEditPage = lazy(() => import('src/pages/dashboard/spare/edit'));
-const SpareViewPage = lazy(() => import('src/pages/dashboard/spare/view'));
 
 // TOOLS MANAGEMENT
 const ToolsListPage = lazy(() => import('src/pages/dashboard/tools_management/list'));
@@ -152,9 +148,6 @@ export const dashboardRoutes = [
           { element: <SpareToolListPage />, index: true },
           { path: 'toolList', element: <SpareToolListPage /> },
           { path: ':id/list', element: <SpareListPage /> },
-          { path: ':id/new', element: <SpareCreatePage /> },
-          { path: ':toolId/edit/:id', element: <SpareEditPage /> },
-          { path: ':toolId/view/:id', element: <SpareViewPage /> },
         ],
       },
 

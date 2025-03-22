@@ -55,13 +55,23 @@ export default function SpareToolListPage() {
     },
   ];
 
+  const breadCrumb = [
+    { name: 'Dashboard', href: paths.dashboard.root },
+    { name: 'Tools', href: paths.dashboard.spare.root },
+    { name: 'List' },
+  ];
+
   return (
     <>
       <Helmet>
         <title> Dashboard: Tools List</title>
       </Helmet>
 
-      <CommonToolsListView tableHead={TABLE_HEAD} tableRowActions={ACTIONS} />
+      <CommonToolsListView
+        tableHead={TABLE_HEAD}
+        tableRowActions={ACTIONS}
+        breadCrumb={breadCrumb}
+      />
     </>
   );
 }

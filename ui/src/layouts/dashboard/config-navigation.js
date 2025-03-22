@@ -4,8 +4,6 @@ import { paths } from 'src/routes/paths';
 // locales
 import { useLocales } from 'src/locales';
 // components
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
 import SvgColor from 'src/components/svg-color';
 
 // ----------------------------------------------------------------------
@@ -83,7 +81,7 @@ export function useNavData() {
           },
           {
             title: t('spare'),
-            path: paths.dashboard.user.root,
+            path: paths.dashboard.spare.root,
             icon: ICONS.spare,
             roles: ['production_head'],
             children: [
