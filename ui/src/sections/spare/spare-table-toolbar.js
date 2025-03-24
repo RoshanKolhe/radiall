@@ -68,24 +68,6 @@ export default function SpareTableToolbar({ filters, onFilters }) {
             popover.onClose();
           }}
         >
-          <Iconify icon="solar:printer-minimalistic-bold" />
-          Print
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => {
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:import-bold" />
-          Import
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => {
-            popover.onClose();
-          }}
-        >
           <Iconify icon="solar:export-bold" />
           Export
         </MenuItem>

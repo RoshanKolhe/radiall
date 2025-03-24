@@ -6,22 +6,17 @@ import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
-import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
-// routes
-import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hook';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import {
@@ -54,7 +49,12 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export default function CommonToolsListView({ tableHead, filter = null, tableRowActions }) {
+export default function CommonToolsListView({
+  tableHead,
+  filter = null,
+  tableRowActions,
+  breadCrumb = [],
+}) {
   const table = useTable();
 
   const settings = useSettingsContext();
@@ -67,9 +67,7 @@ export default function CommonToolsListView({ tableHead, filter = null, tableRow
 
   const {
     filteredTools: tools,
-    filteredToolsLoading: toolsLoading,
     filteredToolsEmpty: toolsEmpty,
-    refreshFilterTools: refreshTools,
   } = useGetToolsWithFilter(filter);
 
   const dataFiltered = applyFilter({
@@ -116,11 +114,7 @@ export default function CommonToolsListView({ tableHead, filter = null, tableRow
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs
         heading="List"
-        links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Tools', href: paths.dashboard.spare.root },
-          { name: 'List' },
-        ]}
+        links={breadCrumb}
         sx={{
           mb: { xs: 3, md: 5 },
         }}
@@ -307,4 +301,5 @@ CommonToolsListView.propTypes = {
   tableHead: PropTypes.array,
   filter: PropTypes.string,
   tableRowActions: PropTypes.array,
+  breadCrumb: PropTypes.array,
 };

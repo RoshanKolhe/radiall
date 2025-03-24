@@ -14,9 +14,7 @@ import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 // routes
 import { paths } from 'src/routes/paths';
-import { useParams, useRouter } from 'src/routes/hook';
-import { RouterLink } from 'src/routes/components';
-// _mock
+import { useParams } from 'src/routes/hook';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
@@ -39,9 +37,14 @@ import {
 //
 import { useGetSparesWithFilter } from 'src/api/spare';
 import { _roles, COMMON_STATUS_OPTIONS } from 'src/utils/constants';
+import { useGetTool } from 'src/api/tools';
+import { Grid, Typography } from '@mui/material';
+import { format } from 'date-fns';
 import SpareTableRow from '../spare-table-row';
 import SpareTableToolbar from '../spare-table-toolbar';
 import SpareTableFiltersResult from '../spare-table-filters-result';
+import SpareQuickEditForm from '../spare-quick-edit-form';
+import SpareQuickViewForm from '../spare-quick-view-form';
 
 // ----------------------------------------------------------------------
 
@@ -50,6 +53,7 @@ const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...COMMON_STATUS_OPTIONS
 const TABLE_HEAD = [
   { id: 'description', label: 'Description' },
   { id: 'stock', label: 'Qty safety stock' },
+  { id: 'comment', label: 'Comment' },
   { id: 'createdAt', label: 'Created At' },
   { id: 'status', label: 'Status', width: 100 },
   { id: '', width: 88 },
@@ -67,14 +71,20 @@ export default function SpareListView() {
   const params = useParams();
 
   const { id: toolId } = params;
-  console.log(toolId);
+
   const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc' });
 
   const settings = useSettingsContext();
 
-  const router = useRouter();
-
   const confirm = useBoolean();
+
+  const [quickEditRow, setQuickEditRow] = useState();
+
+  const quickEdit = useBoolean();
+
+  const [quickViewRow, setQuickViewRow] = useState();
+
+  const quickView = useBoolean();
 
   const [tableData, setTableData] = useState([]);
 
@@ -83,12 +93,9 @@ export default function SpareListView() {
   const filter = JSON.stringify({ where: { toolId } });
   const encodedFilter = encodeURIComponent(filter);
 
-  const {
-    filteredSpares: spares,
-    filteredSparesLoading: sparesLoading,
-    filteredSparesEmpty: sparesEmpty,
-    refreshFilterSpares: refreshSpares,
-  } = useGetSparesWithFilter(encodedFilter);
+  const { tool } = useGetTool(toolId);
+  const { filteredSpares: spares, refreshFilterSpares: refreshSpares } =
+    useGetSparesWithFilter(encodedFilter);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -118,16 +125,6 @@ export default function SpareListView() {
     [table]
   );
 
-  const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
-    },
-    [dataInPage.length, table, tableData]
-  );
-
   const handleDeleteRows = useCallback(() => {
     const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
     setTableData(deleteRows);
@@ -139,18 +136,20 @@ export default function SpareListView() {
     });
   }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
-  const handleEditRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.spare.edit(toolId, id));
+  const handleQuickEditRow = useCallback(
+    (row) => {
+      setQuickEditRow(row);
+      quickEdit.onTrue();
     },
-    [router, toolId]
+    [quickEdit]
   );
 
-  const handleViewRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.spare.view(toolId, id));
+  const handleQuickViewRow = useCallback(
+    (row) => {
+      setQuickViewRow(row);
+      quickView.onTrue();
     },
-    [router, toolId]
+    [quickView]
   );
 
   const handleFilterStatus = useCallback(
@@ -177,15 +176,17 @@ export default function SpareListView() {
           heading="List"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Spare', href: paths.dashboard.spare.root },
+            { name: 'Tool List', href: paths.dashboard.spare.root },
             { name: 'List' },
           ]}
           action={
             <Button
-              component={RouterLink}
-              href={paths.dashboard.spare.new(toolId)}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
+              onClick={() => {
+                setQuickEditRow(null);
+                quickEdit.onTrue();
+              }}
             >
               New Spare
             </Button>
@@ -195,7 +196,46 @@ export default function SpareListView() {
           }}
         />
 
-        <Card>
+        <Grid container spacing={1}>
+          <Grid item xs={12} md={4}>
+            <Typography variant="body1">
+              <strong>Part Number : </strong> {tool?.partNumber}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Typography variant="body1">
+              <strong>Serial Number :</strong> {tool?.meanSerialNumber}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Typography variant="body1">
+              <strong>Asset Number :</strong> {tool?.assetNumber ? tool?.assetNumber : 'NA'}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Typography variant="body1">
+              <strong>Manufacturer :</strong> {tool?.manufacturer?.manufacturer}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Typography variant="body1">
+              <strong>Supplier :</strong> {tool?.supplier?.supplier}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Typography variant="body1">
+              <strong>Location :</strong> {tool?.storageLocation?.location}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Typography variant="body1">
+              <strong>Date :</strong>{' '}
+              {tool && tool?.createdAt ? format(new Date(tool?.createdAt), 'dd MMM yyyy') : 'NA'}
+            </Typography>
+          </Grid>
+        </Grid>
+
+        <Card sx={{ marginTop: '10px' }}>
           <Tabs
             value={filters.status}
             onChange={handleFilterStatus}
@@ -299,10 +339,12 @@ export default function SpareListView() {
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        onEditRow={() => handleEditRow(row.id)}
-                        onViewRow={() => handleViewRow(row.id)}
+                        handleQuickEditRow={(user) => {
+                          handleQuickEditRow(user);
+                        }}
+                        handleQuickViewRow={(user) => {
+                          handleQuickViewRow(user);
+                        }}
                       />
                     ))}
 
@@ -352,6 +394,30 @@ export default function SpareListView() {
           </Button>
         }
       />
+      {quickEdit.value && (
+        <SpareQuickEditForm
+          currentSpare={quickEditRow}
+          open={quickEdit.value}
+          onClose={() => {
+            setQuickEditRow(null);
+            quickEdit.onFalse();
+          }}
+          refreshSpares={refreshSpares}
+          toolId={toolId}
+        />
+      )}
+
+      {quickView.value && quickViewRow && (
+        <SpareQuickViewForm
+          currentSpare={quickViewRow}
+          open={quickView.value}
+          onClose={() => {
+            setQuickViewRow(null);
+            quickView.onFalse();
+          }}
+          refreshSpares={refreshSpares}
+        />
+      )}
     </>
   );
 }

@@ -1,36 +1,21 @@
 import PropTypes from 'prop-types';
 // @mui
-import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
-// hooks
-import { useBoolean } from 'src/hooks/use-boolean';
 // components
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { format } from 'date-fns';
 
 // ----------------------------------------------------------------------
 
-export default function SpareTableRow({
-  row,
-  selected,
-  onEditRow,
-  onViewRow,
-  onSelectRow,
-  onDeleteRow,
-}) {
-  const { description, stock, isActive, createdAt } = row;
-
-  const confirm = useBoolean();
+export default function SpareTableRow({ row, selected, handleQuickEditRow, handleQuickViewRow }) {
+  const { description, stock, comment, isActive, createdAt } = row;
 
   const popover = usePopover();
 
@@ -43,6 +28,7 @@ export default function SpareTableRow({
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{description}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{stock}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{comment}</TableCell>
         <TableCell>
           <ListItemText
             primary={format(new Date(createdAt), 'dd MMM yyyy')}
@@ -69,7 +55,7 @@ export default function SpareTableRow({
             <IconButton
               color="default"
               onClick={() => {
-                onEditRow();
+                handleQuickEditRow(row);
               }}
             >
               <Iconify icon="solar:pen-bold" />
@@ -79,7 +65,7 @@ export default function SpareTableRow({
           <Tooltip title="View" placement="top" arrow>
             <IconButton
               onClick={() => {
-                onViewRow();
+                handleQuickViewRow(row);
               }}
             >
               <Iconify icon="carbon:view-filled" />
@@ -107,35 +93,20 @@ export default function SpareTableRow({
 
         <MenuItem
           onClick={() => {
-            onEditRow();
-            popover.onClose();
+            handleQuickEditRow(row);
           }}
         >
           <Iconify icon="solar:pen-bold" />
           Edit
         </MenuItem>
       </CustomPopover>
-
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content="Are you sure want to delete?"
-        action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
-            Delete
-          </Button>
-        }
-      />
     </>
   );
 }
 
 SpareTableRow.propTypes = {
-  onDeleteRow: PropTypes.func,
-  onEditRow: PropTypes.func,
-  onViewRow: PropTypes.func,
-  onSelectRow: PropTypes.func,
   row: PropTypes.object,
   selected: PropTypes.bool,
+  handleQuickEditRow: PropTypes.func,
+  handleQuickViewRow: PropTypes.func,
 };
