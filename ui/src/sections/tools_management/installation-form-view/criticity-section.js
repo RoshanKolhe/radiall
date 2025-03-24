@@ -9,7 +9,7 @@ import { LoadingButton } from '@mui/lab';
 import { useForm } from 'react-hook-form';
 import FormProvider from 'src/components/hook-form';
 import axiosInstance from 'src/utils/axios';
-import QuestionerySection from './components/questionery';
+import CriticityQuestionerySection from './components/criticityQuestionery';
 
 // ---------------------------------------------------------------------------------------------------------------
 
@@ -47,18 +47,18 @@ export default function CriticitySection({ currentForm, verificationForm }) {
         const newValues = currentForm?.criticityQuestionery?.length > 0 ? currentForm?.criticityQuestionery?.map((que) => {
             if(que?.type === 'select'){
                 return{
-                    [que?.question]: que?.answer !== undefined ? que?.answer :  ''
+                    [que?.question]: que?.answer !== undefined ? que?.answer :  'Non Critical'
                 }
             }
 
             if (que?.type === 'boolean') {
                 return {
-                    [que?.question]: (que?.answer !== undefined || que?.anser !== '') ? que?.answer : true
+                    [que?.question]: (que?.answer !== undefined && que?.anser !== '') ? que?.answer : false
                 };
             }
 
             return{
-                [que?.question] : que?.answer || ''
+                [que?.question]: que?.answer !== undefined ? que?.answer : ''
             }
         }) : {};
 
@@ -85,8 +85,12 @@ export default function CriticitySection({ currentForm, verificationForm }) {
     reset,
     handleSubmit,
     control,
+    watch,
+    setValue,
     formState: { isSubmitting },
     } = methods;
+
+    const values = watch();
 
     const onSubmit = handleSubmit(async(formData) => {
         console.log('final data', formData);
@@ -125,6 +129,26 @@ export default function CriticitySection({ currentForm, verificationForm }) {
     }
     }, [currentForm?.criticityQuestionery, defaultValues, reset]);
 
+    useEffect(() => {
+        handleDecision();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [values]);
+
+    const handleDecision = () => {
+        if (currentForm?.criticityQuestionery?.length > 0) {
+            const booleanTypeQuestionery = currentForm.criticityQuestionery.filter(que => que?.type === 'boolean');
+    
+            const isAnyValueTrue = booleanTypeQuestionery.find(que => values[que.question] === true);
+    
+            if (isAnyValueTrue) {
+                setValue('Suggested family', "Critical");
+            }else{
+                setValue('Suggested family', "Non Critical");
+            }
+        }
+    };
+    
+
     return(
         <FormProvider methods={methods} onSubmit={onSubmit}>
             <Card sx={{ p: 3, mt: 2 }}>
@@ -132,7 +156,7 @@ export default function CriticitySection({ currentForm, verificationForm }) {
                     <Box component='div' sx={{width : '100%', py: 2, px: 1, borderBottom: '2px solid lightGray'}}>
                         <Typography variant='h5'>Criticity</Typography>
                     </Box>
-                    <QuestionerySection formQuestionery={currentForm?.criticityQuestionery} control={control} verificationForm={verificationForm}/>
+                    <CriticityQuestionerySection formQuestionery={currentForm?.criticityQuestionery} control={control} verificationForm={verificationForm}/>
                     <Stack alignItems="flex-end" sx={{ mt: 3 }}>
                         {!verificationForm && <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                             Save

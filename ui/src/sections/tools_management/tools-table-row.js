@@ -31,7 +31,7 @@ export default function ToolsTableRow({
   onDeleteRow,
 }) {
   const navigate = useNavigate();
-  const { meanSerialNumber, partNumber, quantity, createdAt, installationStatus, internalValidationStatus, isActive, toolType, storageLocation } = row;
+  const { id, meanSerialNumber, partNumber, quantity, createdAt, installationStatus, internalValidationStatus, isActive, toolType, storageLocation } = row;
 
   const confirm = useBoolean();
 
@@ -54,11 +54,11 @@ export default function ToolsTableRow({
         {/* <TableCell padding="checkbox">
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell> */}
-
-        <TableCell sx={{ whiteSpace: 'nowrap', pr:'110px' }}>{meanSerialNumber}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{id}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{partNumber}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{toolType?.toolType || 'NA'}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{quantity}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap', pr:'150px' }}>{meanSerialNumber}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{storageLocation?.location || 'NA'}</TableCell>
         <TableCell>
           <ListItemText
@@ -77,7 +77,7 @@ export default function ToolsTableRow({
             variant="soft"
             color={(isActive && 'success') || (!isActive && 'error') || 'default'}
           >
-            {isActive ? 'Active' : 'In-Active'}
+            {isActive ? 'Active' : 'Non-Active'}
           </Label>
         </TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>

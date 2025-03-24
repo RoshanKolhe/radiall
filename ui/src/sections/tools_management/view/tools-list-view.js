@@ -48,10 +48,11 @@ import ToolsTableFiltersResult from '../tools-table-filters-result';
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...COMMON_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: 'serialNo', label: 'Serial Number', width: 100},
+  { id: 'serialNo', label: 'SlNo', width: 100 },
   { id: 'toolPartNumber', label: 'Tool part number' },
   { id: 'toolType', label: 'Tool type'},
   { id: 'qty', label: 'QTY'},
+  { id: 'meanSerialNo', label: 'Mean Serial Number', width: 100 },
   { id: 'location', label: 'Location' },
   { id: 'createdAt', label: 'Created At'},
   { id: 'status', label: 'Status', width: 100},

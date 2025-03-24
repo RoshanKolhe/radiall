@@ -21,8 +21,7 @@ export default function ToolsInstallationEditView() {
   const { id } = params;
 
   // always passed tool id to get data of installation form
-  const { installationForm : currentForm} = useGetInstallationForm(id);
-  console.log('currentForm', currentForm);
+  const { installationForm : currentForm } = useGetInstallationForm(id);
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs
@@ -33,7 +32,7 @@ export default function ToolsInstallationEditView() {
             href: paths.dashboard.root,
           },
           {
-            name: 'Production Means Master',
+            name: 'Tools',
             href: paths.dashboard.tools.root,
           },
           {

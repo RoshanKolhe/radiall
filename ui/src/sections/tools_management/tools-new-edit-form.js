@@ -48,7 +48,7 @@ export default function ToolsNewEditForm({ currentTool }) {
   ];
   const statusOptions = [
     { value: true, label: 'Active' },
-    { value: false, label: 'In-Active' },
+    { value: false, label: 'Non-Active' },
   ];
 
   useEffect(() => {

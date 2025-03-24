@@ -12,6 +12,7 @@ import { LoadingButton } from '@mui/lab';
 import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router';
 import { paths } from 'src/routes/paths';
+import { HOST_API } from 'src/config-global';
 
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -28,7 +29,6 @@ const VisuallyHiddenInput = styled('input')({
 });
 
 export default function RequirementChecklistSection({ currentForm, verificationForm }) {
-    console.log('requirement', verificationForm);
     const navigate = useNavigate();
     const { enqueueSnackbar } = useSnackbar();
     const { users, usersEmpty } = useGetUsers();
@@ -41,7 +41,7 @@ export default function RequirementChecklistSection({ currentForm, verificationF
             const list = currentForm?.requirementChecklist?.map((item) => ({
                 ...item,
                 critical: item?.critical || 'md',
-                nonCritical: item?.critical || 'md',
+                nonCritical: item?.nonCritical || 'md',
                 toDo: item?.toDo || false,
                 done: item?.done || false,
                 actionOwner: item?.actionOwner ? item?.actionOwner?.id : undefined
@@ -51,14 +51,15 @@ export default function RequirementChecklistSection({ currentForm, verificationF
     }, [currentForm?.requirementChecklist])
 
     const tableHeadNames = [
-        { value: 'requirement', label: 'Requirement' },
-        { value: 'critical', label: 'Critical' },
-        { value: 'nonCritical', label: 'Non Critical' },
-        { value: 'toDo', label: 'ToDo' },
-        { value: 'actionOwner', label: 'Action Owner' },
-        { value: 'done', label: 'Done' },
-        { value: 'comment', label: 'Comment' },
-        { value: 'upload', label: 'Upload' },
+        { value: 'requirement', label: 'Requirement', visible: true },
+        { value: 'critical', label: 'Critical', visible: true },
+        { value: 'nonCritical', label: 'Non Critical', visible: true },
+        { value: 'toDo', label: 'ToDo', visible: true },
+        { value: 'actionOwner', label: 'Action Owner', visible: true },
+        { value: 'done', label: 'Done', visible: true },
+        { value: 'comment', label: 'Comment', visible: true },
+        { value: 'upload', label: 'Upload', visible: true },
+        { value: '', label: 'Path', visible: false}
     ];
 
     const criticalOptions = [
@@ -135,6 +136,7 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                 done: item?.done,
                 comment: item?.comment || '',
                 upload: item?.upload || '',
+                routes: item?.routes || null
             }))
             const inputData = {
                 requirementChecklist: finalCheckList,
@@ -157,6 +159,19 @@ export default function RequirementChecklistSection({ currentForm, verificationF
             });
         }
     }
+
+    const handleDynamicRoute = (route, params) => {
+        if (!route) return "#"; 
+    
+        let finalRoute = route;
+    
+        Object.entries(params).forEach(([key, modelField]) => {
+            if (currentForm?.[modelField] !== undefined) {
+                finalRoute = finalRoute.replace(`:${key}`, currentForm?.[modelField]);
+            }
+        });
+        return finalRoute;
+    };    
     
     return (
         <Card sx={{ p: 3, mt: 2 }}>
@@ -167,9 +182,11 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                 <Table sx={{mt: 2}}>
                     <TableHead>
                         <TableRow>
-                            {tableHeadNames.map((col) => (
+                        {tableHeadNames.map((col) => (
+                            (verificationForm || col?.visible) && (
                                 <TableCell key={col.value}>{col.label}</TableCell>
-                            ))}
+                            )
+                        ))}
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -182,11 +199,11 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                                         disableUnderline
                                         sx={{
                                             border: 'none',
-                                            pointerEvents: verificationForm ? "none" : "auto",
+                                            pointerEvents: "none",
                                             outline: 'none',
                                             '&::before': { borderBottom: 'none' }, 
                                             '&::after': { borderBottom: 'none' }, 
-                                            '& .MuiSelect-icon': { right: '5px', display : verificationForm ? "none" :  '' }, 
+                                            '& .MuiSelect-icon': { right: '5px', display : "none" }, 
                                             color: criticalOptions.find(opt => opt.value === (checkList[index]?.critical ? checkList[index]?.critical : 'md'))?.color || 'black', 
                                         }}
                                         value={checkList[index]?.critical ?? 'md'}
@@ -204,10 +221,10 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                                         sx={{
                                             border: 'none',
                                             outline: 'none',
-                                            pointerEvents: verificationForm ? "none" : "auto",
+                                            pointerEvents: "none",
                                             '&::before': { borderBottom: 'none' }, 
                                             '&::after': { borderBottom: 'none' }, 
-                                            '& .MuiSelect-icon': { right: '5px', display : verificationForm ? "none" : '' }, 
+                                            '& .MuiSelect-icon': { right: '5px', display : "none" }, 
                                             color: criticalOptions.find(opt => opt.value === (checkList[index]?.nonCritical ? checkList[index]?.nonCritical : 'md'))?.color || 'black', 
                                         }}
                                         value={checkList[index]?.nonCritical ?? 'md'}
@@ -279,7 +296,16 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                                         ))}
                                     </Select>
                                 </TableCell>
-                                <TableCell>
+                                <TableCell
+                                    sx={{
+                                        whiteSpace: "nowrap", 
+                                        overflow: "hidden", 
+                                        textOverflow: "ellipsis", 
+                                        width: '100%',
+                                        maxWidth: 150,
+                                        display: "block"
+                                    }}
+                                >    
                                     {verificationForm ? 
                                         <Tooltip title={checkList[index]?.comment ?? ''} placement="top" arrow>
                                             <p>{checkList[index]?.comment !== '' ? checkList[index]?.comment : 'NA'}</p>
@@ -295,28 +321,31 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                                 <TableCell>
                                 {requirement?.isNeedUpload ? 
                                     !requirement?.upload ? (
-                                    !verificationForm && 
-                                    <Button
-                                        component="label"
-                                        role={undefined}
-                                        variant="contained"
-                                        tabIndex={-1}
-                                        startIcon={<Iconify color="black" icon="eva:cloud-upload-fill" width={30} />}
-                                        sx={{
-                                        width: 'fit-content',
-                                        minWidth: '50px',
-                                        backgroundColor: 'transparent',
-                                        boxShadow: 'none',
-                                        padding: '5px 10px',
-                                        '&:hover': { backgroundColor: 'transparent' },
-                                        }}
-                                    >
-                                        <VisuallyHiddenInput
-                                        type="file"
-                                        onChange={(event) => handleUpload(event.target.files[0], index)}
-                                        multiple={false}
-                                        />
-                                    </Button>
+                                    !verificationForm ? 
+                                    (
+                                        <Button
+                                            component="label"
+                                            role={undefined}
+                                            variant="contained"
+                                            tabIndex={-1}
+                                            startIcon={<Iconify color="black" icon="eva:cloud-upload-fill" width={30} />}
+                                            sx={{
+                                            width: 'fit-content',
+                                            minWidth: '50px',
+                                            backgroundColor: 'transparent',
+                                            boxShadow: 'none',
+                                            padding: '5px 10px',
+                                            '&:hover': { backgroundColor: 'transparent' },
+                                            }}
+                                        >
+                                            <VisuallyHiddenInput
+                                            type="file"
+                                            onChange={(event) => handleUpload(event.target.files[0], index)}
+                                            multiple={false}
+                                            />
+                                        </Button>
+                                    ) : 
+                                    <p>NA</p>
                                     ) : (
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                         <p
@@ -358,6 +387,22 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                                     <p>NA</p>
                                 )}
                                 </TableCell>
+                                {verificationForm && <TableCell>
+                                    {checkList[index]?.routes !== undefined && checkList[index]?.routes !== null ? (
+                                        <p
+                                            onClick={() => {
+                                                const dynamicUrl = handleDynamicRoute(
+                                                    checkList[index]?.routes?.route,
+                                                    checkList[index]?.routes?.params, 
+                                                );
+                                                navigate(`/dashboard/${dynamicUrl}`);
+                                            }}
+                                            style={{ cursor: 'pointer', textDecoration: 'underline', color: 'royalblue' }}
+                                        >
+                                            GO
+                                        </p>
+                                    ) : <p>NA</p>}
+                                </TableCell>}
                             </TableRow>
                         ))}
                     </TableBody>

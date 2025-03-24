@@ -1,11 +1,11 @@
 import PropTypes from 'prop-types';
 import { Controller } from 'react-hook-form';
-import { Grid, MenuItem, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
-import { RHFSelect, RHFTextField } from 'src/components/hook-form';
+import { Grid, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
+import { RHFTextField } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
 
-export default function QuestionerySection({ formQuestionery, control, verificationForm }) {
+export default function CriticityQuestionerySection({ formQuestionery, control, verificationForm }) {
     const booleanOptions = [
         { value: true, label: 'Yes' },
         { value: false, label: 'No' }
@@ -29,7 +29,6 @@ export default function QuestionerySection({ formQuestionery, control, verificat
                             exclusive
                             onChange={(e, newValue) => {
                             if (newValue !== null) {
-                                console.log("Selected value:", newValue);
                                 field.onChange(newValue);
                             }
                             }}
@@ -49,8 +48,8 @@ export default function QuestionerySection({ formQuestionery, control, verificat
                                 key={opt.value.toString()}
                                 value={opt.value}
                                 sx={{
-                                flex: 1,
                                 pointerEvents : verificationForm ? 'none' : 'auto',
+                                flex: 1,
                                 backgroundColor: "white",
                                 borderRadius: "0px !important",
                                 border: "1px solid #00BBD9",
@@ -84,14 +83,60 @@ export default function QuestionerySection({ formQuestionery, control, verificat
                     <Grid item xs={6} md={8}>
                         <Typography variant='body1'>{question?.question}</Typography>
                     </Grid>
-                    <Grid item xs={6} md={4}>
-                        <RHFSelect disabled={!!verificationForm} name={question?.question} label='Select' defaultValue={question?.answer ?? question?.options[0]}>
-                            {question?.options?.length ? question?.options?.map((opt) => (
-                                <MenuItem key={opt} value={opt}>{opt}</MenuItem>
-                            )) : (
-                                <MenuItem value='' disabled>No Options Found</MenuItem>
+                    <Grid item xs={6} md={4} sx={{ display: "flex", justifyContent: "flex-end" }}>
+                        <Controller
+                            name={question?.question}
+                            control={control}
+                            render={({ field }) => (
+                            <ToggleButtonGroup
+                                {...field}
+                                value={field.value ?? "Non Critical"}
+                                exclusive
+                                onChange={(e, newValue) => {
+                                if (newValue !== null) {
+                                    field.onChange(newValue);
+                                }
+                                }}
+                                sx={{
+                                pointerEvents : verificationForm ? 'none' : 'auto',
+                                display: "flex",
+                                justifyContent: "flex-end",
+                                width: "100%",
+                                maxWidth: 250,
+                                padding: "0px !important",
+                                border: "2px solid #00BBD9",
+                                borderRadius: "8px",
+                                }}
+                            >
+                                {question?.options?.length && question?.options?.map((opt) => (
+                                <ToggleButton
+                                    key={opt.toString()}
+                                    value={opt}
+                                    sx={{
+                                    flex: 1,
+                                    pointerEvents : verificationForm ? 'none' : 'auto',
+                                    backgroundColor: "white",
+                                    borderRadius: "0px !important",
+                                    border: "1px solid #00BBD9",
+                                    margin: "0px !important",
+                                    color: "#00BBD9",
+                                    transition: "background-color 0.3s ease",
+                                    "&.Mui-selected": {
+                                        backgroundColor: "#00BBD9",
+                                        color: "#fff",
+                                    },
+                                    "&:hover": {
+                                        backgroundColor: "#00BBD9",
+                                        color: "#fff",
+                                    },
+                                    }}
+                                >
+                                    {opt}
+                                </ToggleButton>
+                                ))}
+                            </ToggleButtonGroup>
                             )}
-                        </RHFSelect>
+                        />
                     </Grid>
                 </Grid>
             );
@@ -117,8 +162,8 @@ export default function QuestionerySection({ formQuestionery, control, verificat
     );
 }
 
-QuestionerySection.propTypes = {
+CriticityQuestionerySection.propTypes = {
     formQuestionery: PropTypes.array,
     control: PropTypes.object,
-    verificationForm: PropTypes.bool
+    verificationForm: PropTypes.bool,
 };

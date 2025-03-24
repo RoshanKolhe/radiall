@@ -1,9 +1,9 @@
 import { relation, repository } from "@loopback/repository";
-import { ApprovalUsersRepository, InstallationFormRepository, UserRepository } from "../repositories";
+import { ApprovalUsersRepository, InstallationFormRepository, ToolsRepository, UserRepository } from "../repositories";
 import { authenticate, AuthenticationBindings } from "@loopback/authentication";
 import {UserProfile} from '@loopback/security';
 import { PermissionKeys } from "../authorization/permission-keys";
-import { get, HttpErrors, param, patch, requestBody } from "@loopback/rest";
+import { get, HttpErrors, param, patch, post, requestBody } from "@loopback/rest";
 import { InstallationForm } from "../models";
 import { inject } from "@loopback/core";
 
@@ -15,6 +15,8 @@ export class InstallationFormController {
     public userRepository : UserRepository,
     @repository(ApprovalUsersRepository)
     public approvalUsersRepository : ApprovalUsersRepository,
+    @repository(ToolsRepository)
+    public toolsRepository : ToolsRepository,
   ) {}
 
   // Get installation form of a tool with tool id...
@@ -39,10 +41,12 @@ export class InstallationFormController {
             scope: {
               include: [
                 { relation: 'supplier' },
-                { relation: 'manufacturer' }
+                { relation: 'manufacturer' },
               ]
             }
-          }
+          },
+          { relation : 'initiator'},
+          { relation : 'user'}
         ]
       });
       
@@ -81,7 +85,12 @@ export class InstallationFormController {
             id: { inq: productionHeadIds }
           },
           include: [
-            {relation : 'user'}
+            {
+              relation : 'user',
+              scope: {
+                include: [{ relation: "department" }],
+              },
+            }
           ]
         });
       }
@@ -431,6 +440,12 @@ export class InstallationFormController {
                     upload: {
                       type: 'string',
                     },
+                    routes: {
+                      oneOf : [
+                        {type : 'object'},
+                        {type : 'null'}
+                      ]
+                    }
                   },
                 },
               },
@@ -450,6 +465,7 @@ export class InstallationFormController {
         done: boolean;
         comment: string;
         upload: string;
+        routes: any;
       }>;
     }
   ):Promise<{
@@ -485,4 +501,258 @@ export class InstallationFormController {
     }
   }
 
-}
+  // Check if all validators have approved
+  async checkValidatorsApproval(ids: number[]): Promise<boolean> {
+    try {
+      const approvalUsers = await this.approvalUsersRepository.find({
+        where: { id: { inq: ids } }
+      });
+
+      if (approvalUsers.length > 0) {
+        const isAllApproved = approvalUsers.every(user => user.isApproved === true);
+
+        if (isAllApproved) {
+          // Send email and notifications to production heads
+          return true;
+        }
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Error in validators approval:', error);
+      return false;
+    }
+  }
+
+  // Check if all validators have approved
+  async checkProductionHeadsApproval(ids: number[]): Promise<boolean> {
+    try {
+      const approvalUsers = await this.approvalUsersRepository.find({
+        where: { id: { inq: ids } }
+      });
+
+      if (approvalUsers.length > 0) {
+        const isAllApproved = approvalUsers.every(user => user.isApproved === true);
+
+        if (isAllApproved) {
+          return true;
+        }
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Error in Production heads approval:', error);
+      return false;
+    }
+  }
+
+  // check for field values in questionery and change it...
+  async checkFieldValues(form: InstallationForm): Promise<void>{
+    try{
+      if(form){
+        const fieldValues = form?.familyClassificationQuestionery
+        ?.filter((question) => question?.isFieldChanging)
+        ?.map((question) => ({
+          fieldValue: question?.fieldName,
+          answer: question?.answer
+        }));
+      
+        if (fieldValues?.length > 0) {
+          const updatedValues: Record<string, any> = fieldValues.reduce((acc, field) => {
+            acc[field.fieldValue] = field.answer;
+            return acc;
+          }, {} as Record<string, any>);
+        
+          await this.toolsRepository.updateById(form?.toolsId, updatedValues);
+        }      
+
+        const criticityValues = form?.criticityQuestionery
+        ?.filter((question) => question?.isFieldChanging)
+        ?.map((question) => ({
+          fieldValue: question?.fieldName,
+          answer: question?.answer
+        }));
+      
+        if (criticityValues?.length > 0) {
+          const updatedValues: Record<string, any> = criticityValues.reduce((acc, field) => {
+            acc[field.fieldValue] = field.answer;
+            return acc;
+          }, {} as Record<string, any>);
+        
+          await this.toolsRepository.updateById(form?.toolsId, updatedValues);
+        }      
+      }
+    }catch(error){
+      throw error
+    }
+  }
+
+  // Check form approval status
+  async checkFormApproveStatus(formId: number): Promise<void> {
+    try {
+      const form = await this.installationFormRepository.findById(formId);
+      if (!form) {
+        throw new HttpErrors.NotFound('Form not found');
+      }
+
+      const allValidatorsApproved = await this.checkValidatorsApproval(form.validatorsIds);
+
+      if (allValidatorsApproved) {
+        await this.installationFormRepository.updateById(formId, { isAllValidatorsApprovalDone: true });
+      }
+
+      // Await production heads approval check
+      const allProductionHeadsApproved = await this.checkProductionHeadsApproval(form.productionHeadIds);
+
+      if(allProductionHeadsApproved){
+        await this.installationFormRepository.updateById(formId, { isAllProductionHeadsApprovalDone: true, status: 'approved' });
+      };
+
+      if(allValidatorsApproved && allProductionHeadsApproved){
+        await this.checkFieldValues(form);
+        const updatedValues = {
+          installationStatus : 'approved',
+          installationDate : new Date()
+        }
+
+        await this.toolsRepository.updateById(form?.id, updatedValues);
+      }
+
+    } catch (error) {
+      console.error('Error in form approval:', error);
+    }
+  }
+
+
+  // approval user from approve api....
+  @authenticate({
+    strategy: 'jwt',
+    options: { required: [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.VALIDATOR] }
+  })
+  @post('/user-approval')
+  async userApproval(
+    @inject(AuthenticationBindings.CURRENT_USER) currentUser: UserProfile,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: {
+            properties: {
+              installationFormId: { type: 'number' },
+              approvedDate: { type: 'string' },
+              remark: { type: 'string' }
+            },
+            required: ['installationFormId', 'approvedDate']
+          }
+        }
+      }
+    })
+    requestBody: {
+      installationFormId: number;
+      approvedDate: string;
+      remark?: string;
+    }
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      const { installationFormId, approvedDate, remark } = requestBody;
+  
+      const user = await this.userRepository.findById(currentUser.id);
+      if (!user) {
+        throw new HttpErrors.BadRequest('User not found');
+      }
+  
+      const installationForm = await this.installationFormRepository.findById(installationFormId);
+      if (!installationForm) {
+        throw new HttpErrors.NotFound('Installation form for this tool not found');
+      }
+  
+      const approvedUser = await this.approvalUsersRepository.findOne({
+        where: {
+          installationFormId: installationForm.id,
+          userId: user.id
+        }
+      });
+  
+      if (!approvedUser) {
+        throw new HttpErrors.BadRequest('User not found');
+      }
+  
+      await this.approvalUsersRepository.updateById(approvedUser.id, {
+        approvalDate: approvedDate,
+        isApproved: true,
+        remark: remark || ''
+      });
+
+      this.checkFormApproveStatus(installationFormId);
+
+      return { success: true, message: 'Approved successfully.' };
+  
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // approval user from save api....
+  @authenticate({
+    strategy: 'jwt',
+    options: { required: [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.VALIDATOR] }
+  })
+  @post('/user-saved-form')
+    async saveFrom(
+    @inject(AuthenticationBindings.CURRENT_USER) currentUser: UserProfile,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: {
+            properties: {
+              installationFormId: { type: 'number' },
+              remark: { type: 'string' }
+            },
+            required: ['installationFormId', 'remark']
+          }
+        }
+      }
+    })
+    requestBody: {
+      installationFormId: number;
+      remark: string;
+    }
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      const { installationFormId, remark } = requestBody;
+
+      const user = await this.userRepository.findById(currentUser.id);
+      if (!user) {
+        throw new HttpErrors.BadRequest('User not found');
+      }
+
+      const installationForm = await this.installationFormRepository.findById(installationFormId);
+      if (!installationForm) {
+        throw new HttpErrors.NotFound('Installation form for this tool not found');
+      }
+
+      const approvedUser = await this.approvalUsersRepository.findOne({
+        where: {
+          installationFormId: installationForm.id,
+          userId: user.id
+        }
+      });
+
+      if (!approvedUser) {
+        throw new HttpErrors.BadRequest('User not found');
+      }
+
+      await this.approvalUsersRepository.updateById(approvedUser.id, {
+        remark: remark
+      });
+
+      await this.installationFormRepository.updateById(installationFormId, {isEditable : true});
+
+      // send mail to initiator...
+
+      return { success: true, message: 'Saved successfully.' };
+
+    } catch (error) {
+      throw error;
+    }
+  }
+} 

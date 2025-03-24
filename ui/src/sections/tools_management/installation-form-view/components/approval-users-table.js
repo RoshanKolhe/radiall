@@ -3,8 +3,6 @@ import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 
 export default function ApprovalUsersSection({ validators, productionHeads}) {
-    console.log('validators', validators);
-    console.log('productionHeads', productionHeads);
     const [tableData, setTableData] = useState([]);
     const columnNames = [
         {value: 'user', label: 'User'},
@@ -15,45 +13,53 @@ export default function ApprovalUsersSection({ validators, productionHeads}) {
     ];
 
     useEffect(() => {
-        if(validators?.length > 0){
-            const data = validators?.map((user) => ({
+        if (validators?.length > 0) {
+            const data = validators.map((user) => ({
                 id: user?.id,
                 user: `${user?.user?.firstName} ${user?.user?.lastName ? user?.user?.lastName : ''}`,
-                // eslint-disable-next-line no-nested-ternary
                 role: 'Validator',
                 department: user?.user?.department?.name || '',
                 remark: user?.remark || '',
                 status: user?.isApproved ? 'Approved' : 'Pending'
             }));
-
-            setTableData((prevData) => [...prevData, ...data]);
+    
+            setTableData((prevData) => {
+                // Merge new data with existing table data, avoiding duplicates based on ID
+                const existingIds = new Set(prevData.map(item => item.id));
+                const newEntries = data.filter(item => !existingIds.has(item.id));
+    
+                return [...prevData, ...newEntries];
+            });
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[validators])
-
+    }, [validators]);
+    
     useEffect(() => {
-        if(productionHeads?.length > 0){
-            const data = productionHeads?.map((user) => ({
+        if (productionHeads?.length > 0) {
+            const data = productionHeads.map((user) => ({
                 id: user?.id,
                 user: `${user?.user?.firstName} ${user?.user?.lastName ? user?.user?.lastName : ''}`,
-                // eslint-disable-next-line no-nested-ternary
                 role: 'Production Head',
-                department: user?.user?.department?.department || '',
+                department: user?.user?.department?.name || '',
                 remark: user?.remark || '',
                 status: user?.isApproved ? 'Approved' : 'Pending'
             }));
-
-            setTableData((prevData) => [...prevData, ...data]);
+    
+            setTableData((prevData) => {
+                // Merge new data with existing table data, avoiding duplicates based on ID
+                const existingIds = new Set(prevData.map(item => item.id));
+                const newEntries = data.filter(item => !existingIds.has(item.id));
+    
+                return [...prevData, ...newEntries];
+            });
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[productionHeads])
+    }, [productionHeads]);
+    
 
-    console.log('tableData', tableData);
     return(
         <Card sx={{ p: 3, mt: 2 }}>
             <Grid item xs={12} md={12}>
                 <Box component='div' sx={{width : '100%', py: 2, px: 1, borderBottom: '2px solid lightGray'}}>
-                    <Typography variant='h5'>Family Classification</Typography>
+                    <Typography variant='h5'>Approval Users</Typography>
                 </Box>
                 <Table>
                     <TableHead>

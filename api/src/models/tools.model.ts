@@ -107,7 +107,12 @@ export class Tools extends Entity {
   @property({
     type: 'string',
   })
-  installationStatus: boolean;
+  installationStatus: string;
+
+  @property({
+    type: 'date',
+  })
+  installationDate: Date;
 
   @property({
     type: 'string',

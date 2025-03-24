@@ -12,3 +12,5 @@ export * from './installation-form.controller';
 export * from './approval-users-user.controller';
 export * from './approval-users-installation-form.controller';
 export * from './spare.controller';
+export * from './routes.controller';
+export * from './checklist-routes.controller';

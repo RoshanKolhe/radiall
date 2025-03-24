@@ -23,7 +23,7 @@ export default function ToolsCreateView() {
             href: paths.dashboard.root,
           },
           {
-            name: 'Production Means Master',
+            name: 'Tools',
             href: paths.dashboard.tools.root,
           },
           { name: 'Tool Entry' },

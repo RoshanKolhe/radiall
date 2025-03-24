@@ -86,6 +86,7 @@ export class InstallationForm extends Entity {
     done: boolean;
     comment: string;
     upload: string;
+    routes: object;
   }>;
 
   @property({

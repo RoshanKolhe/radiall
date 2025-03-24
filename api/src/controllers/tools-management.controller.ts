@@ -59,40 +59,42 @@ export class ToolsManagementController {
           where: { sectionName: QuestionSectionKeys.CRITICITY },
         });
   
-        const requirementChecklist = await this.checklistRepository.find({
+        const requirementChecklist : any = await this.checklistRepository.find({
           where: { formName: FormNameKeys.INSTALLATION_FORM },
+          include : [{relation : 'routes'}]
         });
   
         const installationFormData = {
           toolsId: savedTool.id,
-          familyClassificationQuestionery: familyClassificationQuestionery.map((question) =>({
-            question: question.question,
-            type: question.type,
-            options: question.options,
-            isFieldChanging: question.isFieldChanging,
-            fieldName: question.fieldName,
+          familyClassificationQuestionery: familyClassificationQuestionery?.map((question) =>({
+            question: question?.question,
+            type: question?.type,
+            options: question?.options,
+            isFieldChanging: question?.isFieldChanging,
+            fieldName: question?.fieldName,
             answer: undefined,
           })),
           isFamilyClassificationSectionDone: false,
-          criticityQuestionery: criticityQuestionery.map((question) =>({
-            question: question.question,
-            type: question.type,
-            options: question.options,
-            isFieldChanging: question.isFieldChanging,
-            fieldName: question.fieldName,
+          criticityQuestionery: criticityQuestionery?.map((question) =>({
+            question: question?.question,
+            type: question?.type,
+            options: question?.options,
+            isFieldChanging: question?.isFieldChanging,
+            fieldName: question?.fieldName,
             answer: undefined,
           })),
-          isCriticitySecctionDone: false,
-          requirementChecklist: requirementChecklist.map((requirement) => ({
-            requirement: requirement.requirement,
-            isNeedUpload: requirement.isNeedUpload,
-            critical: undefined,
-            nonCritical: undefined,
+          isCriticitySectionDone: false,
+          requirementChecklist: requirementChecklist?.map((requirement : any) => ({
+            requirement: requirement?.requirement,
+            isNeedUpload: requirement?.isNeedUpload,
+            critical: requirement?.critical,
+            nonCritical: requirement?.nonCritical,
             toDo: undefined,
             actionOwner: undefined,
             done: undefined,
             comment: undefined,
             upload: undefined,
+            routes: requirement?.routes
           })),
           isRequirementChecklistSectionDone: false,
           isAllValidatorsApprovalDone: false,

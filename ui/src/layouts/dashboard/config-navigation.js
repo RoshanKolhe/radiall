@@ -80,6 +80,24 @@ export function useNavData() {
             ],
           },
           {
+            title: t('Production Means'),
+            path: paths.dashboard.tools.root,
+            icon: ICONS.toolType,
+            roles: ['production_head', 'validator'],
+            children: [
+              {
+                title: t('list'),
+                path: paths.dashboard.tools.list,
+                roles: ['production_head', 'validator'],
+              },
+              {
+                title: t('create'),
+                path: paths.dashboard.tools.new,
+                roles: ['production_head', 'validator'],
+              },
+            ],
+          },
+          {
             title: t('spare'),
             path: paths.dashboard.spare.root,
             icon: ICONS.spare,
@@ -184,24 +202,6 @@ export function useNavData() {
               {
                 title: t('create'),
                 path: paths.dashboard.station.new,
-                roles: ['production_head'],
-              },
-            ],
-          },
-          {
-            title: t('Production Means Master'),
-            path: paths.dashboard.tools.root,
-            icon: ICONS.station,
-            roles: ['production_head'],
-            children: [
-              {
-                title: t('list'),
-                path: paths.dashboard.tools.list,
-                roles: ['production_head'],
-              },
-              {
-                title: t('create'),
-                path: paths.dashboard.tools.new,
                 roles: ['production_head'],
               },
             ],

@@ -1,8 +1,7 @@
-import {Entity, model, property, belongsTo} from '@loopback/repository';
-import {Routes} from './routes.model';
+import {Entity, model, property} from '@loopback/repository';
 
 @model()
-export class Checklist extends Entity {
+export class Routes extends Entity {
   @property({
     type: 'number',
     id: true,
@@ -14,32 +13,19 @@ export class Checklist extends Entity {
     type: 'string',
     required: true
   })
-  requirement: string;
+  routeName: string;
 
   @property({
     type: 'string',
-  })
-  critical: 'string'; // passed "md" or "apr"
-
-  @property({
-    type: 'string',
-  })
-  nonCritical: 'string';  // passed "md" or "apr"
-
-  @belongsTo(() => Routes)
-  routesId: number;
-
-  @property({
-    type: 'string',
-    reuired: true
-  })
-  formName: string;     // for now it can be installation_form, scrapping_form
-
-  @property({
-    type: 'boolean',
     required: true
   })
-  isNeedUpload: boolean;
+  route: string;    // add route in this way /tools/:id/edit <=== like this (keep note in env don't add "/" at the end of base url)
+
+  @property({
+    type: 'object',
+    required: true
+  })
+  params: object;   // send in this format {"id" : "toolsId"} basically id is url param name and toolsId is actual model field name which is available in installation form.
 
   @property({
     type: 'date',
@@ -73,13 +59,13 @@ export class Checklist extends Entity {
   })
   remark?: string;
 
-  constructor(data?: Partial<Checklist>) {
+  constructor(data?: Partial<Routes>) {
     super(data);
   }
 }
 
-export interface ChecklistRelations {
+export interface RoutesRelations {
   // describe navigational properties here
 }
 
-export type ChecklistWithRelations = Checklist & ChecklistRelations;
+export type RoutesWithRelations = Routes & RoutesRelations;
