@@ -12,3 +12,4 @@ export * from './checklist.repository';
 export * from './approval-users.repository';
 export * from './spare.repository';
 export * from './routes.repository';
+export * from './inventory-out-entries.repository';

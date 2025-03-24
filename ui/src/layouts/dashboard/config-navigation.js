@@ -110,6 +110,19 @@ export function useNavData() {
               },
             ],
           },
+          {
+            title: t('inventory'),
+            path: paths.dashboard.inventory.root,
+            icon: ICONS.spare,
+            roles: ['production_head'],
+            children: [
+              {
+                title: t('list'),
+                path: paths.dashboard.inventory.toolList,
+                roles: ['production_head'],
+              },
+            ],
+          },
         ],
       },
       {

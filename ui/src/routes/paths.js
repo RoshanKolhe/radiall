@@ -146,6 +146,15 @@ export const paths = {
       edit: (toolId, id) => `${ROOTS.DASHBOARD}/spare/${toolId}/edit/${id}`,
       view: (toolId, id) => `${ROOTS.DASHBOARD}/spare/${toolId}/view/${id}`,
     },
+    // INVENTORY
+    inventory: {
+      root: `${ROOTS.DASHBOARD}/inventory`,
+      toolList: `${ROOTS.DASHBOARD}/inventory/toolList`,
+      new: `${ROOTS.DASHBOARD}/inventory/new`,
+      list: (toolId) => `${ROOTS.DASHBOARD}/inventory/${toolId}/list`,
+      edit: (toolId, id) => `${ROOTS.DASHBOARD}/inventory/${toolId}/edit/${id}`,
+      view: (toolId, id) => `${ROOTS.DASHBOARD}/inventory/${toolId}/view/${id}`,
+    },
     product: {
       root: `${ROOTS.DASHBOARD}/product`,
       new: `${ROOTS.DASHBOARD}/product/new`,

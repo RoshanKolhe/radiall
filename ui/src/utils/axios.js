@@ -65,6 +65,11 @@ export const endpoints = {
     filterList: (filter) => `/spares?${filter}`,
     details: (id) => `/spares/${id}`,
   },
+  inventory: {
+    list: '/inventorys',
+    filterList: (filter) => `/inventorys?${filter}`,
+    details: (id) => `/inventorys/${id}`,
+  },
   station: {
     list: '/stations',
     filterList: (filter) => `/stations?${filter}`,

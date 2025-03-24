@@ -1,20 +1,38 @@
-import { DefaultTransactionalRepository, IsolationLevel, repository } from "@loopback/repository";
-import { inject } from "@loopback/core";
-import { authenticate } from "@loopback/authentication";
-import { PermissionKeys } from "../authorization/permission-keys";
-import { get, getModelSchemaRef, param, patch, post, requestBody, response } from "@loopback/rest";
-import { RadiallDataSource } from "../datasources";
-import { ChecklistRepository, InstallationFormRepository, QuestioneryRepository, ToolsRepository } from "../repositories";
-import { Tools } from "../models";
-import { QuestionSectionKeys } from "../questionery-section/questionery-section";
-import { FormNameKeys } from "../form-name/form-name";
+import {
+  DefaultTransactionalRepository,
+  Filter,
+  IsolationLevel,
+  repository,
+} from '@loopback/repository';
+import {inject} from '@loopback/core';
+import {authenticate} from '@loopback/authentication';
+import {PermissionKeys} from '../authorization/permission-keys';
+import {
+  get,
+  getModelSchemaRef,
+  param,
+  patch,
+  post,
+  requestBody,
+  response,
+} from '@loopback/rest';
+import {RadiallDataSource} from '../datasources';
+import {
+  ChecklistRepository,
+  InstallationFormRepository,
+  QuestioneryRepository,
+  ToolsRepository,
+} from '../repositories';
+import {Tools} from '../models';
+import {QuestionSectionKeys} from '../questionery-section/questionery-section';
+import {FormNameKeys} from '../form-name/form-name';
 
 export class ToolsManagementController {
   constructor(
     @inject('datasources.radiall')
     public dataSource: RadiallDataSource,
     @repository(ToolsRepository)
-    public toolsRepository : ToolsRepository,
+    public toolsRepository: ToolsRepository,
     @repository(InstallationFormRepository)
     public installationFormRepository: InstallationFormRepository,
     @repository(QuestioneryRepository)
@@ -26,7 +44,13 @@ export class ToolsManagementController {
   // creation of tool for tool entry form...
   @authenticate({
     strategy: 'jwt',
-    options: {required: [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]},
+    options: {
+      required: [
+        PermissionKeys.PRODUCTION_HEAD,
+        PermissionKeys.INITIATOR,
+        PermissionKeys.VALIDATOR,
+      ],
+    },
   })
   @post('/tools/create')
   @response(200, {
@@ -44,26 +68,29 @@ export class ToolsManagementController {
       },
     })
     toolData: Omit<Tools, 'id'>,
-  ): Promise<{ success: boolean; message: string }> {
-    const tx = await this.toolsRepository.dataSource.beginTransaction(IsolationLevel.READ_COMMITTED);
+  ): Promise<{success: boolean; message: string}> {
+    const tx = await this.toolsRepository.dataSource.beginTransaction(
+      IsolationLevel.READ_COMMITTED,
+    );
     try {
       const savedTool = await this.toolsRepository.create(toolData);
-  
+
       if (savedTool) {
         // creating installation form for new tool
-        const familyClassificationQuestionery = await this.questioneryRepository.find({
-          where: { sectionName: QuestionSectionKeys.FAMILY_CLASSIFICATION },
-        });
-  
+        const familyClassificationQuestionery =
+          await this.questioneryRepository.find({
+            where: {sectionName: QuestionSectionKeys.FAMILY_CLASSIFICATION},
+          });
+
         const criticityQuestionery = await this.questioneryRepository.find({
-          where: { sectionName: QuestionSectionKeys.CRITICITY },
+          where: {sectionName: QuestionSectionKeys.CRITICITY},
         });
   
         const requirementChecklist : any = await this.checklistRepository.find({
           where: { formName: FormNameKeys.INSTALLATION_FORM },
           include : [{relation : 'routes'}]
         });
-  
+
         const installationFormData = {
           toolsId: savedTool.id,
           familyClassificationQuestionery: familyClassificationQuestionery?.map((question) =>({
@@ -102,22 +129,28 @@ export class ToolsManagementController {
           isEditable: true,
           status: 'pending',
         };
-  
+
         await this.installationFormRepository.create(installationFormData);
       }
-  
-      await tx.commit(); 
-      return { success: true, message: 'Tool created successfully' };
+
+      await tx.commit();
+      return {success: true, message: 'Tool created successfully'};
     } catch (error) {
-      await tx.rollback(); 
+      await tx.rollback();
       throw error;
     }
   }
-  
+
   // searching tool before making new entry...
   @authenticate({
     strategy: 'jwt',
-    options: { required: [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR] },
+    options: {
+      required: [
+        PermissionKeys.PRODUCTION_HEAD,
+        PermissionKeys.INITIATOR,
+        PermissionKeys.VALIDATOR,
+      ],
+    },
   })
   @post('/tools/search-tool')
   async searchTool(
@@ -134,7 +167,9 @@ export class ToolsManagementController {
         },
       },
     })
-    requestBody: { partNumber: string }
+    requestBody: {
+      partNumber: string;
+    },
   ): Promise<{
     success: boolean;
     message: string;
@@ -142,16 +177,16 @@ export class ToolsManagementController {
   }> {
     try {
       const tools = await this.toolsRepository.find({
-        where: { partNumber: requestBody.partNumber },
-        order: ['createdAt DESC'], 
-        limit: 1, 
+        where: {partNumber: requestBody.partNumber},
+        order: ['createdAt DESC'],
+        limit: 1,
       });
-  
+
       if (tools.length > 0) {
         return {
           success: true,
           message: 'Tool found',
-          data: tools[0], 
+          data: tools[0],
         };
       } else {
         return {
@@ -167,23 +202,33 @@ export class ToolsManagementController {
   // fetch tools list...
   @authenticate({
     strategy: 'jwt',
-    options: { required: [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR] },
+    options: {
+      required: [
+        PermissionKeys.PRODUCTION_HEAD,
+        PermissionKeys.INITIATOR,
+        PermissionKeys.VALIDATOR,
+      ],
+    },
   })
   @get('/tools/list')
-  async fetchToolsList(): Promise<{
-    success : boolean;
-    message : string;
-    data : Tools[];
+  async fetchToolsList(@param.filter(Tools) filter?: Filter<Tools>): Promise<{
+    success: boolean;
+    message: string;
+    data: Tools[];
   }> {
-    try{
-      const tools = await this.toolsRepository.find({ order: ['createdAt DESC'], include : [{relation : 'toolType'}, {relation : 'storageLocation'}] });
+    try {
+      const tools = await this.toolsRepository.find({
+        ...filter,
+        order: ['createdAt DESC'],
+        include: [{relation: 'toolType'}, {relation: 'storageLocation'}],
+      });
 
-      return{
-        success : true,
-        message : 'Tools list',
-        data : tools
-      }
-    }catch(error){
+      return {
+        success: true,
+        message: 'Tools list',
+        data: tools,
+      };
+    } catch (error) {
       throw error;
     }
   }
@@ -208,17 +253,17 @@ export class ToolsManagementController {
     })
     toolData: Tools,
   ): Promise<{
-    success : boolean;
-    message : string;
+    success: boolean;
+    message: string;
   }> {
-    try{
+    try {
       await this.toolsRepository.updateById(id, toolData);
 
-      return{
-        success : true,
-        message : 'update success'
-      }
-    }catch(error){
+      return {
+        success: true,
+        message: 'update success',
+      };
+    } catch (error) {
       throw error;
     }
   }
@@ -226,36 +271,38 @@ export class ToolsManagementController {
   // get tool by id...
   @authenticate({
     strategy: 'jwt',
-    options: { required: [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR] },
+    options: {
+      required: [
+        PermissionKeys.PRODUCTION_HEAD,
+        PermissionKeys.INITIATOR,
+        PermissionKeys.VALIDATOR,
+      ],
+    },
   })
   @get('/tools/{id}')
-  async getToolById(
-    @param.path.number('id') toolId : number
-  ):Promise<{
-    success : boolean;
-    message : string;
-    data : Tools | null;
-  }>{
-    try{
-      const toolData = await this.toolsRepository.findOne(
-        {where : 
-          {id : toolId}, 
-          include : [
-            {relation : 'toolType'}, 
-            {relation : 'manufacturer'}, 
-            {relation : 'supplier'}, 
-            {relation : 'storageLocation'}
-          ]
-        }
-      );
+  async getToolById(@param.path.number('id') toolId: number): Promise<{
+    success: boolean;
+    message: string;
+    data: Tools | null;
+  }> {
+    try {
+      const toolData = await this.toolsRepository.findOne({
+        where: {id: toolId},
+        include: [
+          {relation: 'toolType'},
+          {relation: 'manufacturer'},
+          {relation: 'supplier'},
+          {relation: 'storageLocation'},
+        ],
+      });
 
-      return{
-        success : true,
-        message : 'Tool Data',
-        data : toolData
-      }
-    }catch(error){
+      return {
+        success: true,
+        message: 'Tool Data',
+        data: toolData,
+      };
+    } catch (error) {
       throw error;
     }
   }
-}  
+}
