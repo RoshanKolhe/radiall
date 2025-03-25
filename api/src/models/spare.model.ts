@@ -16,6 +16,12 @@ export class Spare extends Entity {
     type: 'string',
     required: true,
   })
+  partNumber: string;
+
+  @property({
+    type: 'string',
+    required: true,
+  })
   description: string;
 
   @property({

@@ -15,7 +15,7 @@ import { format } from 'date-fns';
 // ----------------------------------------------------------------------
 
 export default function SpareTableRow({ row, selected, handleQuickEditRow, handleQuickViewRow }) {
-  const { description, stock, comment, isActive, createdAt } = row;
+  const { partNumber, description, stock, comment, isActive, createdAt } = row;
 
   const popover = usePopover();
 
@@ -25,7 +25,7 @@ export default function SpareTableRow({ row, selected, handleQuickEditRow, handl
         {/* <TableCell padding="checkbox">
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell> */}
-
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{partNumber}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{description}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{stock}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{comment}</TableCell>

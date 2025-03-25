@@ -25,7 +25,15 @@ import { useGetSuppliers } from 'src/api/supplier';
 
 // ----------------------------------------------------------------------
 
-export default function SpareQuickEditForm({ currentSpare, open, onClose, refreshSpares, toolId }) {
+export default function SpareQuickEditForm({
+  currentSpare,
+  open,
+  onClose,
+  refreshSpares,
+  toolId,
+  tool,
+}) {
+  console.log(tool);
   const { enqueueSnackbar } = useSnackbar();
 
   const { manufacturers, manufacturersEmpty } = useGetManufacturers();
@@ -35,6 +43,7 @@ export default function SpareQuickEditForm({ currentSpare, open, onClose, refres
   const [manufacturersData, setManufacturersData] = useState([]);
 
   const NewSpareSchema = Yup.object().shape({
+    partNumber: Yup.string().required('Part Number is required'),
     description: Yup.string().required('Description is required'),
     stock: Yup.number().required('Qty is required').min(1, 'At least 1 quantity is required'),
     supplier: Yup.object().required('Supplier is required'),
@@ -45,6 +54,7 @@ export default function SpareQuickEditForm({ currentSpare, open, onClose, refres
   const defaultValues = useMemo(
     () => ({
       description: currentSpare?.description || '',
+      partNumber: currentSpare?.partNumber || '',
       stock: currentSpare?.stock || '',
       isActive: currentSpare ? (currentSpare?.isActive ? '1' : '0') : '1',
       manufacturer: currentSpare ? currentSpare?.manufacturer : null,
@@ -62,6 +72,7 @@ export default function SpareQuickEditForm({ currentSpare, open, onClose, refres
   const {
     reset,
     handleSubmit,
+    setValue,
     formState: { isSubmitting },
   } = methods;
 
@@ -69,6 +80,7 @@ export default function SpareQuickEditForm({ currentSpare, open, onClose, refres
     try {
       console.info('DATA', formData);
       const inputData = {
+        partNumber: formData.partNumber,
         description: formData.description,
         comment: formData.comment,
         stock: formData.stock,
@@ -106,6 +118,13 @@ export default function SpareQuickEditForm({ currentSpare, open, onClose, refres
       setManufacturersData(manufacturers);
     }
   }, [manufacturers, manufacturersEmpty]);
+
+  useEffect(() => {
+    if (tool && !currentSpare) {
+      setValue('supplier', tool?.supplier);
+      setValue('manufacturer', tool?.manufacturer);
+    }
+  }, [currentSpare, setValue, tool]);
 
   return (
     <Dialog
@@ -149,7 +168,7 @@ export default function SpareQuickEditForm({ currentSpare, open, onClose, refres
                 <Box sx={{ display: { xs: 'none', sm: 'block' } }} />
               </>
             ) : null}
-
+            <RHFTextField name="partNumber" label="Part Number" />
             <RHFTextField name="description" label="Description" />
             <RHFTextField name="stock" label="Qty Safety Stock" type="number" />
             <RHFAutocomplete
@@ -210,4 +229,5 @@ SpareQuickEditForm.propTypes = {
   open: PropTypes.bool,
   refreshSpares: PropTypes.func,
   toolId: PropTypes.any,
+  tool: PropTypes.object,
 };

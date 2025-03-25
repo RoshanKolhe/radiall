@@ -51,6 +51,7 @@ import SpareQuickViewForm from '../spare-quick-view-form';
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...COMMON_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
+  { id: 'partNumber', label: 'Part Number' },
   { id: 'description', label: 'Description' },
   { id: 'stock', label: 'Qty safety stock' },
   { id: 'comment', label: 'Comment' },
@@ -404,6 +405,7 @@ export default function SpareListView() {
           }}
           refreshSpares={refreshSpares}
           toolId={toolId}
+          tool={tool}
         />
       )}
 
