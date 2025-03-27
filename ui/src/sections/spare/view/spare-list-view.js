@@ -54,9 +54,12 @@ const TABLE_HEAD = [
   { id: 'partNumber', label: 'Part Number' },
   { id: 'description', label: 'Description' },
   { id: 'stock', label: 'Qty safety stock' },
+  { id: 'stockInHand', label: 'Stock In Hand' },
+  { id: 'unit', label: 'Unit' },
   { id: 'comment', label: 'Comment' },
   { id: 'createdAt', label: 'Created At' },
   { id: 'status', label: 'Status', width: 100 },
+  { id: 'alaram', label: 'Alaram', width: 100 },
   { id: '', width: 88 },
 ];
 

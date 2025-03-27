@@ -31,6 +31,17 @@ export class Spare extends Entity {
   stock?: number;
 
   @property({
+    type: 'number',
+    default: 0,
+  })
+  stockInHand?: number;
+
+  @property({
+    type: 'string',
+  })
+  unit?: string;
+
+  @property({
     type: 'string',
   })
   comment?: string;

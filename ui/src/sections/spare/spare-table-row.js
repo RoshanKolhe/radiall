@@ -15,7 +15,7 @@ import { format } from 'date-fns';
 // ----------------------------------------------------------------------
 
 export default function SpareTableRow({ row, selected, handleQuickEditRow, handleQuickViewRow }) {
-  const { partNumber, description, stock, comment, isActive, createdAt } = row;
+  const { partNumber, description, stock, stockInHand, unit, comment, isActive, createdAt } = row;
 
   const popover = usePopover();
 
@@ -28,6 +28,8 @@ export default function SpareTableRow({ row, selected, handleQuickEditRow, handl
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{partNumber}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{description}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{stock}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{stockInHand}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{unit}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{comment}</TableCell>
         <TableCell>
           <ListItemText
@@ -47,6 +49,12 @@ export default function SpareTableRow({ row, selected, handleQuickEditRow, handl
             color={(isActive && 'success') || (!isActive && 'error') || 'default'}
           >
             {isActive ? 'Active' : 'Non-Active'}
+          </Label>
+        </TableCell>
+
+        <TableCell>
+          <Label variant="soft" color={stockInHand === 0 ? 'error' : 'success'}>
+            {stockInHand === 0 ? 'Stock Empty' : 'Sufficient'}
           </Label>
         </TableCell>
 
