@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import { Controller } from 'react-hook-form';
 import { Grid, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { RHFTextField } from 'src/components/hook-form';
+import { useResponsive } from 'src/hooks/use-responsive';
 
 // ----------------------------------------------------------------------
 
@@ -10,6 +11,8 @@ export default function CriticityQuestionerySection({ formQuestionery, control, 
         { value: true, label: 'Yes' },
         { value: false, label: 'No' }
     ];
+
+    const isDesktop = useResponsive('up', 'md');
 
     const questionFields = (question) => {
         if (question?.type === 'boolean') {
@@ -36,7 +39,7 @@ export default function CriticityQuestionerySection({ formQuestionery, control, 
                             pointerEvents : verificationForm ? 'none' : 'auto',
                             display: "flex",
                             justifyContent: "flex-end",
-                            width: "100%",
+                            width: isDesktop ? "40%" : '100%',
                             maxWidth: 200,
                             padding: "0px !important",
                             border: "2px solid #00BBD9",
@@ -51,6 +54,7 @@ export default function CriticityQuestionerySection({ formQuestionery, control, 
                                 pointerEvents : verificationForm ? 'none' : 'auto',
                                 flex: 1,
                                 backgroundColor: "white",
+                                padding: '6px',
                                 borderRadius: "0px !important",
                                 border: "1px solid #00BBD9",
                                 margin: "0px !important",
@@ -98,10 +102,10 @@ export default function CriticityQuestionerySection({ formQuestionery, control, 
                                 }
                                 }}
                                 sx={{
-                                pointerEvents : verificationForm ? 'none' : 'auto',
+                                pointerEvents : 'none',
                                 display: "flex",
                                 justifyContent: "flex-end",
-                                width: "100%",
+                                width: isDesktop ? "60%" : '100%',
                                 maxWidth: 250,
                                 padding: "0px !important",
                                 border: "2px solid #00BBD9",
@@ -114,18 +118,15 @@ export default function CriticityQuestionerySection({ formQuestionery, control, 
                                     value={opt}
                                     sx={{
                                     flex: 1,
-                                    pointerEvents : verificationForm ? 'none' : 'auto',
+                                    pointerEvents : 'none',
                                     backgroundColor: "white",
+                                    padding: '6px',
                                     borderRadius: "0px !important",
                                     border: "1px solid #00BBD9",
                                     margin: "0px !important",
                                     color: "#00BBD9",
                                     transition: "background-color 0.3s ease",
                                     "&.Mui-selected": {
-                                        backgroundColor: "#00BBD9",
-                                        color: "#fff",
-                                    },
-                                    "&:hover": {
                                         backgroundColor: "#00BBD9",
                                         color: "#fff",
                                     },

@@ -8,7 +8,7 @@ export default function ToolsInstallationEditPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard: Tool Installation Edit Form</title>
+        <title> Dashboard: Tool Installation Form</title>
       </Helmet>
 
       <ToolsInstallationEditView />

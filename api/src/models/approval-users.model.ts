@@ -1,6 +1,8 @@
 import {Entity, model, property, belongsTo} from '@loopback/repository';
 import {User} from './user.model';
 import {InstallationForm} from './installation-form.model';
+import {InternalValidationForm} from './internal-validation-form.model';
+import {ScrappingForm} from './scrapping-form.model';
 
 @model()
 export class ApprovalUsers extends Entity {
@@ -52,6 +54,12 @@ export class ApprovalUsers extends Entity {
     type: 'string',
   })
   remark?: string;
+
+  @belongsTo(() => InternalValidationForm)
+  internalValidationFormId: number;
+
+  @belongsTo(() => ScrappingForm)
+  scrappingFormId: number;
 
   constructor(data?: Partial<ApprovalUsers>) {
     super(data);

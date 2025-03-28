@@ -47,6 +47,7 @@ const ICONS = {
   ecommerce: icon('ic_ecommerce'),
   analytics: icon('ic_analytics'),
   dashboard: icon('ic_dashboard'),
+  scrap: icon('ic_scrap'),
 };
 
 // ----------------------------------------------------------------------
@@ -109,6 +110,19 @@ export function useNavData() {
                 roles: ['production_head'],
               },
             ],
+          },
+          {
+            title: t('scrap master'),
+            path: paths.dashboard.scrap.root,
+            icon: ICONS.scrap,
+            roles: ['production_head', 'validator', 'initiator'],
+            children: [
+              {
+                title: t('list'),
+                path: paths.dashboard.scrap.toolList,
+                roles: ['production_head', 'validator', 'initiator'],
+              }
+            ]
           },
           {
             title: t('inventory'),

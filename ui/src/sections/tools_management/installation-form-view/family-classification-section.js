@@ -25,16 +25,16 @@ export default function FamilyClassificationSection({ currentForm, verificationF
 
     useEffect(() => {
         const newValues = currentForm?.familyClassificationQuestionery?.length > 0 ? currentForm?.familyClassificationQuestionery?.map((que) => {
+            if (que?.type === 'boolean') {
+                return {
+                    [que?.question]: que?.answer !== undefined ? que?.answer : false
+                };
+            }
+
             if (que?.type === 'select') {
                 return {
                     [que?.question]: que?.answer !== undefined ? que?.answer : que?.options[0]
                 }
-            }
-
-            if (que?.type === 'boolean') {
-                return {
-                    [que?.question]: que?.answer !== undefined ? que?.answer : true
-                };
             }
 
             return {
@@ -50,18 +50,12 @@ export default function FamilyClassificationSection({ currentForm, verificationF
 
     const NewSupplierSchema = Yup.object().shape({
         partNumber: Yup.string().required('Part Number is required'),
-        serialNumber: Yup.number()
-            .nullable()
-            .transform((value, originalValue) => (originalValue === '' ? null : value))
-            .required('Serial Number is required')
-            .min(1, 'Serial Number must be at least 1'),
+        serialNumber: Yup.string().required('Serial number is required'),
         manufacturer: Yup.string().required('Manufacturer Name is required'),
         supplier: Yup.string().required('Supplier Name is required'),
         initiator: Yup.object().required('Initiator is required'),
-        validators: Yup.array()
-            .min(1, "At least one Validator is required"),
-        productionHeads: Yup.array()
-            .min(1, "At least one Production Head is required"),
+        validators: Yup.array(),
+        productionHeads: Yup.object().required("At least one Production Head is required"),
         user: Yup.object().required('Please Select User'),
         creationDate: Yup.string(),
     });
@@ -74,7 +68,7 @@ export default function FamilyClassificationSection({ currentForm, verificationF
             creationDate: currentForm?.tools?.createdAt ? format(new Date(currentForm?.tools?.createdAt), "dd MMMM yyyy, HH:mm") : '',
             initiator: null,
             user: null,
-            productionHeads: currentForm?.productionHeads || [],
+            productionHeads: null,
             validators: [],
             ...structuredQuestioneryValues // Ensure proper merge
         }), [currentForm, structuredQuestioneryValues]);
@@ -150,7 +144,7 @@ export default function FamilyClassificationSection({ currentForm, verificationF
                 initiatorId: formData?.initiator?.id,
                 userId: formData?.user?.id,
                 validatorsId: formData?.validators?.map((value) => value?.id),
-                productionHeadsId: formData?.productionHeads?.map((value) => value?.id)
+                productionHeadsId: [formData?.productionHeads?.id]
             };
 
             const response = await axiosInstance.patch(`/update-family-classification/${currentForm?.id}`, inputData);
@@ -176,7 +170,7 @@ export default function FamilyClassificationSection({ currentForm, verificationF
             setValue('initiator', currentInitiator);
             setInitiatorsData((prev) => [...prev, currentInitiator]);
             // user...
-            const user = currentForm?.user ? currentForm.user : null;
+            const user = currentForm?.user ? currentForm?.user?.user : null;
             setValue('user', user);
             setUsersData((prev) => [...prev, user]);
             // validator...
@@ -184,12 +178,39 @@ export default function FamilyClassificationSection({ currentForm, verificationF
             setValidatorsData(validatorsArray);
             setValue('validators', validatorsArray)
             // productionHeads
-            const productionHeadsArray = currentForm.productionHeads?.map(item => item.user) || [];
+            const productionHeadsArray = currentForm?.productionHeads?.[0]?.user || null;
             setProductionHeadsData(productionHeadsArray);
             setValue('productionHeads', productionHeadsArray);
 
         }
     }, [currentForm, currentUser, defaultValues, reset, setValue]);
+
+    const booleanQuestions = currentForm?.familyClassificationQuestionery
+    ?.filter(q => q?.type === "boolean")
+    ?.map(q => q.question);
+
+    const watchedBooleanValues = watch(booleanQuestions);
+
+    useEffect(() => {
+        handleDecision();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [defaultValues, watchedBooleanValues]);
+
+    const handleDecision = () => {
+        if (currentForm?.familyClassificationQuestionery?.length > 0) {
+            const booleanTypeQuestionery = currentForm.familyClassificationQuestionery.filter(que => que?.type === 'boolean');
+    
+            const isAnyValueTrue = booleanTypeQuestionery.find(que => values[que.question] === true);
+    
+            if (isAnyValueTrue) {
+                setValue('Suggested family', "Equipment");
+                setValue('Final Decision', "Equipment");
+            }else{
+                setValue('Suggested family', "Tool");
+                setValue('Final Decision', "Tool");
+            }
+        }
+    };
 
     return (
         <FormProvider methods={methods} onSubmit={onSubmit}>
@@ -248,32 +269,6 @@ export default function FamilyClassificationSection({ currentForm, verificationF
                             <Grid item xs={12} sm={6}>
                                 <RHFAutocomplete
                                     disabled={!!verificationForm}
-                                    multiple
-                                    name="validators"
-                                    label="Validators"
-                                    onInputChange={(event) => fetchUsers(event, setValidatorsData, 'validator')}
-                                    options={validatorsData}
-                                    getOptionLabel={(option) => `${option?.firstName} ${option?.lastName}` || ''}
-                                    filterOptions={(x) => x}
-                                    isOptionEqualToValue={(option, value) => option.id === value.id}
-                                    renderOption={(props, option) => (
-                                        <li {...props}>
-                                            <div>
-                                                <Typography variant="subtitle2" fontWeight="bold">
-                                                    {`${option?.firstName} ${option?.lastName}`}
-                                                </Typography>
-                                                <Typography variant="body2" color="textSecondary">
-                                                    {`${option.email}`}
-                                                </Typography>
-                                            </div>
-                                        </li>
-                                    )}
-                                />
-                            </Grid>
-
-                            <Grid item xs={12} sm={6}>
-                                <RHFAutocomplete
-                                    disabled={!!verificationForm}
                                     name="user"
                                     label="User"
                                     options={usersData || []}
@@ -291,17 +286,13 @@ export default function FamilyClassificationSection({ currentForm, verificationF
 
                                 />
                             </Grid>
-                        </Grid>
-
-                        <Grid sx={{ my: 1 }} container spacing={2}>
                             <Grid item xs={12} sm={6}>
                                 <RHFAutocomplete
                                     disabled={!!verificationForm}
-                                    multiple
                                     name="productionHeads"
                                     label="Production Heads"
                                     onInputChange={(event) => fetchUsers(event, setProductionHeadsData, 'production_head')}
-                                    options={productionHeadsData}
+                                    options={productionHeadsData || []}
                                     getOptionLabel={(option) => `${option?.firstName} ${option?.lastName}` || ''}
                                     filterOptions={(x) => x}
                                     isOptionEqualToValue={(option, value) => option.id === value.id}
@@ -320,13 +311,41 @@ export default function FamilyClassificationSection({ currentForm, verificationF
                                 />
                             </Grid>
                         </Grid>
+
+                        <Grid sx={{ my: 1 }} container spacing={2}>
+                            <Grid item xs={12} sm={6}>
+                                <RHFAutocomplete
+                                    disabled={!!verificationForm}
+                                    multiple
+                                    name="validators"
+                                    label="Additional Approvals"
+                                    onInputChange={(event) => fetchUsers(event, setValidatorsData, 'validator')}
+                                    options={validatorsData || []}
+                                    getOptionLabel={(option) => `${option?.firstName} ${option?.lastName} (${option?.department?.name})` || ''}
+                                    filterOptions={(x) => x}
+                                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                                    renderOption={(props, option) => (
+                                        <li {...props}>
+                                            <div>
+                                                <Typography variant="subtitle2" fontWeight="bold">
+                                                    {`${option?.firstName} ${option?.lastName} (${option?.department?.name})`}
+                                                </Typography>
+                                                <Typography variant="body2" color="textSecondary">
+                                                    {`${option.email}`}
+                                                </Typography>
+                                            </div>
+                                        </li>
+                                    )}
+                                />
+                            </Grid>
+                        </Grid>
                     </Card>
                     <Card sx={{ p: 3, mt: 2 }}>
                         <Grid item xs={12} md={12}>
                             <Box component='div' sx={{ width: '100%', py: 2, px: 1, borderBottom: '2px solid lightGray' }}>
                                 <Typography variant='h5'>Family Classification</Typography>
                             </Box>
-                            <QuestionerySection formQuestionery={currentForm?.familyClassificationQuestionery} control={control} verificationForm={verificationForm} />
+                            <QuestionerySection formQuestionery={currentForm?.familyClassificationQuestionery} control={control} verificationForm={verificationForm} handleDecision={handleDecision}/>
                             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
                                 {!verificationForm && <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                                     Save

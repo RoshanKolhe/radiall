@@ -142,13 +142,14 @@ export default function CriticitySection({ currentForm, verificationForm }) {
     
             if (isAnyValueTrue) {
                 setValue('Suggested family', "Critical");
+                setValue('Final Decision', "Critical");
             }else{
                 setValue('Suggested family', "Non Critical");
+                setValue('Final Decision', "Non Critical");
             }
         }
     };
     
-
     return(
         <FormProvider methods={methods} onSubmit={onSubmit}>
             <Card sx={{ p: 3, mt: 2 }}>
@@ -169,6 +170,6 @@ export default function CriticitySection({ currentForm, verificationForm }) {
 }
 
 CriticitySection.propTypes = {
-    currentForm: PropTypes.array,
+    currentForm: PropTypes.object,
     verificationForm: PropTypes.bool,
 };

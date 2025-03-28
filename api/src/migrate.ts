@@ -23,6 +23,8 @@ export async function migrate(args: string[]) {
       'ApprovalUsers',
       'Spare',
       'Routes',
+      'InternalValidationForm',
+      'ScrappingForm',
       'InventoryOutEntries',
     ],
   });

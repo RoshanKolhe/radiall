@@ -16,18 +16,38 @@ export default function ToolsInstallationForm({ currentForm, verificationForm })
     const [userData, setUserData] = useState(null);
     const [validApprovalUser, setValidApprovalUser] = useState(false);
     const [approvalStatus, setApprovalStatus] = useState(false);
+    const [canGiveApproval, setCanGiveApproval] = useState(false);
 
     useEffect(() => {
-        if (Array.isArray(currentForm?.validators) && Array.isArray(currentForm?.productionHeads) && currentUser) {
+        const validatorsArray = currentForm?.validators || [] ;
+        if (Array.isArray(validatorsArray) && Array.isArray(currentForm?.productionHeads) && currentUser && currentForm?.user) {
             const data = [
                 ...(currentForm?.validators ?? []),
-                ...(currentForm?.productionHeads ?? [])
-            ];
+                ...(currentForm?.productionHeads ?? []),
+                ...(currentForm?.user ? [currentForm.user] : [])
+            ];            
     
             if (data.length > 0) {
                 const matchedUser = data.find((item) => item?.userId === currentUser?.id);
             
                 if (matchedUser) {
+                    const role = matchedUser?.user?.permissions;
+                    if(role?.length > 0 && role?.includes('production_head')){
+                        if(currentForm?.isUsersApprovalDone && currentForm?.isAllValidatorsApprovalDone && !currentForm?.isEditable){
+                            setCanGiveApproval(true);
+                        }
+                    }
+
+                    if(role?.length > 0 && role?.includes('validator')){
+                        if(currentForm?.user?.id === matchedUser?.id){
+                            setCanGiveApproval(true);
+                        }
+
+                        else if(currentForm?.isUsersApprovalDone){
+                            setCanGiveApproval(true);
+                        }
+                    }
+
                     setUserData(matchedUser);
                     setValidApprovalUser(true);
                     setApprovalStatus(!!matchedUser.isApproved);
@@ -43,8 +63,8 @@ export default function ToolsInstallationForm({ currentForm, verificationForm })
             <FamilyClassificationSection currentForm={currentForm} verificationForm={verificationForm} />
             <CriticitySection currentForm={currentForm} verificationForm={verificationForm} />
             <RequirementChecklistSection currentForm={currentForm} verificationForm={verificationForm} />
-            <ApprovalUsersSection validators={currentForm?.validators} productionHeads={currentForm?.productionHeads} />
-            {verificationForm && validApprovalUser && <ApprovalSection userData={userData} formId={currentForm?.id} approvalStatus={approvalStatus} />}
+            <ApprovalUsersSection validators={currentForm?.validators} productionHeads={currentForm?.productionHeads} approvalUser={currentForm?.user}/>
+            {verificationForm && validApprovalUser && canGiveApproval && <ApprovalSection userData={userData} formId={currentForm?.id} approvalStatus={approvalStatus} />}
         </>
     )
 }

@@ -135,7 +135,8 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/tools/list`,
       edit: (id) => `${ROOTS.DASHBOARD}/tools/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/tools/${id}/view`,
-      installationEdit: (id) => `${ROOTS.DASHBOARD}/tools/${id}/installation-edit`,
+      installationForm: (id) => `${ROOTS.DASHBOARD}/tools/${id}/installation-form`,
+      internalValidationForm: (id) => `${ROOTS.DASHBOARD}/tools/${id}/internal-validation-form`,
     },
     // SPARE
     spare: {
@@ -146,6 +147,13 @@ export const paths = {
       edit: (toolId, id) => `${ROOTS.DASHBOARD}/spare/${toolId}/edit/${id}`,
       view: (toolId, id) => `${ROOTS.DASHBOARD}/spare/${toolId}/view/${id}`,
     },
+    // SCRAP
+    scrap: {
+      root: `${ROOTS.DASHBOARD}/scrap`,
+      toolList: `${ROOTS.DASHBOARD}/scrap/toolList`,
+      scrappingForm: (id) => `${ROOTS.DASHBOARD}/scrap/${id}/scrapping-form`
+    },
+    
     // INVENTORY
     inventory: {
       root: `${ROOTS.DASHBOARD}/inventory`,

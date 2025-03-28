@@ -12,4 +12,6 @@ export * from './checklist.model';
 export * from './approval-users.model';
 export * from './spare.model';
 export * from './routes.model';
+export * from './internal-validation-form.model';
+export * from './scrapping-form.model';
 export * from './inventory-out-entries.model';

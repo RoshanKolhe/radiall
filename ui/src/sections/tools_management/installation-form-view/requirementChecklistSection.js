@@ -3,7 +3,7 @@
 /* eslint-disable no-nested-ternary */
 import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
-import { Autocomplete, Box, Button, Card, Grid, MenuItem, Select, Stack, Table, TableBody, TableCell, TableHead, TableRow, TextField, Tooltip, Typography } from '@mui/material';
+import { Autocomplete, Box, Button, Card, Grid, IconButton, MenuItem, Select, Stack, Table, TableBody, TableCell, TableHead, TableRow, TextField, Tooltip, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useGetUsers } from 'src/api/user';
 import Iconify from 'src/components/iconify';
@@ -12,7 +12,6 @@ import { LoadingButton } from '@mui/lab';
 import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router';
 import { paths } from 'src/routes/paths';
-import { HOST_API } from 'src/config-global';
 
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -108,6 +107,12 @@ export default function RequirementChecklistSection({ currentForm, verificationF
             console.error(error);
         }
     };
+
+    const handleDeleteFile = async (index) => {
+        const updatedValues = checkList?.map((field, i) => index === i ? { ...field, upload: '' } : field);
+
+        setCheckList(updatedValues);
+    }
 
     const getUserInfo = (id) => {
         const userInfo = usersData.find((user) => user.id === id);
@@ -356,30 +361,35 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                                         </p>
                                         {!verificationForm && 
                                             (
-                                                <Button
-                                                component="label"
-                                                role={undefined}
-                                                variant="contained"
-                                                tabIndex={-1}
-                                                startIcon={<Iconify color="black" icon="eva:cloud-upload-fill" width={30} />}
-                                                sx={{
-                                                    width: 'fit-content',
-                                                    minWidth: '50px',
-                                                    backgroundColor: 'transparent',
-                                                    boxShadow: 'none',
-                                                    padding: '5px 10px',
-                                                    '&:hover': { backgroundColor: 'transparent' },
-                                                }}
-                                                >
-                                                <VisuallyHiddenInput
-                                                    type="file"
-                                                    onChange={(event) => {
-                                                        console.log('onChange triggered', event.target.files);
-                                                        handleUpload(event.target.files, index);
+                                                <>
+                                                    <IconButton onClick={() => handleDeleteFile(index)}>
+                                                        <Iconify icon="eva:close-fill" color='black' width={24} />
+                                                    </IconButton>
+                                                    <Button
+                                                    component="label"
+                                                    role={undefined}
+                                                    variant="contained"
+                                                    tabIndex={-1}
+                                                    startIcon={<Iconify color="black" icon="eva:cloud-upload-fill" width={30} />}
+                                                    sx={{
+                                                        width: 'fit-content',
+                                                        minWidth: '50px',
+                                                        backgroundColor: 'transparent',
+                                                        boxShadow: 'none',
+                                                        padding: '5px 10px',
+                                                        '&:hover': { backgroundColor: 'transparent' },
                                                     }}
-                                                    multiple
-                                                />
-                                                </Button>
+                                                    >
+                                                    <VisuallyHiddenInput
+                                                        type="file"
+                                                        onChange={(event) => {
+                                                            console.log('onChange triggered', event.target.files);
+                                                            handleUpload(event.target.files, index);
+                                                        }}
+                                                        multiple
+                                                    />
+                                                    </Button>
+                                                </>
                                             )
                                         }
                                     </div>

@@ -46,7 +46,7 @@ export class InstallationFormController {
             }
           },
           { relation : 'initiator'},
-          { relation : 'user'}
+          { relation : 'user', scope : {include : [{relation : 'user', scope : {include : [{relation : 'department'}]}}]}}
         ]
       });
       
@@ -115,6 +115,7 @@ export class InstallationFormController {
   async createValidatorsAndHeads(
     validatorsId: number[],
     productionHeadsId: number[],
+    userId: number,
     formId: number
   ): Promise<{ success: boolean; message: string }> {
     try {
@@ -141,7 +142,7 @@ export class InstallationFormController {
         ? await this.approvalUsersRepository.createAll(newValidatorsData)
         : [];
 
-      const validatorIds = approvalValidatorsData.map((validator) => validator.id);
+      const validatorIds = approvalValidatorsData?.map((validator) => validator.id) || [];
 
       // Fetch existing production heads
       const existingProductionHeads = await this.approvalUsersRepository.find({
@@ -166,10 +167,41 @@ export class InstallationFormController {
         ? await this.approvalUsersRepository.createAll(newProductionHeadsData)
         : [];
 
-      const productionHeadIds = approvalProductionHeadsData.map((head) => head.id);
+      const productionHeadIds = approvalProductionHeadsData?.map((head) => head.id) || [];
+
+      // check existing record for userId
+      const existingUser = await this.approvalUsersRepository.findOne({
+        where : {
+          userId : userId,
+          installationFormId : formId
+        }
+      });
+
+      if(existingUser){
+        await this.installationFormRepository.updateById(formId, {
+          userId : existingUser?.id
+        });
+      }else{
+        const userApproval = await this.approvalUsersRepository.create({
+          userId: userId,
+          installationFormId: formId,
+          isApproved: false,
+        });
+
+        if(userApproval){
+          await this.installationFormRepository.updateById(formId, {
+            userId : userApproval?.id
+          });
+        }
+      }
 
       // Update installation form only if new validators or production heads were added
-      if (validatorIds.length || productionHeadIds.length) {
+      if (validatorIds.length  || productionHeadIds.length) {
+        if(validatorIds.length <= 0){
+          await this.installationFormRepository.updateById(formId, {
+            isAllValidatorsApprovalDone : true
+          })
+        }
         await this.installationFormRepository.updateById(formId, {
           validatorsIds: validatorIds,
           productionHeadIds: productionHeadIds,
@@ -178,7 +210,7 @@ export class InstallationFormController {
 
       return {
         success: true,
-        message: "Validators and production heads created successfully.",
+        message: "Validators and production heads and user approval created successfully.",
       };
     } catch (error) {
       throw error;
@@ -283,7 +315,7 @@ export class InstallationFormController {
         userId : userId,
       });
 
-      const response = await this.createValidatorsAndHeads(validatorsId, productionHeadsId, formId);
+      const response = await this.createValidatorsAndHeads(validatorsId, productionHeadsId, userId, formId);
 
       if(response.success){
         return{
@@ -384,7 +416,7 @@ export class InstallationFormController {
     }
   }
 
-  // update Criticity section...
+  // update requirement checklist section...
   @authenticate({
     strategy : 'jwt',
     options : {required : [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
@@ -514,17 +546,19 @@ export class InstallationFormController {
         if (isAllApproved) {
           // Send email and notifications to production heads
           return true;
+        }else{
+          return false;
         }
       }
 
-      return false;
+      return true;
     } catch (error) {
       console.error('Error in validators approval:', error);
       return false;
     }
   }
 
-  // Check if all validators have approved
+  // Check if all Production Heads have approved
   async checkProductionHeadsApproval(ids: number[]): Promise<boolean> {
     try {
       const approvalUsers = await this.approvalUsersRepository.find({
@@ -542,6 +576,26 @@ export class InstallationFormController {
       return false;
     } catch (error) {
       console.error('Error in Production heads approval:', error);
+      return false;
+    }
+  }
+
+  // Check if User have approved
+  async checkUserApproval(id: number): Promise<boolean> {
+    try {
+      const approvalUser = await this.approvalUsersRepository.findById(id);
+
+      if (approvalUser) {
+        const isApproved = approvalUser.isApproved === true;
+
+        if (isApproved) {
+          return true;
+        }
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Error in User approval:', error);
       return false;
     }
   }
@@ -608,7 +662,13 @@ export class InstallationFormController {
         await this.installationFormRepository.updateById(formId, { isAllProductionHeadsApprovalDone: true, status: 'approved' });
       };
 
-      if(allValidatorsApproved && allProductionHeadsApproved){
+      // Check User Approval...
+      const userApproval = await this.checkUserApproval(form.userId);
+      if(userApproval){
+        await this.installationFormRepository.updateById(formId, {isUsersApprovalDone : true});
+      }
+
+      if(allValidatorsApproved && allProductionHeadsApproved && userApproval){
         await this.checkFieldValues(form);
         const updatedValues = {
           installationStatus : 'approved',
@@ -616,13 +676,17 @@ export class InstallationFormController {
         }
 
         await this.toolsRepository.updateById(form?.id, updatedValues);
+        const savedTool = await this.toolsRepository.findById(form?.id);
+
+        if(savedTool && savedTool.installationStatus.toLowerCase() === 'approved' && savedTool.internalValidationStatus.toLowerCase() === 'approved'){
+          await this.toolsRepository.updateById(form?.id, {isActive : true, status : 'Operational'});
+        }
       }
 
     } catch (error) {
       console.error('Error in form approval:', error);
     }
   }
-
 
   // approval user from approve api....
   @authenticate({

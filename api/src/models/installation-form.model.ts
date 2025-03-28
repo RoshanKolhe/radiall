@@ -1,6 +1,7 @@
 import {Entity, model, property, belongsTo} from '@loopback/repository';
 import {User} from './user.model';
 import {Tools} from './tools.model';
+import {ApprovalUsers} from './approval-users.model';
 
 @model()
 export class InstallationForm extends Entity {
@@ -13,30 +14,30 @@ export class InstallationForm extends Entity {
 
   @belongsTo(() => Tools)
   toolsId: number;
-  
+
   @belongsTo(() => User)
   initiatorId: number;
 
-  @belongsTo(() => User)
+  @belongsTo(() => ApprovalUsers)
   userId: number;
 
   @property({
     type: 'array',
-    itemType : 'number',
+    itemType: 'number',
   })
-  validatorsIds : number[];
+  validatorsIds: number[];
 
   @property({
     type: 'array',
-    itemType : 'number',
+    itemType: 'number',
   })
-  productionHeadIds : number[];
+  productionHeadIds: number[];
 
   @property({
     type: 'array',
     itemType: 'object'
   })
-  familyClassificationQuestionery : Array<{
+  familyClassificationQuestionery: Array<{
     question: string;
     type: string;
     options: string[];
@@ -48,13 +49,13 @@ export class InstallationForm extends Entity {
   @property({
     type: 'boolean',
   })
-  isFamilyClassificationSectionDone : boolean;
+  isFamilyClassificationSectionDone: boolean;
 
   @property({
     type: 'array',
     itemType: 'object'
   })
-  criticityQuestionery : Array<{
+  criticityQuestionery: Array<{
     question: string;
     type: string;
     options: string[];
@@ -66,22 +67,22 @@ export class InstallationForm extends Entity {
   @property({
     type: 'boolean',
   })
-  isCriticitySectionDone : boolean;
+  isCriticitySectionDone: boolean;
 
   @property({
     type: 'array',
     itemType: 'object'
   })
-  requirementChecklist : Array<{
+  requirementChecklist: Array<{
     requirement: string;
     isNeedUpload: boolean;
     critical: string;
     nonCritical: string;
     toDo: boolean;
     actionOwner: {
-      id : number;
-      fullName : string;
-      role : string;
+      id: number;
+      fullName: string;
+      role: string;
     };
     done: boolean;
     comment: string;
@@ -92,22 +93,27 @@ export class InstallationForm extends Entity {
   @property({
     type: 'boolean',
   })
-  isRequirementChecklistSectionDone : boolean;
+  isRequirementChecklistSectionDone: boolean;
+
+  @property({
+    type: 'boolean'
+  })
+  isUsersApprovalDone: boolean;
 
   @property({
     type: 'boolean',
   })
-  isAllValidatorsApprovalDone : boolean;
+  isAllValidatorsApprovalDone: boolean;
 
   @property({
     type: 'boolean',
   })
-  isAllProductionHeadsApprovalDone  : boolean;
+  isAllProductionHeadsApprovalDone: boolean;
 
   @property({
     type: 'boolean',
   })
-  isEditable : boolean;
+  isEditable: boolean;
 
   @property({
     type: 'date',
