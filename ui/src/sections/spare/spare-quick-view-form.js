@@ -32,6 +32,7 @@ export default function SpareQuickViewForm({ currentSpare, open, onClose, refres
   const [manufacturersData, setManufacturersData] = useState([]);
 
   const NewSpareSchema = Yup.object().shape({
+    partNumber: Yup.string().required('Part Number is required'),
     description: Yup.string().required('Description is required'),
     stock: Yup.number().required('Qty is required').min(1, 'At least 1 quantity is required'),
     supplier: Yup.object().required('Supplier is required'),
@@ -42,6 +43,7 @@ export default function SpareQuickViewForm({ currentSpare, open, onClose, refres
   const defaultValues = useMemo(
     () => ({
       description: currentSpare?.description || '',
+      partNumber: currentSpare?.partNumber || '',
       stock: currentSpare?.stock || '',
       isActive: currentSpare ? (currentSpare?.isActive ? '1' : '0') : '1',
       manufacturer: currentSpare ? currentSpare?.manufacturer : null,
@@ -54,30 +56,6 @@ export default function SpareQuickViewForm({ currentSpare, open, onClose, refres
   const methods = useForm({
     resolver: yupResolver(NewSpareSchema),
     defaultValues,
-  });
-
-  const { reset, handleSubmit } = methods;
-
-  const onSubmit = handleSubmit(async (formData) => {
-    try {
-      const inputData = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        permissions: [formData.role],
-        phoneNumber: formData.phoneNumber,
-        isActive: formData.isActive,
-        employeeId: formData.employeeId,
-        departmentId: Number(formData.department),
-      };
-      await axiosInstance.patch(`/api/users/${currentSpare.id}`, inputData);
-      refreshSpares();
-      reset();
-      onClose();
-      enqueueSnackbar('Update success!');
-    } catch (error) {
-      console.error(error);
-    }
   });
 
   useEffect(() => {
@@ -102,7 +80,7 @@ export default function SpareQuickViewForm({ currentSpare, open, onClose, refres
         sx: { maxWidth: 720 },
       }}
     >
-      <FormProvider methods={methods} onSubmit={onSubmit}>
+      <FormProvider methods={methods}>
         <DialogTitle>Quick Update</DialogTitle>
 
         <DialogContent>

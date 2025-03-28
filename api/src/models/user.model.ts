@@ -1,5 +1,6 @@
-import {belongsTo, Entity, model, property} from '@loopback/repository';
+import {belongsTo, Entity, model, property, hasMany} from '@loopback/repository';
 import {Department} from './department.model';
+import {InventoryOutEntries} from './inventory-out-entries.model';
 
 @model()
 export class User extends Entity {
@@ -124,6 +125,12 @@ export class User extends Entity {
 
   @belongsTo(() => Department)
   departmentId: number;
+
+  @hasMany(() => InventoryOutEntries, {keyTo: 'issuedTo'})
+  inventoryOutEntries: InventoryOutEntries[];
+
+  @hasMany(() => InventoryOutEntries, {keyTo: 'issuedBy'})
+  issuedByToolsEntry: InventoryOutEntries[];
 
   constructor(data?: Partial<User>) {
     super(data);

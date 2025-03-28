@@ -53,6 +53,13 @@ const StationViewPage = lazy(() => import('src/pages/dashboard/station/view'));
 const SpareToolListPage = lazy(() => import('src/pages/dashboard/spare/tool-list'));
 const SpareListPage = lazy(() => import('src/pages/dashboard/spare/list'));
 
+// INVENTORY
+const InventoryToolListPage = lazy(() => import('src/pages/dashboard/inventory/tool-list'));
+const InventoryListPage = lazy(() => import('src/pages/dashboard/inventory/list'));
+const InventoryCreatePage = lazy(() => import('src/pages/dashboard/inventory/new'));
+const InventoryEditPage = lazy(() => import('src/pages/dashboard/inventory/edit'));
+const InventoryViewPage = lazy(() => import('src/pages/dashboard/inventory/view'));
+
 // TOOLS MANAGEMENT
 const ToolsListPage = lazy(() => import('src/pages/dashboard/tools_management/list'));
 const ToolsCreatePage = lazy(() => import('src/pages/dashboard/tools_management/new'));
@@ -145,6 +152,16 @@ export const dashboardRoutes = [
           { path: 'new', element: <StationCreatePage /> },
           { path: ':id/edit', element: <StationEditPage /> },
           { path: ':id/view', element: <StationViewPage /> },
+        ],
+      },
+
+      {
+        path: 'inventory',
+        children: [
+          { element: <InventoryToolListPage />, index: true },
+          { path: 'toolList', element: <InventoryToolListPage /> },
+          { path: ':id/list', element: <InventoryListPage /> },
+          { path: 'new', element: <InventoryCreatePage /> },
         ],
       },
 

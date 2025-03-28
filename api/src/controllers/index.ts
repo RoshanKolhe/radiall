@@ -22,3 +22,4 @@ export * from './scrapping-form-user.controller';
 export * from './scrapping-form-approval-users.controller';
 export * from './scrapping-form.controller';
 export * from './approval-users-scrapping-form.controller';
+export * from './inventory-out-entries.controller';

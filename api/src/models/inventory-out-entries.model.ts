@@ -1,10 +1,9 @@
 import {Entity, model, property, belongsTo} from '@loopback/repository';
 import {Tools} from './tools.model';
-import {Manufacturer} from './manufacturer.model';
-import {Supplier} from './supplier.model';
+import {User} from './user.model';
 
 @model()
-export class Spare extends Entity {
+export class InventoryOutEntries extends Entity {
   @property({
     type: 'number',
     id: true,
@@ -13,38 +12,33 @@ export class Spare extends Entity {
   id?: number;
 
   @property({
-    type: 'string',
+    type: 'number',
     required: true,
   })
-  partNumber: string;
-
-  @property({
-    type: 'string',
-    required: true,
-  })
-  description: string;
+  serialNumber: number;
 
   @property({
     type: 'number',
-    default: 0,
+    required: true,
   })
-  stock?: number;
+  moNumber: number;
 
   @property({
     type: 'number',
-    default: 0,
+    required: true,
   })
-  stockInHand?: number;
+  moQuantity: number;
 
   @property({
-    type: 'string',
+    type: 'date',
   })
-  unit?: string;
+  issuedDate?: Date;
 
   @property({
-    type: 'string',
+    type: 'number',
+    required: true,
   })
-  comment?: string;
+  requiredDays: number;
 
   @property({
     type: 'date',
@@ -81,19 +75,20 @@ export class Spare extends Entity {
   @belongsTo(() => Tools)
   toolsId: number;
 
-  @belongsTo(() => Manufacturer)
-  manufacturerId: number;
+  @belongsTo(() => User, {name: 'user'})
+  issuedTo: number;
 
-  @belongsTo(() => Supplier)
-  supplierId: number;
+  @belongsTo(() => User, {name: 'issuedByUser'})
+  issuedBy: number;
 
-  constructor(data?: Partial<Spare>) {
+  constructor(data?: Partial<InventoryOutEntries>) {
     super(data);
   }
 }
 
-export interface SpareRelations {
+export interface InventoryOutEntriesRelations {
   // describe navigational properties here
 }
 
-export type SpareWithRelations = Spare & SpareRelations;
+export type InventoryOutEntriesWithRelations = InventoryOutEntries &
+  InventoryOutEntriesRelations;

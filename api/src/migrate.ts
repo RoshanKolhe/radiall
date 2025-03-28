@@ -24,7 +24,8 @@ export async function migrate(args: string[]) {
       'Spare',
       'Routes',
       'InternalValidationForm',
-      'ScrappingForm'
+      'ScrappingForm',
+      'InventoryOutEntries',
     ],
   });
 

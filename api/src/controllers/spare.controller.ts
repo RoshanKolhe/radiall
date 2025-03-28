@@ -16,6 +16,7 @@ import {
   del,
   requestBody,
   response,
+  HttpErrors,
 } from '@loopback/rest';
 import {Spare} from '../models';
 import {SpareRepository} from '../repositories';
@@ -52,6 +53,17 @@ export class SpareController {
     })
     spare: Omit<Spare, 'id'>,
   ): Promise<Spare> {
+    const existingSpare = await this.spareRepository.findOne({
+      where: {partNumber: spare.partNumber},
+    });
+
+    if (existingSpare) {
+      throw new HttpErrors.BadRequest(
+        'A spare with this part number already exists.',
+      );
+    }
+
+    // If not found, create a new spare
     return this.spareRepository.create(spare);
   }
 
@@ -127,6 +139,21 @@ export class SpareController {
     })
     spare: Spare,
   ): Promise<void> {
+    // Check if partNumber is being updated
+    if (spare.partNumber) {
+      // Look for an existing spare with the same partNumber but a different ID
+      const existingSpare = await this.spareRepository.findOne({
+        where: {partNumber: spare.partNumber, id: {neq: id}},
+      });
+
+      if (existingSpare) {
+        throw new HttpErrors.BadRequest(
+          'A spare with this part number already exists.',
+        );
+      }
+    }
+
+    // Proceed with update if no duplicate found
     await this.spareRepository.updateById(id, spare);
   }
 

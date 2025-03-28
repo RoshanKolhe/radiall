@@ -35,31 +35,26 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
-import { useGetSparesWithFilter } from 'src/api/spare';
+import { useGetInventorysWithFilter } from 'src/api/inventory';
 import { _roles, COMMON_STATUS_OPTIONS } from 'src/utils/constants';
 import { useGetTool } from 'src/api/tools';
 import { Grid, Typography } from '@mui/material';
 import { format } from 'date-fns';
-import SpareTableRow from '../spare-table-row';
-import SpareTableToolbar from '../spare-table-toolbar';
-import SpareTableFiltersResult from '../spare-table-filters-result';
-import SpareQuickEditForm from '../spare-quick-edit-form';
-import SpareQuickViewForm from '../spare-quick-view-form';
+import { RouterLink } from 'src/routes/components';
+import InventoryTableRow from '../inventory-table-row';
+import InventoryTableToolbar from '../inventory-table-toolbar';
+import InventoryTableFiltersResult from '../inventory-table-filters-result';
 
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...COMMON_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: 'partNumber', label: 'Part Number' },
   { id: 'description', label: 'Description' },
   { id: 'stock', label: 'Qty safety stock' },
-  { id: 'stockInHand', label: 'Stock In Hand' },
-  { id: 'unit', label: 'Unit' },
   { id: 'comment', label: 'Comment' },
   { id: 'createdAt', label: 'Created At' },
   { id: 'status', label: 'Status', width: 100 },
-  { id: 'alaram', label: 'Alaram', width: 100 },
   { id: '', width: 88 },
 ];
 
@@ -71,7 +66,7 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export default function SpareListView() {
+export default function InventoryListView() {
   const params = useParams();
 
   const { id: toolId } = params;
@@ -82,14 +77,6 @@ export default function SpareListView() {
 
   const confirm = useBoolean();
 
-  const [quickEditRow, setQuickEditRow] = useState();
-
-  const quickEdit = useBoolean();
-
-  const [quickViewRow, setQuickViewRow] = useState();
-
-  const quickView = useBoolean();
-
   const [tableData, setTableData] = useState([]);
 
   const [filters, setFilters] = useState(defaultFilters);
@@ -98,8 +85,8 @@ export default function SpareListView() {
   const encodedFilter = encodeURIComponent(filter);
 
   const { tool } = useGetTool(toolId);
-  const { filteredSpares: spares, refreshFilterSpares: refreshSpares } =
-    useGetSparesWithFilter(encodedFilter);
+  const { filteredInventorys: inventorys, refreshFilterInventorys: refreshInventorys } =
+    useGetInventorysWithFilter(encodedFilter);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -140,22 +127,6 @@ export default function SpareListView() {
     });
   }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
-  const handleQuickEditRow = useCallback(
-    (row) => {
-      setQuickEditRow(row);
-      quickEdit.onTrue();
-    },
-    [quickEdit]
-  );
-
-  const handleQuickViewRow = useCallback(
-    (row) => {
-      setQuickViewRow(row);
-      quickView.onTrue();
-    },
-    [quickView]
-  );
-
   const handleFilterStatus = useCallback(
     (event, newValue) => {
       handleFilters('status', newValue);
@@ -168,10 +139,10 @@ export default function SpareListView() {
   }, []);
 
   useEffect(() => {
-    if (spares) {
-      setTableData(spares);
+    if (inventorys) {
+      setTableData(inventorys);
     }
-  }, [spares]);
+  }, [inventorys]);
 
   return (
     <>
@@ -180,19 +151,17 @@ export default function SpareListView() {
           heading="List"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Tool List', href: paths.dashboard.spare.root },
+            { name: 'Tool List', href: paths.dashboard.inventory.root },
             { name: 'List' },
           ]}
           action={
             <Button
+              component={RouterLink}
+              href={paths.dashboard.inventory.new}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
-              onClick={() => {
-                setQuickEditRow(null);
-                quickEdit.onTrue();
-              }}
             >
-              New Spare
+              New Out Entry
             </Button>
           }
           sx={{
@@ -266,16 +235,18 @@ export default function SpareListView() {
                     }
                   >
                     {tab.value === 'all' && tableData.length}
-                    {tab.value === '1' && tableData.filter((spare) => spare.isActive).length}
+                    {tab.value === '1' &&
+                      tableData.filter((inventory) => inventory.isActive).length}
 
-                    {tab.value === '0' && tableData.filter((spare) => !spare.isActive).length}
+                    {tab.value === '0' &&
+                      tableData.filter((inventory) => !inventory.isActive).length}
                   </Label>
                 }
               />
             ))}
           </Tabs>
 
-          <SpareTableToolbar
+          <InventoryTableToolbar
             filters={filters}
             onFilters={handleFilters}
             //
@@ -283,7 +254,7 @@ export default function SpareListView() {
           />
 
           {canReset && (
-            <SpareTableFiltersResult
+            <InventoryTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
               //
@@ -339,16 +310,10 @@ export default function SpareListView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <SpareTableRow
+                      <InventoryTableRow
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}
-                        handleQuickEditRow={(user) => {
-                          handleQuickEditRow(user);
-                        }}
-                        handleQuickViewRow={(user) => {
-                          handleQuickViewRow(user);
-                        }}
                       />
                     ))}
 
@@ -398,31 +363,6 @@ export default function SpareListView() {
           </Button>
         }
       />
-      {quickEdit.value && (
-        <SpareQuickEditForm
-          currentSpare={quickEditRow}
-          open={quickEdit.value}
-          onClose={() => {
-            setQuickEditRow(null);
-            quickEdit.onFalse();
-          }}
-          refreshSpares={refreshSpares}
-          toolId={toolId}
-          tool={tool}
-        />
-      )}
-
-      {quickView.value && quickViewRow && (
-        <SpareQuickViewForm
-          currentSpare={quickViewRow}
-          open={quickView.value}
-          onClose={() => {
-            setQuickViewRow(null);
-            quickView.onFalse();
-          }}
-          refreshSpares={refreshSpares}
-        />
-      )}
     </>
   );
 }
@@ -446,22 +386,26 @@ function applyFilter({ inputData, comparator, filters }) {
   inputData = stabilizedThis.map((el) => el[0]);
 
   if (name) {
-    inputData = inputData.filter((spare) =>
-      Object.values(spare).some((value) => String(value).toLowerCase().includes(name.toLowerCase()))
+    inputData = inputData.filter((inventory) =>
+      Object.values(inventory).some((value) =>
+        String(value).toLowerCase().includes(name.toLowerCase())
+      )
     );
   }
 
   if (status !== 'all') {
-    inputData = inputData.filter((spare) => (status === '1' ? spare.isActive : !spare.isActive));
+    inputData = inputData.filter((inventory) =>
+      status === '1' ? inventory.isActive : !inventory.isActive
+    );
   }
 
   if (role.length) {
     inputData = inputData.filter(
-      (spare) =>
-        spare.permissions &&
-        spare.permissions.some((spareRole) => {
-          console.log(spareRole);
-          const mappedRole = roleMapping[spareRole];
+      (inventory) =>
+        inventory.permissions &&
+        inventory.permissions.some((inventoryRole) => {
+          console.log(inventoryRole);
+          const mappedRole = roleMapping[inventoryRole];
           console.log('Mapped Role:', mappedRole); // Check the mapped role
           return mappedRole && role.includes(mappedRole);
         })

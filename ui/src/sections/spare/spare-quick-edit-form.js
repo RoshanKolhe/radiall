@@ -25,7 +25,15 @@ import { useGetSuppliers } from 'src/api/supplier';
 
 // ----------------------------------------------------------------------
 
-export default function SpareQuickEditForm({ currentSpare, open, onClose, refreshSpares, toolId }) {
+export default function SpareQuickEditForm({
+  currentSpare,
+  open,
+  onClose,
+  refreshSpares,
+  toolId,
+  tool,
+}) {
+  console.log(tool);
   const { enqueueSnackbar } = useSnackbar();
 
   const { manufacturers, manufacturersEmpty } = useGetManufacturers();
@@ -35,8 +43,15 @@ export default function SpareQuickEditForm({ currentSpare, open, onClose, refres
   const [manufacturersData, setManufacturersData] = useState([]);
 
   const NewSpareSchema = Yup.object().shape({
+    partNumber: Yup.string().required('Part Number is required'),
     description: Yup.string().required('Description is required'),
-    stock: Yup.number().required('Qty is required').min(1, 'At least 1 quantity is required'),
+    stock: Yup.number()
+      .required('Safety Stock is required')
+      .min(1, 'At least 1 quantity is required'),
+    stockInHand: Yup.number()
+      .required('Stock in hand is required')
+      .min(0, 'Stock in hand cannot be negative'),
+    unit: Yup.string().required('Unit is required'),
     supplier: Yup.object().required('Supplier is required'),
     manufacturer: Yup.object().required('Manufacturer  is required'),
     comment: Yup.string(),
@@ -45,7 +60,10 @@ export default function SpareQuickEditForm({ currentSpare, open, onClose, refres
   const defaultValues = useMemo(
     () => ({
       description: currentSpare?.description || '',
+      partNumber: currentSpare?.partNumber || '',
       stock: currentSpare?.stock || '',
+      stockInHand: currentSpare?.stockInHand || '',
+      unit: currentSpare?.unit || '',
       isActive: currentSpare ? (currentSpare?.isActive ? '1' : '0') : '1',
       manufacturer: currentSpare ? currentSpare?.manufacturer : null,
       supplier: currentSpare ? currentSpare?.supplier : null,
@@ -62,16 +80,23 @@ export default function SpareQuickEditForm({ currentSpare, open, onClose, refres
   const {
     reset,
     handleSubmit,
+    setValue,
+    watch,
     formState: { isSubmitting },
   } = methods;
+
+  const values = watch();
 
   const onSubmit = handleSubmit(async (formData) => {
     try {
       console.info('DATA', formData);
       const inputData = {
+        partNumber: formData.partNumber,
         description: formData.description,
         comment: formData.comment,
         stock: formData.stock,
+        stockInHand: formData.stockInHand,
+        unit: formData.unit,
         manufacturerId: formData.manufacturer.id,
         supplierId: formData.supplier.id,
         isActive: currentSpare ? formData.isActive : true,
@@ -106,6 +131,13 @@ export default function SpareQuickEditForm({ currentSpare, open, onClose, refres
       setManufacturersData(manufacturers);
     }
   }, [manufacturers, manufacturersEmpty]);
+
+  useEffect(() => {
+    if (tool && !currentSpare) {
+      setValue('supplier', tool?.supplier);
+      setValue('manufacturer', tool?.manufacturer);
+    }
+  }, [currentSpare, setValue, tool]);
 
   return (
     <Dialog
@@ -149,9 +181,15 @@ export default function SpareQuickEditForm({ currentSpare, open, onClose, refres
                 <Box sx={{ display: { xs: 'none', sm: 'block' } }} />
               </>
             ) : null}
-
+            <RHFTextField name="partNumber" label="Part Number" />
             <RHFTextField name="description" label="Description" />
             <RHFTextField name="stock" label="Qty Safety Stock" type="number" />
+            <RHFTextField
+              name="stockInHand"
+              label="Stock In Hand"
+              type="number"
+              value={values.stockInHand || 0}
+            />
             <RHFAutocomplete
               name="supplier"
               label="Supplier"
@@ -186,6 +224,7 @@ export default function SpareQuickEditForm({ currentSpare, open, onClose, refres
                 </li>
               )}
             />
+            <RHFTextField name="unit" label="Unit" />
             <RHFTextField name="comment" label="Comment" />
           </Box>
         </DialogContent>
@@ -210,4 +249,5 @@ SpareQuickEditForm.propTypes = {
   open: PropTypes.bool,
   refreshSpares: PropTypes.func,
   toolId: PropTypes.any,
+  tool: PropTypes.object,
 };
