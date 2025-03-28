@@ -31,7 +31,7 @@ export default function ToolsTableRow({
   onDeleteRow,
 }) {
   const navigate = useNavigate();
-  const { id, meanSerialNumber, partNumber, quantity, createdAt, installationStatus, internalValidationStatus, isActive, toolType, storageLocation } = row;
+  const { id, meanSerialNumber, partNumber, modelNumber, productionMeans, isMaintaincePlanNeeded, calibration, manufacturer, supplier, toolFamily, criticalLevel, installationChecklist, technicalDrawing, quantity, assetNumber, createdAt, installationStatus, isActive, internalValidationStatus, status, storageLocation } = row;
 
   const confirm = useBoolean();
 
@@ -56,10 +56,20 @@ export default function ToolsTableRow({
         </TableCell> */}
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{id}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{partNumber}</TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{toolType?.toolType || 'NA'}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{modelNumber}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{productionMeans}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{quantity}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap', pr:'150px' }}>{meanSerialNumber}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{assetNumber || 'NA'}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{installationChecklist || 'NA'}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{technicalDrawing || 'NA'}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{toolFamily || 'NA'}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{criticalLevel || 'NA'}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{isMaintaincePlanNeeded || 'NA'}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{calibration || 'NA'}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{storageLocation?.location || 'NA'}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{manufacturer?.manufacturer || 'NA'}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{supplier?.supplier || 'NA'}</TableCell>
         <TableCell>
           <ListItemText
             primary={format(new Date(createdAt), 'dd MMM yyyy')}
@@ -71,13 +81,21 @@ export default function ToolsTableRow({
               typography: 'caption',
             }}
           />
-        </TableCell>        
+        </TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
           <Label
             variant="soft"
             color={(isActive && 'success') || (!isActive && 'error') || 'default'}
           >
             {isActive ? 'Active' : 'Non-Active'}
+          </Label>
+        </TableCell>        
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          <Label
+            variant="soft"
+            color={(status === 'Operational' && 'success') || (status !== 'Operational' && 'error') || 'default'}
+          >
+            {status}
           </Label>
         </TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
@@ -92,7 +110,7 @@ export default function ToolsTableRow({
           <Tooltip title="Installation Form" placement="top" arrow>
               <IconButton
                 onClick={() => {
-                  navigate(paths.dashboard.tools.installationEdit(row.id));
+                  navigate(paths.dashboard.tools.installationForm(row.id));
                 }}
               >
                 <Iconify icon="carbon:view-filled" />
@@ -111,7 +129,7 @@ export default function ToolsTableRow({
           <Tooltip title="Internal Validation Form" placement="top" arrow>
               <IconButton
                 onClick={() => {
-                  onViewRow();
+                  navigate(paths.dashboard.tools.internalValidationForm(row.id));
                 }}
               >
                 <Iconify icon="carbon:view-filled" />

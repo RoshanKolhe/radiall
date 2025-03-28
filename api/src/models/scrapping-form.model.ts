@@ -1,10 +1,10 @@
 import {Entity, model, property, belongsTo} from '@loopback/repository';
-import {User} from './user.model';
 import {Tools} from './tools.model';
+import {User} from './user.model';
 import {ApprovalUsers} from './approval-users.model';
 
 @model()
-export class InstallationForm extends Entity {
+export class ScrappingForm extends Entity {
   @property({
     type: 'number',
     id: true,
@@ -34,40 +34,9 @@ export class InstallationForm extends Entity {
   productionHeadIds: number[];
 
   @property({
-    type: 'array',
-    itemType: 'object'
+    type: 'string',
   })
-  familyClassificationQuestionery: Array<{
-    question: string;
-    type: string;
-    options: string[];
-    isFieldChanging: boolean;
-    fieldName: string;
-    answer: string;
-  }>;
-
-  @property({
-    type: 'boolean',
-  })
-  isFamilyClassificationSectionDone: boolean;
-
-  @property({
-    type: 'array',
-    itemType: 'object'
-  })
-  criticityQuestionery: Array<{
-    question: string;
-    type: string;
-    options: string[];
-    isFieldChanging: boolean;
-    fieldName: string;
-    answer: string;
-  }>;
-
-  @property({
-    type: 'boolean',
-  })
-  isCriticitySectionDone: boolean;
+  justification: string;
 
   @property({
     type: 'array',
@@ -77,7 +46,7 @@ export class InstallationForm extends Entity {
     requirement: string;
     isNeedUpload: boolean;
     critical: string;
-    nonCritical: string;
+    // nonCritical: string;
     toDo: boolean;
     actionOwner: {
       id: number;
@@ -87,13 +56,8 @@ export class InstallationForm extends Entity {
     done: boolean;
     comment: string;
     upload: string;
-    routes: object;
+    // routes: object;
   }>;
-
-  @property({
-    type: 'boolean',
-  })
-  isRequirementChecklistSectionDone: boolean;
 
   @property({
     type: 'boolean'
@@ -147,13 +111,13 @@ export class InstallationForm extends Entity {
   })
   remark?: string;
 
-  constructor(data?: Partial<InstallationForm>) {
+  constructor(data?: Partial<ScrappingForm>) {
     super(data);
   }
 }
 
-export interface InstallationFormRelations {
+export interface ScrappingFormRelations {
   // describe navigational properties here
 }
 
-export type InstallationFormWithRelations = InstallationForm & InstallationFormRelations;
+export type ScrappingFormWithRelations = ScrappingForm & ScrappingFormRelations;

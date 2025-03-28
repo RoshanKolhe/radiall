@@ -91,11 +91,8 @@ export default function ToolsNewEditForm({ currentTool }) {
     .transform((value, originalValue) => (originalValue === '' ? null : value)) 
     .required('Quantity is required')
     .min(1, 'Quantity must be at least 1'),
-    serialNumber: Yup.number()
-    .nullable()
-    .transform((value, originalValue) => (originalValue === '' ? null : value))
-    .required('Serial Number is required')
-    .min(1, 'Serial Number must be at least 1'),
+    serialNumber: Yup.string()
+    .required('Serial Number is required'),
     toolType: Yup.number().nullable().transform((value, originalValue) => (originalValue === '' ? null : value)).required('Tool type is required'),
     supplier: Yup.number().nullable().transform((value, originalValue) => (originalValue === '' ? null : value)).required('Supplier is required'),
     manufacturer: Yup.number().nullable().transform((value, originalValue) => (originalValue === '' ? null : value)).required('Manufacturer is required'),
@@ -119,7 +116,7 @@ export default function ToolsNewEditForm({ currentTool }) {
       partNumber: currentTool?.partNumber || '',
       modelNumber: currentTool?.modelNumber || '',
       description: currentTool?.description || '',
-      quantity: currentTool?.quantity || '', 
+      quantity: currentTool?.quantity || 1, 
       serialNumber: currentTool?.meanSerialNumber || '', 
       toolType: currentTool?.toolTypeId || '',
       productionMeans: currentTool?.productionMeans || '',
@@ -164,7 +161,7 @@ export default function ToolsNewEditForm({ currentTool }) {
       const inputData = {
         partNumber: formData.partNumber,
         modelNumber: formData.modelNumber,
-        meanSerialNumber: formData.serialNumber,
+        meanSerialNumber: formData?.serialNumber?.replace(/\(\s*/g, "(").replace(/\s*,\s*/g, ",").trim(),
         description: formData.description,
         quantity: formData.quantity,
         balanceQuantity: formData.quantity,
@@ -175,7 +172,8 @@ export default function ToolsNewEditForm({ currentTool }) {
         storageLocationId: formData.storageLocation,
         productionMeans: formData.productionMeans,
         designation: formData.designation,
-        isActive: false,
+        isActive: formData?.isActive || false,
+        status: formData?.isActive === true ? 'Operational' : 'Non-Operational',
         installationStatus : 'pending',
         internalValidationStatus : 'pending',
       };
@@ -227,7 +225,7 @@ export default function ToolsNewEditForm({ currentTool }) {
         setValue('modelNumber', response?.data?.data?.modelNumber);
         setValue('toolType', toolTypeData?.find((toolType) => toolType.id === Number(response?.data?.data?.toolTypeId))?.id || undefined, { shouldValidate: true });
         setValue('description', response?.data?.data?.description);
-        setValue('serialNumber', Number(response?.data?.data?.meanSerialNumber) + 1, { shouldValidate: true });
+        // setValue('serialNumber', response?.data?.data?.meanSerialNumber, { shouldValidate: true });  // removing + 1
         setValue('supplier', supplierData?.find((supplier) => supplier.id === Number(response?.data?.data?.supplierId))?.id || undefined, { shouldValidate: true });
         setValue('manufacturer', manufacturersData?.find((manufacturer) => manufacturer.id === Number(response?.data?.data?.manufacturerId))?.id || undefined, { shouldValidate: true });
         setValue('storageLocation', storageLocationsData?.find((location) => location.id === Number(response?.data?.data?.storageLocationId))?.id || undefined, { shouldValidate: true });
@@ -235,7 +233,7 @@ export default function ToolsNewEditForm({ currentTool }) {
         setAllowEdit(true);
         enqueueSnackbar('Tool with same part number found',{variant : 'success'});
       }else{
-        setValue('serialNumber', 1);
+        // setValue('serialNumber', 1);
         setAllowEdit(true);
         enqueueSnackbar('No tool found with same part number found, you can create new one',{variant : 'info'});
       }
@@ -321,11 +319,11 @@ export default function ToolsNewEditForm({ currentTool }) {
               </Grid>
 
               <Grid item="true" xs={12} sm={6}>
-                <RHFTextField type='number' name="quantity" label="Qunatity" disabled={!allowEdit} />
+                <RHFTextField type='number' name="quantity" label="Qunatity" disabled />
               </Grid>
 
               <Grid item="true" xs={12} sm={6}>
-                <RHFTextField type='number' name="serialNumber" label="Mean Serial Number" disabled />
+                <RHFTextField name="serialNumber" label="Mean Serial Number" disabled={!allowEdit} />
               </Grid>
 
               {/* <Grid item="true" xs={12} sm={6}>

@@ -2,9 +2,9 @@ import { DefaultTransactionalRepository, IsolationLevel, repository } from "@loo
 import { inject } from "@loopback/core";
 import { authenticate } from "@loopback/authentication";
 import { PermissionKeys } from "../authorization/permission-keys";
-import { get, getModelSchemaRef, param, patch, post, requestBody, response } from "@loopback/rest";
+import { get, getModelSchemaRef, HttpErrors, param, patch, post, requestBody, response } from "@loopback/rest";
 import { RadiallDataSource } from "../datasources";
-import { ChecklistRepository, InstallationFormRepository, QuestioneryRepository, ToolsRepository } from "../repositories";
+import { ChecklistRepository, InstallationFormRepository, InternalValidationFormRepository, QuestioneryRepository, ScrappingFormRepository, ToolsRepository } from "../repositories";
 import { Tools } from "../models";
 import { QuestionSectionKeys } from "../questionery-section/questionery-section";
 import { FormNameKeys } from "../form-name/form-name";
@@ -21,6 +21,10 @@ export class ToolsManagementController {
     public questioneryRepository: QuestioneryRepository,
     @repository(ChecklistRepository)
     public checklistRepository: ChecklistRepository,
+    @repository(InternalValidationFormRepository)
+    public internalValidationFormRepository : InternalValidationFormRepository,
+    @repository(ScrappingFormRepository)
+    public scrappingFormRepository : ScrappingFormRepository,
   ) {}
 
   // creation of tool for tool entry form...
@@ -47,6 +51,21 @@ export class ToolsManagementController {
   ): Promise<{ success: boolean; message: string }> {
     const tx = await this.toolsRepository.dataSource.beginTransaction(IsolationLevel.READ_COMMITTED);
     try {
+      const {meanSerialNumber, partNumber} = toolData;
+
+      const trimedSerialNumber = meanSerialNumber.trim();
+      const trimedToolPartNumber = partNumber.trim();
+      const toolInfo = await this.toolsRepository.findOne({
+        where : {
+          partNumber : trimedToolPartNumber,
+          meanSerialNumber : trimedSerialNumber
+        }
+      });
+
+      if(toolInfo){
+        throw new HttpErrors.BadRequest(`Same mean serial number exist for tool part number ${partNumber}`);
+      };
+
       const savedTool = await this.toolsRepository.create(toolData);
   
       if (savedTool) {
@@ -97,6 +116,7 @@ export class ToolsManagementController {
             routes: requirement?.routes
           })),
           isRequirementChecklistSectionDone: false,
+          isUsersApprovalDone: false,
           isAllValidatorsApprovalDone: false,
           isAllProductionHeadsApprovalDone: false,
           isEditable: true,
@@ -104,8 +124,74 @@ export class ToolsManagementController {
         };
   
         await this.installationFormRepository.create(installationFormData);
+
+        // create internal validation form against tool...
+        const internalValidationData = {
+          toolsId : savedTool.id,
+          dimensionsQuestionery : {
+            finding: '',
+            result: false,
+            evidences: [],
+            controlledBy: undefined,
+            date: undefined,
+          },
+          functionalTestingQuestionery : {
+            finding: '',
+            description: '',
+            result: false,
+            evidences: [],
+            controlledBy: undefined,
+            date: undefined,
+          },
+          otherQuestionery : {
+            finding: '',
+            description: '',
+            result: false,
+            evidences: [],
+            controlledBy: undefined,
+            date: undefined,
+            
+          },
+          isDimensionsSectionDone: false,
+          isFunctionalTestingSectionDone: false,
+          isAllValidatorsApprovalDone: false,
+          isAllProductionHeadsApprovalDone: false,
+          isEditable: true,
+          status: 'pending',
+        };
+
+        await this.internalValidationFormRepository.create(internalValidationData);
+
+        // Scrapping form
+        const ScrappingChecklist : any = await this.checklistRepository.find({
+          where: { formName: FormNameKeys.SCRAPPING_FORM },
+        });
+
+        const scrappingFormData = {
+          toolsId: savedTool.id,
+          justification: '',
+          requirementChecklist: ScrappingChecklist?.map((requirement : any) => ({
+            requirement: requirement?.requirement,
+            isNeedUpload: requirement?.isNeedUpload,
+            critical: requirement?.critical,
+            // nonCritical: requirement?.nonCritical,
+            toDo: undefined,
+            actionOwner: undefined,
+            done: undefined,
+            comment: undefined,
+            upload: undefined,
+            // routes: requirement?.routes
+          })),
+          isUsersApprovalDone: false,
+          isAllValidatorsApprovalDone: false,
+          isAllProductionHeadsApprovalDone: false,
+          isEditable: true,
+          status: 'pending',
+        };
+
+        await this.scrappingFormRepository.create(scrappingFormData);
       }
-  
+
       await tx.commit(); 
       return { success: true, message: 'Tool created successfully' };
     } catch (error) {
@@ -141,8 +227,10 @@ export class ToolsManagementController {
     data?: object;
   }> {
     try {
+      const {partNumber} = requestBody;
+      const trimedToolPartNumber = partNumber;
       const tools = await this.toolsRepository.find({
-        where: { partNumber: requestBody.partNumber },
+        where: { partNumber: trimedToolPartNumber },
         order: ['createdAt DESC'], 
         limit: 1, 
       });
@@ -176,7 +264,7 @@ export class ToolsManagementController {
     data : Tools[];
   }> {
     try{
-      const tools = await this.toolsRepository.find({ order: ['createdAt DESC'], include : [{relation : 'toolType'}, {relation : 'storageLocation'}] });
+      const tools = await this.toolsRepository.find({ order: ['createdAt DESC'], include : [{relation : 'toolType'}, {relation : 'storageLocation'}, {relation : 'manufacturer'}, {relation : 'supplier'}] });
 
       return{
         success : true,

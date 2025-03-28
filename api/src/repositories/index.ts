@@ -12,3 +12,5 @@ export * from './checklist.repository';
 export * from './approval-users.repository';
 export * from './spare.repository';
 export * from './routes.repository';
+export * from './internal-validation-form.repository';
+export * from './scrapping-form.repository';

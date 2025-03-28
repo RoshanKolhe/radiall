@@ -1,30 +1,30 @@
-import { relation, repository } from "@loopback/repository";
-import { ApprovalUsersRepository, InstallationFormRepository, ToolsRepository, UserRepository } from "../repositories";
 import { authenticate, AuthenticationBindings } from "@loopback/authentication";
-import {UserProfile} from '@loopback/security';
 import { PermissionKeys } from "../authorization/permission-keys";
 import { get, HttpErrors, param, patch, post, requestBody } from "@loopback/rest";
-import { InstallationForm } from "../models";
+import { repository } from "@loopback/repository";
+import { ApprovalUsersRepository, ScrappingFormRepository, ToolsRepository, UserRepository } from "../repositories";
+import { User } from "../models";
 import { inject } from "@loopback/core";
+import { UserProfile } from "@loopback/security";
 
-export class InstallationFormController {
+export class ScrappingFormController {
   constructor(
-    @repository(InstallationFormRepository)
-    public installationFormRepository : InstallationFormRepository,
-    @repository(UserRepository)
-    public userRepository : UserRepository,
+    @repository(ScrappingFormRepository)
+    public scrappingFormRepository : ScrappingFormRepository,
     @repository(ApprovalUsersRepository)
     public approvalUsersRepository : ApprovalUsersRepository,
+    @repository(UserRepository)
+    public userRepository : UserRepository,
     @repository(ToolsRepository)
     public toolsRepository : ToolsRepository,
   ) {}
 
-  // Get installation form of a tool with tool id...
+  // Get scrapping form of a tool with tool id...
   @authenticate({
     strategy : 'jwt',
     options : {required : [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
   })
-  @get('/installation-form/form-by-toolId/{toolId}')
+  @get('/scrapping-form/form-by-toolId/{toolId}')
   async formByToolId(
     @param.path.number('toolId') toolId : number
   ) : Promise<{
@@ -33,7 +33,7 @@ export class InstallationFormController {
     data : object | null;
   }>{
     try{
-      const installationForm : any = await this.installationFormRepository.findOne({
+      const scrappingForm : any = await this.scrappingFormRepository.findOne({
         where: { toolsId: toolId },
         include: [
           {
@@ -50,11 +50,11 @@ export class InstallationFormController {
         ]
       });
       
-      if(!installationForm){
-        throw new HttpErrors.NotFound('No installation form against this tool');
+      if(!scrappingForm){
+        throw new HttpErrors.NotFound('No scrapping form against this tool');
       }
 
-      const validatorIds = installationForm.validatorsIds || [];
+      const validatorIds = scrappingForm.validatorsIds || [];
 
       let validators : any;
 
@@ -75,7 +75,7 @@ export class InstallationFormController {
         });
       }
 
-      const productionHeadIds = installationForm.productionHeadIds || [];
+      const productionHeadIds = scrappingForm.productionHeadIds || [];
 
       let productionHeads : any;
 
@@ -96,14 +96,14 @@ export class InstallationFormController {
       }
 
       const finalData = {
-        ...installationForm,
+        ...scrappingForm,
         validators : validators,
         productionHeads : productionHeads
       }
 
       return{
         success : true,
-        message : 'Installation Form Data',
+        message : 'Scrapping Form Data',
         data : finalData
       }
     }catch(error){
@@ -123,7 +123,7 @@ export class InstallationFormController {
       const existingValidators = await this.approvalUsersRepository.find({
         where: {
           userId: { inq: validatorsId },
-          installationFormId: formId,
+          scrappingFormId: formId,
         },
       });
 
@@ -134,7 +134,7 @@ export class InstallationFormController {
         .filter((id) => !existingValidatorIds.has(id))
         .map((id) => ({
           userId: id,
-          installationFormId: formId,
+          scrappingFormId: formId,
           isApproved: false,
         }));
 
@@ -148,7 +148,7 @@ export class InstallationFormController {
       const existingProductionHeads = await this.approvalUsersRepository.find({
         where: {
           userId: { inq: productionHeadsId },
-          installationFormId: formId,
+          scrappingFormId: formId,
         },
       });
 
@@ -159,7 +159,7 @@ export class InstallationFormController {
         .filter((id) => !existingProductionHeadIds.has(id))
         .map((id) => ({
           userId: id,
-          installationFormId: formId,
+          scrappingFormId: formId,
           isApproved: false,
         }));
 
@@ -173,23 +173,23 @@ export class InstallationFormController {
       const existingUser = await this.approvalUsersRepository.findOne({
         where : {
           userId : userId,
-          installationFormId : formId
+          scrappingFormId : formId
         }
       });
 
       if(existingUser){
-        await this.installationFormRepository.updateById(formId, {
+        await this.scrappingFormRepository.updateById(formId, {
           userId : existingUser?.id
         });
       }else{
         const userApproval = await this.approvalUsersRepository.create({
           userId: userId,
-          installationFormId: formId,
+          scrappingFormId: formId,
           isApproved: false,
         });
 
         if(userApproval){
-          await this.installationFormRepository.updateById(formId, {
+          await this.scrappingFormRepository.updateById(formId, {
             userId : userApproval?.id
           });
         }
@@ -198,11 +198,11 @@ export class InstallationFormController {
       // Update installation form only if new validators or production heads were added
       if (validatorIds.length  || productionHeadIds.length) {
         if(validatorIds.length <= 0){
-          await this.installationFormRepository.updateById(formId, {
+          await this.scrappingFormRepository.updateById(formId, {
             isAllValidatorsApprovalDone : true
           })
         }
-        await this.installationFormRepository.updateById(formId, {
+        await this.scrappingFormRepository.updateById(formId, {
           validatorsIds: validatorIds,
           productionHeadIds: productionHeadIds,
         });
@@ -217,13 +217,13 @@ export class InstallationFormController {
     }
   }
   
-  // update family classification section...
+  // form submission...
   @authenticate({
     strategy : 'jwt',
     options : {required : [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
   })
-  @patch('/update-family-classification/{id}')
-  async updateFamilyClassiffication(
+  @patch('/scrapping-form-submission/{id}')
+  async scrappingFormSubmission(
     @param.path.number('id') formId : number,
     @requestBody({
       content: {
@@ -248,187 +248,9 @@ export class InstallationFormController {
                   type : 'number'
                 }
               },
-              familyClassification: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    question: {
-                      type: 'string'
-                    },
-                    type: {
-                      type: 'string'
-                    },
-                    options: {
-                      type: 'array',
-                      items: {
-                        type: 'string'
-                      }
-                    },
-                    isFieldChanging: {
-                      type: 'boolean'
-                    },
-                    fieldName: {
-                      type: 'string'
-                    },
-                    answer: {
-                      oneOf: [
-                        { type: 'string' },
-                        { type: 'boolean' },
-                        { type: 'number' },
-                        { type: 'null' } 
-                      ]
-                    }                    
-                  },
-                }
-              }
-            }
-          }
-        }
-      }
-    })
-    requestBody: {
-      initiatorId: number;
-      userId: number;
-      validatorsId: number[];
-      productionHeadsId: number[];
-      familyClassification: Array<{
-        question: string;
-        type: string;
-        options: string[];
-        isFieldChanging: boolean;
-        fieldName: string;
-        answer: any;
-      }>;
-    }
-  ):Promise<{
-    success : boolean;
-    message : string;
-  }>{
-    try{
-      const { familyClassification, initiatorId, userId, validatorsId, productionHeadsId } = requestBody;
-
-      await this.installationFormRepository.updateById(formId, {
-        familyClassificationQuestionery : familyClassification,
-        isFamilyClassificationSectionDone : true,
-        initiatorId : initiatorId,
-        userId : userId,
-      });
-
-      const response = await this.createValidatorsAndHeads(validatorsId, productionHeadsId, userId, formId);
-
-      if(response.success){
-        return{
-          success : true,
-          message : 'form saved in draft'
-        }
-      }
-
-      return{
-        success : true,
-        message : 'something went wrong'
-      }
-    }catch(error){
-      throw error;
-    }
-  }
-
-  // update Criticity section...
-  @authenticate({
-    strategy : 'jwt',
-    options : {required : [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
-  })
-  @patch('/update-criticity/{id}')
-  async updateCriticityClassiffication(
-    @param.path.number('id') formId : number,
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: {
-            properties: {
-              criticity: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    question: {
-                      type: 'string'
-                    },
-                    type: {
-                      type: 'string'
-                    },
-                    options: {
-                      type: 'array',
-                      items: {
-                        type: 'string'
-                      }
-                    },
-                    isFieldChanging: {
-                      type: 'boolean'
-                    },
-                    fieldName: {
-                      type: 'string'
-                    },
-                    answer: {
-                      oneOf: [
-                        { type: 'string' },
-                        { type: 'boolean' },
-                        { type: 'number' },
-                        { type: 'null' } 
-                      ]
-                    }                    
-                  },
-                }
-              }
-            }
-          }
-        }
-      }
-    })
-    requestBody: {
-      criticity: Array<{
-        question: string;
-        type: string;
-        options: string[];
-        isFieldChanging: boolean;
-        fieldName: string;
-        answer: any;
-      }>;
-    }
-  ):Promise<{
-    success : boolean;
-    message : string;
-  }>{
-    try{
-      const { criticity } = requestBody;
-
-      await this.installationFormRepository.updateById(formId, {
-        criticityQuestionery : criticity,
-        isCriticitySectionDone : true,
-      });
-
-      return{
-        success : true,
-        message : 'form saved in draft'
-      }
-    }catch(error){
-      throw error;
-    }
-  }
-
-  // update requirement checklist section...
-  @authenticate({
-    strategy : 'jwt',
-    options : {required : [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
-  })
-  @patch('/update-requirement-checklist/{id}')
-  async updateRequirementCheckllist(
-    @param.path.number('id') formId : number,
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: {
-            properties: {
+              justification: {
+                type: 'string'
+              },
               requirementChecklist: {
                 type: 'array',
                 items: {
@@ -443,9 +265,9 @@ export class InstallationFormController {
                     critical: {
                       type: 'string',
                     },
-                    nonCritical: {
-                      type: 'string',
-                    },
+                    // nonCritical: {
+                    //   type: 'string',
+                    // },
                     toDo: {
                       type: 'boolean',
                     },
@@ -472,32 +294,37 @@ export class InstallationFormController {
                     upload: {
                       type: 'string',
                     },
-                    routes: {
-                      oneOf : [
-                        {type : 'object'},
-                        {type : 'null'}
-                      ]
-                    }
+                    // routes: {
+                    //   oneOf : [
+                    //     {type : 'object'},
+                    //     {type : 'null'}
+                    //   ]
+                    // }
                   },
                 },
               },
-            },
-          },
-        },
-      },
+            }
+          }
+        }
+      }
     })
     requestBody: {
+      initiatorId: number;
+      userId: number;
+      validatorsId: number[];
+      productionHeadsId: number[];
+      justification: string;
       requirementChecklist: Array<{
         requirement: string;
         isNeedUpload: boolean;
         critical: string;
-        nonCritical: string;
+        // nonCritical: string;
         toDo: boolean;
         actionOwner: any;
         done: boolean;
         comment: string;
         upload: string;
-        routes: any;
+        // routes: any;
       }>;
     }
   ):Promise<{
@@ -505,28 +332,28 @@ export class InstallationFormController {
     message : string;
   }>{
     try{
-      const { requirementChecklist } = requestBody;
+      const { initiatorId, userId, validatorsId, productionHeadsId, justification, requirementChecklist } = requestBody;
 
-      const form = await this.installationFormRepository.findById(formId);
+      await this.scrappingFormRepository.updateById(formId, {
+        initiatorId : initiatorId,
+        userId : userId,
+        justification : justification,
+        requirementChecklist : requirementChecklist,
+        isEditable : false
+      });
 
-      if(form && (!form.isFamilyClassificationSectionDone || !form.isCriticitySectionDone)){
+      const response = await this.createValidatorsAndHeads(validatorsId, productionHeadsId, userId, formId);
+
+      if(response.success){
         return{
-          success : false,
-          message : 'Please Complete all sections'
+          success : true,
+          message : 'Scrapping form completed'
         }
       }
 
-      await this.installationFormRepository.updateById(formId, {
-        requirementChecklist : requirementChecklist,
-        isRequirementChecklistSectionDone : true,
-        isEditable : false,
-      });
-
-      // make function to send notification and emails to validators for approval...
-
       return{
         success : true,
-        message : 'Installation form completed'
+        message : 'something went wrong'
       }
     }catch(error){
       throw error;
@@ -557,7 +384,7 @@ export class InstallationFormController {
       return false;
     }
   }
-
+  
   // Check if all Production Heads have approved
   async checkProductionHeadsApproval(ids: number[]): Promise<boolean> {
     try {
@@ -600,51 +427,10 @@ export class InstallationFormController {
     }
   }
 
-  // check for field values in questionery and change it...
-  async checkFieldValues(form: InstallationForm): Promise<void>{
-    try{
-      if(form){
-        const fieldValues = form?.familyClassificationQuestionery
-        ?.filter((question) => question?.isFieldChanging)
-        ?.map((question) => ({
-          fieldValue: question?.fieldName,
-          answer: question?.answer
-        }));
-      
-        if (fieldValues?.length > 0) {
-          const updatedValues: Record<string, any> = fieldValues.reduce((acc, field) => {
-            acc[field.fieldValue] = field.answer;
-            return acc;
-          }, {} as Record<string, any>);
-        
-          await this.toolsRepository.updateById(form?.toolsId, updatedValues);
-        }      
-
-        const criticityValues = form?.criticityQuestionery
-        ?.filter((question) => question?.isFieldChanging)
-        ?.map((question) => ({
-          fieldValue: question?.fieldName,
-          answer: question?.answer
-        }));
-      
-        if (criticityValues?.length > 0) {
-          const updatedValues: Record<string, any> = criticityValues.reduce((acc, field) => {
-            acc[field.fieldValue] = field.answer;
-            return acc;
-          }, {} as Record<string, any>);
-        
-          await this.toolsRepository.updateById(form?.toolsId, updatedValues);
-        }      
-      }
-    }catch(error){
-      throw error
-    }
-  }
-
   // Check form approval status
   async checkFormApproveStatus(formId: number): Promise<void> {
     try {
-      const form = await this.installationFormRepository.findById(formId);
+      const form = await this.scrappingFormRepository.findById(formId);
       if (!form) {
         throw new HttpErrors.NotFound('Form not found');
       }
@@ -652,35 +438,29 @@ export class InstallationFormController {
       const allValidatorsApproved = await this.checkValidatorsApproval(form.validatorsIds);
 
       if (allValidatorsApproved) {
-        await this.installationFormRepository.updateById(formId, { isAllValidatorsApprovalDone: true });
+        await this.scrappingFormRepository.updateById(formId, { isAllValidatorsApprovalDone: true });
       }
 
       // Await production heads approval check
       const allProductionHeadsApproved = await this.checkProductionHeadsApproval(form.productionHeadIds);
 
       if(allProductionHeadsApproved){
-        await this.installationFormRepository.updateById(formId, { isAllProductionHeadsApprovalDone: true, status: 'approved' });
+        await this.scrappingFormRepository.updateById(formId, { isAllProductionHeadsApprovalDone: true, status: 'approved' });
       };
 
       // Check User Approval...
       const userApproval = await this.checkUserApproval(form.userId);
       if(userApproval){
-        await this.installationFormRepository.updateById(formId, {isUsersApprovalDone : true});
+        await this.scrappingFormRepository.updateById(formId, {isUsersApprovalDone : true});
       }
 
       if(allValidatorsApproved && allProductionHeadsApproved && userApproval){
-        await this.checkFieldValues(form);
         const updatedValues = {
-          installationStatus : 'approved',
-          installationDate : new Date()
+          status : 'Scrapped',
+          isActive : false
         }
 
         await this.toolsRepository.updateById(form?.id, updatedValues);
-        const savedTool = await this.toolsRepository.findById(form?.id);
-
-        if(savedTool && savedTool.installationStatus.toLowerCase() === 'approved' && savedTool.internalValidationStatus.toLowerCase() === 'approved'){
-          await this.toolsRepository.updateById(form?.id, {isActive : true, status : 'Operational'});
-        }
       }
 
     } catch (error) {
@@ -693,7 +473,7 @@ export class InstallationFormController {
     strategy: 'jwt',
     options: { required: [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.VALIDATOR] }
   })
-  @post('/user-approval')
+  @post('/scrapping-form/user-approval')
   async userApproval(
     @inject(AuthenticationBindings.CURRENT_USER) currentUser: UserProfile,
     @requestBody({
@@ -701,37 +481,37 @@ export class InstallationFormController {
         'application/json': {
           schema: {
             properties: {
-              installationFormId: { type: 'number' },
+              scrappingFormId: { type: 'number' },
               approvedDate: { type: 'string' },
               remark: { type: 'string' }
             },
-            required: ['installationFormId', 'approvedDate']
+            required: ['scrappingFormId', 'approvedDate']
           }
         }
       }
     })
     requestBody: {
-      installationFormId: number;
+      scrappingFormId: number;
       approvedDate: string;
       remark?: string;
     }
   ): Promise<{ success: boolean; message: string }> {
     try {
-      const { installationFormId, approvedDate, remark } = requestBody;
+      const { scrappingFormId, approvedDate, remark } = requestBody;
   
       const user = await this.userRepository.findById(currentUser.id);
       if (!user) {
         throw new HttpErrors.BadRequest('User not found');
       }
   
-      const installationForm = await this.installationFormRepository.findById(installationFormId);
-      if (!installationForm) {
-        throw new HttpErrors.NotFound('Installation form for this tool not found');
+      const scrappingForm = await this.scrappingFormRepository.findById(scrappingFormId);
+      if (!scrappingForm) {
+        throw new HttpErrors.NotFound('Scrapping form for this tool not found');
       }
   
       const approvedUser = await this.approvalUsersRepository.findOne({
         where: {
-          installationFormId: installationForm.id,
+          scrappingFormId: scrappingForm.id,
           userId: user.id
         }
       });
@@ -746,7 +526,7 @@ export class InstallationFormController {
         remark: remark || ''
       });
 
-      this.checkFormApproveStatus(installationFormId);
+      this.checkFormApproveStatus(scrappingFormId);
 
       return { success: true, message: 'Approved successfully.' };
   
@@ -760,7 +540,7 @@ export class InstallationFormController {
     strategy: 'jwt',
     options: { required: [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.VALIDATOR] }
   })
-  @post('/user-saved-form')
+  @post('/scrapping-form/user-saved-form')
     async saveFrom(
     @inject(AuthenticationBindings.CURRENT_USER) currentUser: UserProfile,
     @requestBody({
@@ -768,35 +548,35 @@ export class InstallationFormController {
         'application/json': {
           schema: {
             properties: {
-              installationFormId: { type: 'number' },
+              scrappingFormId: { type: 'number' },
               remark: { type: 'string' }
             },
-            required: ['installationFormId', 'remark']
+            required: ['scrappingFormId', 'remark']
           }
         }
       }
     })
     requestBody: {
-      installationFormId: number;
+      scrappingFormId: number;
       remark: string;
     }
   ): Promise<{ success: boolean; message: string }> {
     try {
-      const { installationFormId, remark } = requestBody;
+      const { scrappingFormId, remark } = requestBody;
 
       const user = await this.userRepository.findById(currentUser.id);
       if (!user) {
         throw new HttpErrors.BadRequest('User not found');
       }
 
-      const installationForm = await this.installationFormRepository.findById(installationFormId);
-      if (!installationForm) {
+      const scrappingForm = await this.scrappingFormRepository.findById(scrappingFormId);
+      if (!scrappingForm) {
         throw new HttpErrors.NotFound('Installation form for this tool not found');
       }
 
       const approvedUser = await this.approvalUsersRepository.findOne({
         where: {
-          installationFormId: installationForm.id,
+          scrappingFormId: scrappingForm.id,
           userId: user.id
         }
       });
@@ -809,7 +589,7 @@ export class InstallationFormController {
         remark: remark
       });
 
-      await this.installationFormRepository.updateById(installationFormId, {isEditable : true});
+      await this.scrappingFormRepository.updateById(scrappingFormId, {isEditable : true});
 
       // send mail to initiator...
 
@@ -819,4 +599,4 @@ export class InstallationFormController {
       throw error;
     }
   }
-} 
+}

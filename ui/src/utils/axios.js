@@ -84,5 +84,13 @@ export const endpoints = {
   // INSTALLATION FORM
   installationForm: {
     details: (toolId) => `/installation-form/form-by-toolId/${toolId}`
+  },
+  // INTERNAL VALIDATION FORM
+  internalValidationForm: {
+    details: (toolId) => `/internal-validation-form/form-by-toolId/${toolId}`
+  },
+  // SCRAPPING FORM
+  scrappingForm: {
+    details: (toolId) => `/scrapping-form/form-by-toolId/${toolId}`
   }
 };

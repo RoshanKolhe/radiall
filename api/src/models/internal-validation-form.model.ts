@@ -4,7 +4,7 @@ import {Tools} from './tools.model';
 import {ApprovalUsers} from './approval-users.model';
 
 @model()
-export class InstallationForm extends Entity {
+export class InternalValidationForm extends Entity {
   @property({
     type: 'number',
     id: true,
@@ -34,66 +34,72 @@ export class InstallationForm extends Entity {
   productionHeadIds: number[];
 
   @property({
-    type: 'array',
-    itemType: 'object'
+    type: 'object',
   })
-  familyClassificationQuestionery: Array<{
-    question: string;
-    type: string;
-    options: string[];
-    isFieldChanging: boolean;
-    fieldName: string;
-    answer: string;
-  }>;
-
-  @property({
-    type: 'boolean',
-  })
-  isFamilyClassificationSectionDone: boolean;
-
-  @property({
-    type: 'array',
-    itemType: 'object'
-  })
-  criticityQuestionery: Array<{
-    question: string;
-    type: string;
-    options: string[];
-    isFieldChanging: boolean;
-    fieldName: string;
-    answer: string;
-  }>;
-
-  @property({
-    type: 'boolean',
-  })
-  isCriticitySectionDone: boolean;
-
-  @property({
-    type: 'array',
-    itemType: 'object'
-  })
-  requirementChecklist: Array<{
-    requirement: string;
-    isNeedUpload: boolean;
-    critical: string;
-    nonCritical: string;
-    toDo: boolean;
-    actionOwner: {
-      id: number;
-      fullName: string;
+  dimensionsQuestionery: {
+    finding: string;
+    result: boolean;
+    evidences: string[];
+    controlledBy: {
+      id: number,
+      firstName: string,
+      lastName: string,
       role: string;
+      department: string;
+      email: string;
     };
-    done: boolean;
-    comment: string;
-    upload: string;
-    routes: object;
-  }>;
+    date: Date;
+  };
 
   @property({
     type: 'boolean',
+    required: true
   })
-  isRequirementChecklistSectionDone: boolean;
+  isDimensionsSectionDone: boolean;
+
+  @property({
+    type: 'object',
+  })
+  functionalTestingQuestionery: {
+    finding: string;
+    description: string;
+    result: boolean;
+    evidences: string[];
+    controlledBy: {
+      id: number,
+      firstName: string,
+      lastName: string,
+      role: string;
+      department: string;
+      email: string;
+    };
+    date: Date;
+  };
+
+  @property({
+    type: 'boolean',
+    required: true
+  })
+  isFunctionalTestingSectionDone: boolean;
+
+  @property({
+    type: 'object',
+  })
+  otherQuestionery: {
+    finding: string;
+    description: string;
+    result: boolean;
+    evidences: string[];
+    controlledBy: {
+      id: number,
+      firstName: string,
+      lastName: string,
+      role: string;
+      department: string;
+      email: string;
+    };
+    date: Date;
+  };
 
   @property({
     type: 'boolean'
@@ -147,13 +153,13 @@ export class InstallationForm extends Entity {
   })
   remark?: string;
 
-  constructor(data?: Partial<InstallationForm>) {
+  constructor(data?: Partial<InternalValidationForm>) {
     super(data);
   }
 }
 
-export interface InstallationFormRelations {
+export interface InternalValidationFormRelations {
   // describe navigational properties here
 }
 
-export type InstallationFormWithRelations = InstallationForm & InstallationFormRelations;
+export type InternalValidationFormWithRelations = InternalValidationForm & InternalValidationFormRelations;

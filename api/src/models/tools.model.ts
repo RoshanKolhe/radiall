@@ -27,10 +27,10 @@ export class Tools extends Entity {
   modelNumber: string;
 
   @property({
-    type: 'number',
+    type: 'string',
     required: true
   })
-  meanSerialNumber: number;
+  meanSerialNumber: string;
 
   @property({
     type: 'string',
@@ -117,7 +117,7 @@ export class Tools extends Entity {
   @property({
     type: 'string',
   })
-  internalValidationStatus: boolean;
+  internalValidationStatus: string;
 
   @property({
     type: 'boolean',
@@ -162,6 +162,12 @@ export class Tools extends Entity {
     required: true,
   })
   isActive: boolean;
+
+  @property({
+    type: 'string',
+    required: true
+  })
+  status: string;
 
   @property({
     type: 'string',

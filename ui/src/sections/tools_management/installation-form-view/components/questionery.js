@@ -1,15 +1,18 @@
 import PropTypes from 'prop-types';
 import { Controller } from 'react-hook-form';
-import { Grid, MenuItem, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
-import { RHFSelect, RHFTextField } from 'src/components/hook-form';
+import { Grid, MenuItem, Select, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
+import { RHFTextField } from 'src/components/hook-form';
+import { useResponsive } from 'src/hooks/use-responsive';
 
 // ----------------------------------------------------------------------
 
-export default function QuestionerySection({ formQuestionery, control, verificationForm }) {
+export default function QuestionerySection({ formQuestionery, control, verificationForm, handleDecision }) {
     const booleanOptions = [
         { value: true, label: 'Yes' },
         { value: false, label: 'No' }
     ];
+
+    const isDesktop = useResponsive('up', 'md');
 
     const questionFields = (question) => {
         if (question?.type === 'boolean') {
@@ -29,7 +32,7 @@ export default function QuestionerySection({ formQuestionery, control, verificat
                             exclusive
                             onChange={(e, newValue) => {
                             if (newValue !== null) {
-                                console.log("Selected value:", newValue);
+                                handleDecision();
                                 field.onChange(newValue);
                             }
                             }}
@@ -37,7 +40,7 @@ export default function QuestionerySection({ formQuestionery, control, verificat
                             pointerEvents : verificationForm ? 'none' : 'auto',
                             display: "flex",
                             justifyContent: "flex-end",
-                            width: "100%",
+                            width: isDesktop ? "40%" : '100%',
                             maxWidth: 200,
                             padding: "0px !important",
                             border: "2px solid #00BBD9",
@@ -50,6 +53,7 @@ export default function QuestionerySection({ formQuestionery, control, verificat
                                 value={opt.value}
                                 sx={{
                                 flex: 1,
+                                padding: '6px',
                                 pointerEvents : verificationForm ? 'none' : 'auto',
                                 backgroundColor: "white",
                                 borderRadius: "0px !important",
@@ -58,10 +62,6 @@ export default function QuestionerySection({ formQuestionery, control, verificat
                                 color: "#00BBD9",
                                 transition: "background-color 0.3s ease",
                                 "&.Mui-selected": {
-                                    backgroundColor: "#00BBD9",
-                                    color: "#fff",
-                                },
-                                "&:hover": {
                                     backgroundColor: "#00BBD9",
                                     color: "#fff",
                                 },
@@ -85,13 +85,33 @@ export default function QuestionerySection({ formQuestionery, control, verificat
                         <Typography variant='body1'>{question?.question}</Typography>
                     </Grid>
                     <Grid item xs={6} md={4}>
-                        <RHFSelect disabled={!!verificationForm} name={question?.question} label='Select' defaultValue={question?.answer ?? question?.options[0]}>
-                            {question?.options?.length ? question?.options?.map((opt) => (
-                                <MenuItem key={opt} value={opt}>{opt}</MenuItem>
-                            )) : (
-                                <MenuItem value='' disabled>No Options Found</MenuItem>
+                    <Controller
+                            name={question?.question}
+                            control={control}
+                            render={({ field }) => (
+                                <Select
+                                    fullWidth
+                                    {...field}
+                                    sx={{ pointerEvents: 'none' }}
+                                    disabled={!!verificationForm}
+                                    displayEmpty
+                                    value={field.value || ""} // Ensure selected value is visible
+                                    onChange={(e) => field.onChange(e.target.value)} // Sync with form state
+                                >
+                                    {question?.options?.length ? (
+                                        question?.options?.map((opt) => (
+                                            <MenuItem key={opt} value={opt}>
+                                                {opt}
+                                            </MenuItem>
+                                        ))
+                                    ) : (
+                                        <MenuItem value="" disabled>
+                                            No Options Found
+                                        </MenuItem>
+                                    )}
+                                </Select>
                             )}
-                        </RHFSelect>
+                        />
                     </Grid>
                 </Grid>
             );
@@ -120,5 +140,6 @@ export default function QuestionerySection({ formQuestionery, control, verificat
 QuestionerySection.propTypes = {
     formQuestionery: PropTypes.array,
     control: PropTypes.object,
-    verificationForm: PropTypes.bool
+    verificationForm: PropTypes.bool,
+    handleDecision: PropTypes.func
 };

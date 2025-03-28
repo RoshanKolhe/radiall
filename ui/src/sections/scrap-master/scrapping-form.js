@@ -2,16 +2,13 @@ import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 //
 import { useAuthContext } from 'src/auth/hooks';
-//
-import FamilyClassificationSection from './family-classification-section';
-import CriticitySection from './criticity-section';
-import RequirementChecklistSection from './requirementChecklistSection';
-import ApprovalUsersSection from './components/approval-users-table';
-import ApprovalSection from './components/approve-card';
+import FormSection from './form-section';
+import ApprovalUsersSection from './approval-users-table';
+import ApprovalSection from './approve-card';
 
 // ----------------------------------------------------------------------
 
-export default function ToolsInstallationForm({ currentForm, verificationForm }) {
+export default function ScrappingForm({ currentForm, verificationForm }) {
     const { user: currentUser } = useAuthContext();
     const [userData, setUserData] = useState(null);
     const [validApprovalUser, setValidApprovalUser] = useState(false);
@@ -60,16 +57,14 @@ export default function ToolsInstallationForm({ currentForm, verificationForm })
 
     return (
         <>
-            <FamilyClassificationSection currentForm={currentForm} verificationForm={verificationForm} />
-            <CriticitySection currentForm={currentForm} verificationForm={verificationForm} />
-            <RequirementChecklistSection currentForm={currentForm} verificationForm={verificationForm} />
+            <FormSection currentForm={currentForm} verificationForm={verificationForm} />
             <ApprovalUsersSection validators={currentForm?.validators} productionHeads={currentForm?.productionHeads} approvalUser={currentForm?.user}/>
             {verificationForm && validApprovalUser && canGiveApproval && <ApprovalSection userData={userData} formId={currentForm?.id} approvalStatus={approvalStatus} />}
         </>
     )
 }
 
-ToolsInstallationForm.propTypes = {
+ScrappingForm.propTypes = {
     currentForm: PropTypes.object,
     verificationForm: PropTypes.bool,
 };
