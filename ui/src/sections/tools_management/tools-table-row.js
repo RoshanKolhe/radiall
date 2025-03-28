@@ -54,12 +54,12 @@ export default function ToolsTableRow({
         {/* <TableCell padding="checkbox">
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell> */}
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{id}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap', pr:'150px'  }}>{id}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{partNumber}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{modelNumber}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{productionMeans}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{quantity}</TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap', pr:'150px' }}>{meanSerialNumber}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{meanSerialNumber}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{assetNumber || 'NA'}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{installationChecklist || 'NA'}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{technicalDrawing || 'NA'}</TableCell>

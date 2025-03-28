@@ -644,6 +644,11 @@ export class InternalValidationFormController {
           }
 
           await this.toolsRepository.updateById(form?.id, updatedValues);
+          const savedTool = await this.toolsRepository.findById(form?.id);
+
+          if(savedTool && savedTool.installationStatus.toLowerCase() === 'approved' && savedTool.internalValidationStatus.toLowerCase() === 'approved'){
+            await this.toolsRepository.updateById(form?.id, {isActive : true, status : 'Operational'});
+          }
         }
 
       } catch (error) {

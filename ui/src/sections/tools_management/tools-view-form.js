@@ -29,7 +29,7 @@ export default function ToolsViewForm({ currentTool }) {
     { label: 'Date of Creation:', value: 'createdAt' },
     { label: 'Date of Installation:', value: 'installationDate' },
     { label: 'Area/Location:', value: 'storageLocation.location' },
-    { label: 'Status:', value: 'isActive' },
+    { label: 'Status:', value: 'status' },
   ];
 
   const getNestedValue = (obj, path, defaultValue = 'NA') => {
