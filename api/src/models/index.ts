@@ -15,3 +15,5 @@ export * from './routes.model';
 export * from './internal-validation-form.model';
 export * from './scrapping-form.model';
 export * from './inventory-out-entries.model';
+export * from './tools-department.model';
+export * from './maintainance-plan.model';

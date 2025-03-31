@@ -49,7 +49,7 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
         supplier: Yup.string().required('Supplier Name is required'),
         initiator: Yup.object().required('Initiator is required'),
         validators: Yup.array(),
-        productionHeads: Yup.object().required("At least one Production Head is required"),
+        productionHeads: Yup.object().required("Production Head is required"),
         user: Yup.object().required('Please Select User'),
         creationDate: Yup.string(),
         finding: Yup.string().required('Finding is required'),
@@ -297,7 +297,7 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
                                     name="user"
                                     label="User"
                                     options={usersData || []}
-                                    onInputChange={(event) => fetchUsers(event, setUsersData, '')}
+                                    onInputChange={(event) => fetchUsers(event, setUsersData, 'validator')}
                                     getOptionLabel={(option) => `${option?.firstName} ${option?.lastName}` || ''}
                                     isOptionEqualToValue={(option, value) => option?.id === value.id}
                                     filterOptions={(options, { inputValue }) =>

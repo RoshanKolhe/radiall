@@ -24,10 +24,6 @@ import {  IconButton, InputAdornment, MenuItem, TextField, Typography } from '@m
 import axiosInstance from 'src/utils/axios';
 import Iconify from 'src/components/iconify';
 import { DatePicker } from '@mui/x-date-pickers';
-import { useGetToolTypes } from 'src/api/toolType';
-import { useGetManufacturers } from 'src/api/manufacturer';
-import { useGetSuppliers } from 'src/api/supplier';
-import { useGetStorageLocations } from 'src/api/storageLocation';
 // ----------------------------------------------------------------------
 
 export default function ToolsNewEditForm({ currentTool }) {
@@ -37,43 +33,28 @@ export default function ToolsNewEditForm({ currentTool }) {
   const [ toolTypeData, setToolTypeData ] = useState([]); 
   const [ supplierData, setSupplierData ] = useState([]);
   const [ manufacturersData, setManufacturersData ] = useState([]); 
-  const [ storageLocationsData, setStorageLocationsData ] = useState([]);
-  const { toolTypes, toolTypesEmpty } = useGetToolTypes();
-  const { manufacturers, manufacturersEmpty } = useGetManufacturers();
-  const { suppliers, suppliersEmpty } = useGetSuppliers();
-  const { storageLocations, storageLocationsEmpty } = useGetStorageLocations();
+  const [ toolDepartmentData, setToolDepartmentData ] = useState([]);
+  const [ stationData, setStationData ] = useState([]);
+
   const booleanOptions = [
     {label: 'Yes', value: 'true'},
     {label: 'No', value: 'false'}
   ];
+
   const statusOptions = [
     { value: true, label: 'Active' },
     { value: false, label: 'Non-Active' },
   ];
 
-  useEffect(() => {
-    if (toolTypes && !toolTypesEmpty) {
-      setToolTypeData(toolTypes);
-    }
-  }, [toolTypes, toolTypesEmpty]);
+  const criticalLevelOptions = [
+    { value: "Critical", label: "Critical" },
+    { value: "Non Critical", label: "Non Critical"}
+  ];
 
-  useEffect(() => {
-    if (suppliers && !suppliersEmpty) {
-      setSupplierData(suppliers);
-    }
-  }, [suppliers, suppliersEmpty]);
-
-  useEffect(() => {
-    if (manufacturers && !manufacturersEmpty) {
-      setManufacturersData(manufacturers);
-    }
-  }, [manufacturers, manufacturersEmpty]);
-
-  useEffect(() => {
-    if (storageLocations && !storageLocationsEmpty) {
-      setStorageLocationsData(storageLocations);
-    }
-  }, [storageLocations, storageLocationsEmpty]);
+  const toolFamilyOptions = [
+    { value: "Tool", label: "Tool" },
+    { value: "Equipment", label: "Equipment"}
+  ];
 
   useEffect(() => {
     if(currentTool){
@@ -93,11 +74,13 @@ export default function ToolsNewEditForm({ currentTool }) {
     .min(1, 'Quantity must be at least 1'),
     serialNumber: Yup.string()
     .required('Serial Number is required'),
-    toolType: Yup.number().nullable().transform((value, originalValue) => (originalValue === '' ? null : value)).required('Tool type is required'),
-    supplier: Yup.number().nullable().transform((value, originalValue) => (originalValue === '' ? null : value)).required('Supplier is required'),
-    manufacturer: Yup.number().nullable().transform((value, originalValue) => (originalValue === '' ? null : value)).required('Manufacturer is required'),
+    toolType: Yup.object().nullable().required('Tool type is required'),
+    supplier: Yup.object().nullable().required('Supplier is required'),
+    manufacturer: Yup.object().nullable().required('Manufacturer is required'),
+    toolDepartment: Yup.object().nullable().required('Tool department is required'),
+    station: Yup.object().nullable().required('Station is required'),
     manufacturingDate: Yup.string().required('Manufacturing Date is required'),
-    storageLocation: Yup.number().nullable().transform((value, originalValue) => (originalValue === '' ? null : value)).required('Storage Location is required'),
+    storageLocation: Yup.string().required('Storage Location is required'),
     spareList: Yup.string(),
     calibration: Yup.string(),
     technicalDrawing: Yup.string(), 
@@ -118,12 +101,14 @@ export default function ToolsNewEditForm({ currentTool }) {
       description: currentTool?.description || '',
       quantity: currentTool?.quantity || 1, 
       serialNumber: currentTool?.meanSerialNumber || '', 
-      toolType: currentTool?.toolTypeId || '',
+      toolType: null,
       productionMeans: currentTool?.productionMeans || '',
-      supplier: currentTool?.supplierId || '',
-      manufacturer: currentTool?.manufacturerId || '',
+      supplier: null,
+      manufacturer: null,
+      toolDepartment: null,
+      station: null,
       manufacturingDate: currentTool?.manufacturingDate || '',
-      storageLocation: currentTool?.storageLocationId || '',
+      storageLocation: currentTool?.storageLocation || '',
       spareList: currentTool?.spareList || '',
       calibration: currentTool?.calibration || '',
       technicalDrawing: currentTool?.technicalDrawing || '',
@@ -165,11 +150,13 @@ export default function ToolsNewEditForm({ currentTool }) {
         description: formData.description,
         quantity: formData.quantity,
         balanceQuantity: formData.quantity,
-        toolTypeId: formData.toolType,
-        supplierId: formData.supplier,
-        manufacturerId: formData.manufacturer,
+        toolTypeId: formData?.toolType?.id,
+        supplierId: formData?.supplier?.id,
+        manufacturerId: formData?.manufacturer?.id,
+        toolsDepartmentId: formData?.toolDepartment?.id,
+        stationId: formData?.station?.id,
         manufacturingDate: formData.manufacturingDate,
-        storageLocationId: formData.storageLocation,
+        storageLocation: formData.storageLocation,
         productionMeans: formData.productionMeans,
         designation: formData.designation,
         isActive: formData?.isActive || false,
@@ -210,7 +197,31 @@ export default function ToolsNewEditForm({ currentTool }) {
   useEffect(() => {
     if (currentTool) {
       reset(defaultValues);
-    }
+      // for tool-type
+      const currentToolType = currentTool?.toolType ? currentTool?.toolType : null;
+      setValue('toolType', currentToolType);
+      setToolTypeData((prev) => [...prev, currentToolType]);
+
+      // for manufacturer
+      const currentManufacturer = currentTool?.manufacturer ? currentTool?.manufacturer : null;
+      setValue('manufacturer', currentManufacturer);
+      setManufacturersData((prev) => [...prev, currentManufacturer]);
+
+      // for supplier
+      const currentSupplier = currentTool?.supplier ? currentTool?.supplier : null;
+      setValue('supplier', currentSupplier);
+      setSupplierData((prev) => [...prev, currentSupplier]);
+
+      // for tool Department
+      const currentToolsDepartment = currentTool?.toolsDepartment ? currentTool?.toolsDepartment : null;
+      setValue('toolDepartment', currentToolsDepartment);
+      setToolDepartmentData((prev) => [...prev, currentToolsDepartment]);
+
+      // for station
+      const currentStation = currentTool?.station ? currentTool?.station : null;
+      setValue('station', currentStation);
+      setStationData((prev) => [...prev, currentStation]);
+     }
   }, [currentTool, defaultValues, reset]);
 
   const onSearch = async (partNumber) => {
@@ -228,7 +239,7 @@ export default function ToolsNewEditForm({ currentTool }) {
         // setValue('serialNumber', response?.data?.data?.meanSerialNumber, { shouldValidate: true });  // removing + 1
         setValue('supplier', supplierData?.find((supplier) => supplier.id === Number(response?.data?.data?.supplierId))?.id || undefined, { shouldValidate: true });
         setValue('manufacturer', manufacturersData?.find((manufacturer) => manufacturer.id === Number(response?.data?.data?.manufacturerId))?.id || undefined, { shouldValidate: true });
-        setValue('storageLocation', storageLocationsData?.find((location) => location.id === Number(response?.data?.data?.storageLocationId))?.id || undefined, { shouldValidate: true });
+        setValue('storageLocation', response?.data?.data?.storageLocation);
         setValue('productionMeans', response?.data?.data?.productionMeans);
         setAllowEdit(true);
         enqueueSnackbar('Tool with same part number found',{variant : 'success'});
@@ -248,6 +259,24 @@ export default function ToolsNewEditForm({ currentTool }) {
       setAllowEdit(false);  
     }
   }, [values.partNumber]);
+
+
+  // fetch users call
+  const fetchUsers = async( event, func, path, field ) => {
+    try{
+      const filter = {
+        where: {
+          [field]: { like: `%${event.target.value}%` }
+        }
+      };
+
+      const filterString = encodeURIComponent(JSON.stringify(filter));
+      const { data } = await axiosInstance.get(`${path}?filter=${filterString}`);
+      func(data);
+    }catch(error){
+      console.error('Error while filtering autocomplete data', error);
+    }
+  }
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
@@ -341,21 +370,18 @@ export default function ToolsNewEditForm({ currentTool }) {
                   disabled={!allowEdit}
                   name="toolType"
                   label="Tool Type"
-                  options={toolTypeData}
+                  options={toolTypeData || []}
+                  onInputChange={(event) => fetchUsers(event, setToolTypeData, '/tool-types', 'toolType')}
                   getOptionLabel={(option) => option?.toolType || ''}
-                  isOptionEqualToValue={(option, value) => option?.id === value}
+                  isOptionEqualToValue={(option, value) => option?.id === value.id}
                   filterOptions={(options, { inputValue }) =>
-                    options?.filter((option) => option?.toolType?.toLowerCase().includes(inputValue?.toLowerCase()))
+                      options?.filter((option) => option?.toolType?.toLowerCase().includes(inputValue?.toLowerCase()) || option?.lastName?.toLowerCase().includes(inputValue?.toLowerCase()))
                   }
                   renderOption={(props, option) => (
-                    <li {...props}>
-                      <Typography variant="subtitle2">{option?.toolType}</Typography>
-                    </li>
+                      <li {...props}>
+                          <Typography variant="subtitle2">{option?.toolType}</Typography>
+                      </li>
                   )}
-                  onChange={(event, value) => {
-                    setValue("toolType", value?.id || "");
-                  }}
-                  value={toolTypeData.find((option) => option.id === watch("toolType")) || null}
                 />
               </Grid>
 
@@ -368,21 +394,18 @@ export default function ToolsNewEditForm({ currentTool }) {
                   disabled={!allowEdit}
                   name="supplier"
                   label="Supplier"
-                  options={supplierData}
+                  options={supplierData || []}
+                  onInputChange={(event) => fetchUsers(event, setSupplierData, '/suppliers', 'supplier')}
                   getOptionLabel={(option) => option?.supplier || ''}
-                  isOptionEqualToValue={(option, value) => option?.id === value}
+                  isOptionEqualToValue={(option, value) => option?.id === value.id}
                   filterOptions={(options, { inputValue }) =>
-                    options?.filter((option) => option?.supplier?.toLowerCase().includes(inputValue?.toLowerCase()))
+                      options?.filter((option) => option?.supplier?.toLowerCase().includes(inputValue?.toLowerCase()))
                   }
                   renderOption={(props, option) => (
-                    <li {...props}>
-                      <Typography variant="subtitle2">{option?.supplier}</Typography>
-                    </li>
+                      <li {...props}>
+                          <Typography variant="subtitle2">{option?.supplier}</Typography>
+                      </li>
                   )}
-                  onChange={(event, value) => {
-                    setValue("supplier", value?.id || "");
-                  }}
-                  value={supplierData.find((option) => option.id === watch("supplier")) || null}
                 />
               </Grid>
 
@@ -391,21 +414,18 @@ export default function ToolsNewEditForm({ currentTool }) {
                   disabled={!allowEdit}
                   name="manufacturer"
                   label="Manufacturer"
-                  options={manufacturersData}
+                  options={manufacturersData || []}
+                  onInputChange={(event) => fetchUsers(event, setManufacturersData, '/manufacturers', 'manufacturer')}
                   getOptionLabel={(option) => option?.manufacturer || ''}
-                  isOptionEqualToValue={(option, value) => option?.id === value}
+                  isOptionEqualToValue={(option, value) => option?.id === value.id}
                   filterOptions={(options, { inputValue }) =>
-                    options?.filter((option) => option?.manufacturer?.toLowerCase().includes(inputValue?.toLowerCase()))
+                      options?.filter((option) => option?.manufacturer?.toLowerCase().includes(inputValue?.toLowerCase()))
                   }
                   renderOption={(props, option) => (
-                    <li {...props}>
-                      <Typography variant="subtitle2">{option?.manufacturer}</Typography>
-                    </li>
+                      <li {...props}>
+                          <Typography variant="subtitle2">{option?.manufacturer}</Typography>
+                      </li>
                   )}
-                  onChange={(event, value) => {
-                    setValue("manufacturer", value?.id || "");
-                  }}
-                  value={manufacturersData.find((option) => option.id === watch("manufacturer")) || null}
                 />
               </Grid>
 
@@ -434,7 +454,7 @@ export default function ToolsNewEditForm({ currentTool }) {
               </Grid>
 
               <Grid item="true" xs={12} sm={6}>
-                <RHFAutocomplete
+                {/* <RHFAutocomplete
                   disabled={!allowEdit}
                   name="storageLocation"
                   label="Storage Location"
@@ -453,6 +473,47 @@ export default function ToolsNewEditForm({ currentTool }) {
                     setValue("storageLocation", value?.id || "");
                   }}
                   value={storageLocationsData.find((option) => option.id === watch("storageLocation")) || null}
+                /> */}
+                <RHFTextField name='storageLocation' label='Storage Location' disabled={!allowEdit}/>
+              </Grid>
+
+              <Grid item="true" xs={12} sm={6}>
+                <RHFAutocomplete
+                  disabled={!allowEdit}
+                  name="toolDepartment"
+                  label="Tool Department"
+                  options={toolDepartmentData || []}
+                  onInputChange={(event) => fetchUsers(event, setToolDepartmentData, '/tools-departments', 'toolDepartment')}
+                  getOptionLabel={(option) => option?.toolDepartment || ''}
+                  isOptionEqualToValue={(option, value) => option?.id === value.id}
+                  filterOptions={(options, { inputValue }) =>
+                      options?.filter((option) => option?.toolDepartment?.toLowerCase().includes(inputValue?.toLowerCase()))
+                  }
+                  renderOption={(props, option) => (
+                      <li {...props}>
+                          <Typography variant="subtitle2">{option?.toolDepartment}</Typography>
+                      </li>
+                  )}
+                />
+              </Grid>
+
+              <Grid item="true" xs={12} sm={6}>
+                <RHFAutocomplete
+                  disabled={!allowEdit}
+                  name="station"
+                  label="Station"
+                  options={stationData || []}
+                  onInputChange={(event) => fetchUsers(event, setStationData, '/stations', 'station')}
+                  getOptionLabel={(option) => option?.station || ''}
+                  isOptionEqualToValue={(option, value) => option?.id === value.id}
+                  filterOptions={(options, { inputValue }) =>
+                      options?.filter((option) => option?.station?.toLowerCase().includes(inputValue?.toLowerCase()))
+                  }
+                  renderOption={(props, option) => (
+                      <li {...props}>
+                          <Typography variant="subtitle2">{option?.station}</Typography>
+                      </li>
+                  )}
                 />
               </Grid>
 
@@ -467,7 +528,13 @@ export default function ToolsNewEditForm({ currentTool }) {
                   </Grid>
 
                   <Grid item="true" xs={12} sm={6}>
-                    <RHFTextField name="technicalDrawing" label="Technical Drawing" disabled={!allowEdit} />
+                    <RHFSelect name="technincalDrawing" label="Technical Drawing" disabled={!allowEdit} >
+                      {booleanOptions?.length > 0 ? booleanOptions?.map((opt) => (
+                        <MenuItem key={opt?.value} value={opt?.value}>{opt?.label}</MenuItem>
+                      )) : (
+                        <MenuItem disabled value=''>No Options Found</MenuItem>
+                      )}
+                    </ RHFSelect>
                   </Grid>
 
                   <Grid item="true" xs={12} sm={6}>
@@ -499,11 +566,23 @@ export default function ToolsNewEditForm({ currentTool }) {
                   </Grid>
 
                   <Grid item="true" xs={12} sm={6}>
-                    <RHFTextField name="criticalLevel" label="Critical Level" disabled={!allowEdit} />
+                    <RHFSelect name="criticalLevel" label="Critical Level" disabled={!allowEdit} >
+                      {criticalLevelOptions?.length > 0 ? criticalLevelOptions?.map((opt) => (
+                        <MenuItem key={opt?.value} value={opt?.value}>{opt?.label}</MenuItem>
+                      )) : (
+                        <MenuItem disabled value=''>No Options Found</MenuItem>
+                      )}
+                    </ RHFSelect>
                   </Grid>
 
                   <Grid item="true" xs={12} sm={6}>
-                    <RHFTextField name="toolFamily" label="Tool Family" disabled={!allowEdit} />
+                    <RHFSelect name="toolFamily" label="Tool Family" disabled={!allowEdit} >
+                      {toolFamilyOptions?.length > 0 ? toolFamilyOptions?.map((opt) => (
+                        <MenuItem key={opt?.value} value={opt?.value}>{opt?.label}</MenuItem>
+                      )) : (
+                        <MenuItem disabled value=''>No Options Found</MenuItem>
+                      )}
+                    </ RHFSelect>
                   </Grid>
 
                   <Grid item="true" xs={12} sm={6}>

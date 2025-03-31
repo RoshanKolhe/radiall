@@ -287,7 +287,7 @@ export class ToolsManagementController {
     data: Tools[];
   }> {
     try{
-      const tools = await this.toolsRepository.find({ order: ['createdAt DESC'], include : [{relation : 'toolType'}, {relation : 'storageLocation'}, {relation : 'manufacturer'}, {relation : 'supplier'}] });
+      const tools = await this.toolsRepository.find({ order: ['createdAt DESC'], include : [{relation : 'toolType'}, {relation : 'manufacturer'}, {relation : 'supplier'}, {relation : 'toolsDepartment'}, {relation: 'station'}] });
 
       return {
         success: true,
@@ -358,7 +358,8 @@ export class ToolsManagementController {
           {relation: 'toolType'},
           {relation: 'manufacturer'},
           {relation: 'supplier'},
-          {relation: 'storageLocation'},
+          {relation: 'toolsDepartment'},
+          {relation: 'station'}
         ],
       });
 

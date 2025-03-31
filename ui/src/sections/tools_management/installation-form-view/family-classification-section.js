@@ -55,7 +55,7 @@ export default function FamilyClassificationSection({ currentForm, verificationF
         supplier: Yup.string().required('Supplier Name is required'),
         initiator: Yup.object().required('Initiator is required'),
         validators: Yup.array(),
-        productionHeads: Yup.object().required("At least one Production Head is required"),
+        productionHeads: Yup.object().required("Production Head is required"),
         user: Yup.object().required('Please Select User'),
         creationDate: Yup.string(),
     });
@@ -144,7 +144,7 @@ export default function FamilyClassificationSection({ currentForm, verificationF
                 initiatorId: formData?.initiator?.id,
                 userId: formData?.user?.id,
                 validatorsId: formData?.validators?.map((value) => value?.id),
-                productionHeadsId: [formData?.productionHeads?.id]
+                productionHeadsId: formData?.productionHeads ? [formData?.productionHeads?.id] : []
             };
 
             const response = await axiosInstance.patch(`/update-family-classification/${currentForm?.id}`, inputData);
@@ -272,7 +272,7 @@ export default function FamilyClassificationSection({ currentForm, verificationF
                                     name="user"
                                     label="User"
                                     options={usersData || []}
-                                    onInputChange={(event) => fetchUsers(event, setUsersData, '')}
+                                    onInputChange={(event) => fetchUsers(event, setUsersData, 'validator')}
                                     getOptionLabel={(option) => `${option?.firstName} ${option?.lastName}` || ''}
                                     isOptionEqualToValue={(option, value) => option?.id === value.id}
                                     filterOptions={(options, { inputValue }) =>

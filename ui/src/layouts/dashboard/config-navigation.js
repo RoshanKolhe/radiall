@@ -198,19 +198,19 @@ export function useNavData() {
             ],
           },
           {
-            title: t('Storage Location Master'),
-            path: paths.dashboard.storageLocation.root,
+            title: t('Tools Department Master'),
+            path: paths.dashboard.toolsDepartment.root,
             icon: ICONS.storageLocation,
             roles: ['production_head'],
             children: [
               {
                 title: t('list'),
-                path: paths.dashboard.storageLocation.list,
+                path: paths.dashboard.toolsDepartment.list,
                 roles: ['production_head'],
               },
               {
                 title: t('create'),
-                path: paths.dashboard.storageLocation.new,
+                path: paths.dashboard.toolsDepartment.new,
                 roles: ['production_head'],
               },
             ],

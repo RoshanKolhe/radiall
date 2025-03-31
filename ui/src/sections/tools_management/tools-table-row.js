@@ -67,7 +67,7 @@ export default function ToolsTableRow({
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{criticalLevel || 'NA'}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{isMaintaincePlanNeeded || 'NA'}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{calibration || 'NA'}</TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{storageLocation?.location || 'NA'}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{storageLocation || 'NA'}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{manufacturer?.manufacturer || 'NA'}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{supplier?.supplier || 'NA'}</TableCell>
         <TableCell>

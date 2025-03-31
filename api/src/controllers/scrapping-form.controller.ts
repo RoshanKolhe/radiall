@@ -456,6 +456,7 @@ export class ScrappingFormController {
 
       if(allValidatorsApproved && allProductionHeadsApproved && userApproval){
         const updatedValues = {
+          scrapDate : new Date(),
           status : 'Scrapped',
           isActive : false
         }

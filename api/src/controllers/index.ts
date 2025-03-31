@@ -23,3 +23,8 @@ export * from './scrapping-form-approval-users.controller';
 export * from './scrapping-form.controller';
 export * from './approval-users-scrapping-form.controller';
 export * from './inventory-out-entries.controller';
+export * from './tools-department.controller';
+export * from './tools-tools-department.controller';
+export * from './tools-station.controller';
+export * from './maintainance-plan-tools.controller';
+export * from './maintainance-plan-user.controller';

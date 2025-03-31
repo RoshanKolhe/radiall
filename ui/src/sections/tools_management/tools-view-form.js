@@ -30,6 +30,7 @@ export default function ToolsViewForm({ currentTool }) {
     { label: 'Date of Installation:', value: 'installationDate' },
     { label: 'Area/Location:', value: 'storageLocation.location' },
     { label: 'Status:', value: 'status' },
+    { label: 'Date of disposal/scrapping:', value: 'scrapDate' },
   ];
 
   const getNestedValue = (obj, path, defaultValue = 'NA') => {

@@ -97,5 +97,11 @@ export const endpoints = {
   // SCRAPPING FORM
   scrappingForm: {
     details: (toolId) => `/scrapping-form/form-by-toolId/${toolId}`
-  }
+  },
+  // TOOLS DEPARTMENT MASTER
+  toolDepartment: {
+    list: '/tools-departments',
+    filterList: (filter) => `/tools-departments?${filter}`,
+    details: (id) => `/tools-departments/${id}`,
+  },
 };
