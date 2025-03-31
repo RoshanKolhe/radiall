@@ -297,7 +297,7 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
                                     name="user"
                                     label="User"
                                     options={usersData || []}
-                                    onInputChange={(event) => fetchUsers(event, setUsersData, '')}
+                                    onInputChange={(event) => fetchUsers(event, setUsersData, 'validator')}
                                     getOptionLabel={(option) => `${option?.firstName} ${option?.lastName}` || ''}
                                     isOptionEqualToValue={(option, value) => option?.id === value.id}
                                     filterOptions={(options, { inputValue }) =>
