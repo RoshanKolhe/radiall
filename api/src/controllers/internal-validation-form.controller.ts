@@ -641,6 +641,7 @@ export class InternalValidationFormController {
         if(allValidatorsApproved && allProductionHeadsApproved && userApproval){
           const updatedValues = {
             internalValidationStatus : 'approved',
+            lastInternalValidationDate : new Date()
           }
 
           await this.toolsRepository.updateById(form?.id, updatedValues);

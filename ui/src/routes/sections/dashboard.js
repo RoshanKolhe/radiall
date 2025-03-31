@@ -72,6 +72,11 @@ const ToolsInternalValidationEditPage = lazy(() => import('src/pages/dashboard/t
 const ScrapToolListPage = lazy(() => import('src/pages/dashboard/scrap/tool-list'));
 const ScrappingFormPage = lazy(() => import('src/pages/dashboard/scrap/scrapping-form'));
 
+// TOOLS DEPARTMENT MASTER
+const ToolsDepartmentListPage = lazy(() => import('src/pages/dashboard/tools-department/list'));
+const ToolsDepartmentEditPage = lazy(() => import('src/pages/dashboard/tools-department/edit'));
+const ToolsDepartmentCreatePage = lazy(() => import('src/pages/dashboard/tools-department/new'));
+
 // BLANK PAGE
 const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
 
@@ -195,6 +200,18 @@ export const dashboardRoutes = [
           { element: <ScrapToolListPage />, index: true },
           { path: 'toolList', element: <ScrapToolListPage /> },
           { path: ':id/scrapping-form', element: <ScrappingFormPage /> },
+        ],
+      },
+
+      // TOOLS DEPARTMENT
+      {
+        path: 'tools-department',
+        children: [
+          { element: <ToolsDepartmentListPage />, index: true },
+          { path: 'list', element: <ToolsDepartmentListPage /> },
+          { path: 'new', element: <ToolsDepartmentCreatePage /> },
+          { path: ':id/edit', element: <ToolsDepartmentEditPage /> },
+          { path: ':id/view', element: <StationViewPage /> },
         ],
       },
 

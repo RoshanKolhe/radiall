@@ -5,6 +5,8 @@ import {Supplier} from './supplier.model';
 import {StorageLocation} from './storage-location.model';
 import {Spare} from './spare.model';
 import {InventoryOutEntries} from './inventory-out-entries.model';
+import {ToolsDepartment} from './tools-department.model';
+import {Station} from './station.model';
 
 @model()
 export class Tools extends Entity {
@@ -116,6 +118,16 @@ export class Tools extends Entity {
   installationDate: Date;
 
   @property({
+    type: 'date',
+  })
+  lastInternalValidationDate: Date;
+
+  @property({
+    type: 'date',
+  })
+  scrapDate: Date;
+
+  @property({
     type: 'string',
   })
   internalValidationStatus: string;
@@ -134,8 +146,19 @@ export class Tools extends Entity {
   @belongsTo(() => Supplier)
   supplierId: number;
 
-  @belongsTo(() => StorageLocation)
-  storageLocationId: number;
+  // newly added....
+  @belongsTo(() => ToolsDepartment)
+  toolsDepartmentId: number;
+
+  @belongsTo(() => Station)
+  stationId: number;
+
+  @property({
+    type: 'string',
+    required: true
+  })
+  storageLocation: string;
+  // -----------------------------------------------------
 
   @property({
     type: 'date',
