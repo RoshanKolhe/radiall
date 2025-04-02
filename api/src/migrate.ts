@@ -26,7 +26,9 @@ export async function migrate(args: string[]) {
       'InternalValidationForm',
       'ScrappingForm',
       'InventoryOutEntries',
-      'ToolsDepartment'
+      'ToolsDepartment',
+      'MaintainancePlan',
+      'MaintainanceEntries'
     ],
   });
 

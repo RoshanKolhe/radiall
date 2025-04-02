@@ -28,3 +28,8 @@ export * from './tools-tools-department.controller';
 export * from './tools-station.controller';
 export * from './maintainance-plan-tools.controller';
 export * from './maintainance-plan-user.controller';
+export * from './tools-maintainance-plan.controller';
+export * from './maintainance-plan.controller';
+export * from './maintainance-entries-tools.controller';
+export * from './maintainance-entries-maintainance-plan.controller';
+export * from './maintainance-entries.controller';

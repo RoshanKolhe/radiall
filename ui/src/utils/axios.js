@@ -104,4 +104,9 @@ export const endpoints = {
     filterList: (filter) => `/tools-departments?${filter}`,
     details: (id) => `/tools-departments/${id}`,
   },
+  // MAINTAINANCE PLAN
+  maintainancePlan: {
+    details: (toolId) => `/maintainance-plan-by-toolId/${toolId}`,
+    entries: (toolId) => `/maintainance-entries/${toolId}`,
+  },
 };

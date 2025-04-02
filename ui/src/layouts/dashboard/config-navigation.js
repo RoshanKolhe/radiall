@@ -48,6 +48,7 @@ const ICONS = {
   analytics: icon('ic_analytics'),
   dashboard: icon('ic_dashboard'),
   scrap: icon('ic_scrap'),
+  maintainance: icon('ic_maintainance')
 };
 
 // ----------------------------------------------------------------------
@@ -133,6 +134,19 @@ export function useNavData() {
               {
                 title: t('list'),
                 path: paths.dashboard.inventory.toolList,
+                roles: ['production_head'],
+              },
+            ],
+          },
+          {
+            title: t('maintainance'),
+            path: paths.dashboard.maintainancePlan.root,
+            icon: ICONS.maintainance,
+            roles: ['production_head'],
+            children: [
+              {
+                title: t('list'),
+                path: paths.dashboard.maintainancePlan.toolList,
                 roles: ['production_head'],
               },
             ],

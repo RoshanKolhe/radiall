@@ -172,6 +172,16 @@ export const paths = {
       edit: (id) => `${ROOTS.DASHBOARD}/tools-department/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/tools-department/${id}/view`,
     },
+
+    // MAINTAINANCE PLAN
+    maintainancePlan: {
+      root: `${ROOTS.DASHBOARD}/maintainance`,
+      toolList: `${ROOTS.DASHBOARD}/maintainance/toolList`,
+      newPlan: (id) => `${ROOTS.DASHBOARD}/maintainance/maintainance-plan/${id}`,
+      entries: (id) => `${ROOTS.DASHBOARD}/maintainance/entries/${id}`,
+      newEntry: (id) => `${ROOTS.DASHBOARD}/maintainance/new-entry/${id}`
+    },
+
     product: {
       root: `${ROOTS.DASHBOARD}/product`,
       new: `${ROOTS.DASHBOARD}/product/new`,

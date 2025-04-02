@@ -1,17 +1,17 @@
 import { Helmet } from 'react-helmet-async';
 // sections
-import StorageLocationView from 'src/sections/storageLocation/view/storageLocation-view';
+import ToolsDepartmentView from 'src/sections/tools-department/view/toolsDepartment-view';
 
 // ----------------------------------------------------------------------
 
-export default function StorageLocationViewPage() {
+export default function ToolsDepartmentViewPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard: StorageLocation View</title>
+        <title> Dashboard: Tools Department View</title>
       </Helmet>
 
-      <StorageLocationView />
+      <ToolsDepartmentView />
     </>
   );
 }

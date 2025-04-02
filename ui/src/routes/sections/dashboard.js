@@ -76,9 +76,16 @@ const ScrappingFormPage = lazy(() => import('src/pages/dashboard/scrap/scrapping
 const ToolsDepartmentListPage = lazy(() => import('src/pages/dashboard/tools-department/list'));
 const ToolsDepartmentEditPage = lazy(() => import('src/pages/dashboard/tools-department/edit'));
 const ToolsDepartmentCreatePage = lazy(() => import('src/pages/dashboard/tools-department/new'));
+const ToolsDepartmentViewPage = lazy(() => import('src/pages/dashboard/tools-department/view'));
 
 // BLANK PAGE
 const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
+
+// MAINTAINANCE
+const MaintainanceToolListPage = lazy(() => import('src/pages/dashboard/maintainance-plan/tool-list'));
+const MaintainancePlanCreatePage = lazy(() => import('src/pages/dashboard/maintainance-plan/new-plan'));
+const MaintainanceEntriesPage = lazy(() => import('src/pages/dashboard/maintainance-plan/entries'));
+const MaintainanceEntryCreatePage = lazy(() => import('src/pages/dashboard/maintainance-plan/new-entry'));
 
 // ----------------------------------------------------------------------
 
@@ -203,6 +210,18 @@ export const dashboardRoutes = [
         ],
       },
 
+      // MAINTAINANCE MASTER
+      {
+        path: 'maintainance',
+        children: [
+          { element: <MaintainanceToolListPage />, index: true },
+          { path: 'toolList', element: <MaintainanceToolListPage /> },
+          { path: 'maintainance-plan/:id', element: <MaintainancePlanCreatePage /> },
+          { path: 'entries/:id', element: <MaintainanceEntriesPage /> },
+          { path: 'new-entry/:id', element: <MaintainanceEntryCreatePage /> },
+        ],
+      },
+
       // TOOLS DEPARTMENT
       {
         path: 'tools-department',
@@ -211,7 +230,7 @@ export const dashboardRoutes = [
           { path: 'list', element: <ToolsDepartmentListPage /> },
           { path: 'new', element: <ToolsDepartmentCreatePage /> },
           { path: ':id/edit', element: <ToolsDepartmentEditPage /> },
-          { path: ':id/view', element: <StationViewPage /> },
+          { path: ':id/view', element: <ToolsDepartmentViewPage /> },
         ],
       },
 

@@ -17,3 +17,4 @@ export * from './scrapping-form.repository';
 export * from './inventory-out-entries.repository';
 export * from './tools-department.repository';
 export * from './maintainance-plan.repository';
+export * from './maintainance-entries.repository';

@@ -30,14 +30,14 @@ export default function ToolsDepartmentNewEditForm({ currentToolDepartment }) {
   const { enqueueSnackbar } = useSnackbar();
 
   const NewToolDepartmentSchema = Yup.object().shape({
-    toolDepartment: Yup.string().required('Storage Location is required'),
+    toolDepartment: Yup.string().required('Tool Department is required'),
     description: Yup.string(),
     isActive: Yup.boolean(),
   });
 
   const defaultValues = useMemo(
     () => ({
-      toolDepartment: currentToolDepartment?.location || '',
+      toolDepartment: currentToolDepartment?.toolDepartment || '',
       description: currentToolDepartment?.description || '',
       isActive: currentToolDepartment?.isActive ? '1' : '0' || '1',
     }),
