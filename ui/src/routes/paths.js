@@ -161,7 +161,7 @@ export const paths = {
       new: `${ROOTS.DASHBOARD}/inventory/new`,
       list: (toolId) => `${ROOTS.DASHBOARD}/inventory/${toolId}/list`,
       edit: (toolId, id) => `${ROOTS.DASHBOARD}/inventory/${toolId}/edit/${id}`,
-      view: (toolId, id) => `${ROOTS.DASHBOARD}/inventory/${toolId}/view/${id}`,
+      inEntry: (id) => `${ROOTS.DASHBOARD}/inventory/${id}`,
     },
 
     // TOOLS DEPARTMENT

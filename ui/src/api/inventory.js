@@ -7,7 +7,7 @@ import { fetcher, endpoints } from 'src/utils/axios';
 // ----------------------------------------------------------------------
 
 export function useGetInventorys() {
-  const URL = endpoints.spare.list;
+  const URL = endpoints.inventory.list;
 
   const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher);
 
@@ -17,27 +17,27 @@ export function useGetInventorys() {
   };
 
   return {
-    spares: data || [],
-    sparesLoading: isLoading,
-    sparesError: error,
-    sparesValidating: isValidating,
-    sparesEmpty: !isLoading && !data?.length,
+    inventorys: data || [],
+    inventorysLoading: isLoading,
+    inventorysError: error,
+    inventorysValidating: isValidating,
+    inventorysEmpty: !isLoading && !data?.length,
     refreshInventorys, // Include the refresh function separately
   };
 }
 
 // ----------------------------------------------------------------------
 
-export function useGetInventory(spareId) {
-  const URL = spareId ? [endpoints.spare.details(spareId)] : null;
+export function useGetInventory(inventoryId) {
+  const URL = inventoryId ? [endpoints.inventory.details(inventoryId)] : null;
   const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
 
   const memoizedValue = useMemo(
     () => ({
-      spare: data,
-      spareLoading: isLoading,
-      spareError: error,
-      spareValidating: isValidating,
+      inventory: data,
+      inventoryLoading: isLoading,
+      inventoryError: error,
+      inventoryValidating: isValidating,
     }),
     [data, error, isLoading, isValidating]
   );
@@ -50,9 +50,9 @@ export function useGetInventory(spareId) {
 export function useGetInventorysWithFilter(filter) {
   let URL;
   if (filter) {
-    URL = endpoints.spare.filterList(filter);
+    URL = endpoints.inventory.filterList(filter);
   } else {
-    URL = endpoints.spare.list;
+    URL = endpoints.inventory.list;
   }
 
   const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher);

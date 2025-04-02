@@ -58,7 +58,7 @@ const InventoryToolListPage = lazy(() => import('src/pages/dashboard/inventory/t
 const InventoryListPage = lazy(() => import('src/pages/dashboard/inventory/list'));
 const InventoryCreatePage = lazy(() => import('src/pages/dashboard/inventory/new'));
 const InventoryEditPage = lazy(() => import('src/pages/dashboard/inventory/edit'));
-const InventoryViewPage = lazy(() => import('src/pages/dashboard/inventory/view'));
+const InventoryInEntryPage = lazy(() => import('src/pages/dashboard/inventory/inEntry'));
 
 // TOOLS MANAGEMENT
 const ToolsListPage = lazy(() => import('src/pages/dashboard/tools_management/list'));
@@ -166,6 +166,7 @@ export const dashboardRoutes = [
           { element: <InventoryToolListPage />, index: true },
           { path: 'toolList', element: <InventoryToolListPage /> },
           { path: ':id/list', element: <InventoryListPage /> },
+          { path: ':id', element: <InventoryInEntryPage /> },
           { path: 'new', element: <InventoryCreatePage /> },
         ],
       },

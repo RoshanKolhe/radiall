@@ -1,7 +1,8 @@
+/* eslint-disable no-nested-ternary */
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { useEffect, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -17,31 +18,47 @@ import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
 import { Typography } from '@mui/material';
 import axiosInstance from 'src/utils/axios';
+import { DatePicker } from '@mui/x-date-pickers';
+import { useAuthContext } from 'src/auth/hooks';
+import InventoryOutEntries from './inventory-out-entries-table';
 // ----------------------------------------------------------------------
 
 export default function InventoryNewEditForm({ currentInventory }) {
-  const router = useRouter();
-  const [toolOptions, setToolOptions] = useState([]);
+  const { user } = useAuthContext();
+  const [userOptions, setUserOptions] = useState([]);
+  const [issuedByUserOptions, setIssuedByUserOptions] = useState([]);
+  const [inventoryEntries, setInventoryEntries] = useState([]);
+  const [editingEntry, setEditingEntry] = useState(null);
+  const [outEntrySubmitLoading, setOutEntrySubmitLoading] = useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
 
   const NewInventorySchema = Yup.object().shape({
-    moPartNumber: Yup.object().required('Mo Part Number is required'),
-    serialNumber: Yup.string().required('Serial Number is required'),
-    moNumber: Yup.string().required('MO Number is required'),
-    moQuantity: Yup.string().required('MO Quantity is required'),
-    description: Yup.string(),
-    isActive: Yup.boolean(),
+    toolPartNumber: Yup.string().required('Tool Part Number is required'),
+    moPartNumber: Yup.string().required('MO Part Number is required'),
+    moNumber: Yup.number().min(1, 'Value must be greater than 0').required('MO Number is required'),
+    moQuantity: Yup.number()
+      .min(1, 'Value must be greater than 0')
+      .required('MO Quantity is required'),
+    requiredDays: Yup.number()
+      .min(1, 'Value must be greater than 0')
+      .required('Required Days is required'),
+    issuedDate: Yup.string().required('Issued Date is required'),
+    issuedTo: Yup.object().required('Issued To is required'),
+    issuedBy: Yup.object().required('Issued By is required'),
+    department: Yup.string().required('Department is required'),
   });
 
   const defaultValues = useMemo(
     () => ({
-      moPartNumber: currentInventory?.tools || '',
-      serialNumber: currentInventory?.serialNumber || '',
-      moNumber: currentInventory?.moNumber || '',
-      moQuantity: currentInventory?.moQuantity || '',
-      description: currentInventory?.description || '',
-      isActive: currentInventory?.isActive ? '1' : '0' || '1',
+      toolPartNumber: currentInventory?.tools || '',
+      moPartNumber: currentInventory?.moPartNumber || '',
+      moNumber: currentInventory?.moNumber || 0,
+      moQuantity: currentInventory?.moQuantity || 0,
+      requiredDays: currentInventory?.requiredDays || 0,
+      issuedTo: currentInventory?.issuedTo || null,
+      issuedBy: currentInventory?.issuedBy || null,
+      department: currentInventory?.department || '',
     }),
     [currentInventory]
   );
@@ -60,25 +77,43 @@ export default function InventoryNewEditForm({ currentInventory }) {
     formState: { isSubmitting },
   } = methods;
 
-  const partNumber = watch('moPartNumber');
+  const issuedTo = watch('issuedTo');
+  const handleEdit = (entry) => {
+    setEditingEntry(entry);
+    reset({
+      toolPartNumber: entry.toolPartNumber || '',
+      moPartNumber: entry.moPartNumber || '',
+      moNumber: entry.moNumber || '',
+      moQuantity: entry.moQuantity || 0,
+      requiredDays: entry.requiredDays || 0,
+      issuedDate: entry.issuedDate || '',
+      issuedTo: entry.issuedTo || null,
+      issuedBy: entry.issuedBy || null,
+      department: entry.department,
+    });
+  };
 
-  const fetchTools = async (event) => {
+  const handleDelete = (id) => {
+    setInventoryEntries((prev) => prev.filter((entry) => entry.id !== id));
+  };
+
+  const fetchUsers = async (event) => {
     try {
       if (event && event?.target?.value && event.target.value.length >= 3) {
         const filter = {
           where: {
             or: [
-              { partNumber: { like: `%${event.target.value}%` } },
-              { modelNumber: { like: `%${event.target.value}%` } },
+              { email: { like: `%${event.target.value}%` } },
+              { firstName: { like: `%${event.target.value}%` } },
+              { lastName: { like: `%${event.target.value}%` } },
             ],
           },
         };
         const filterString = encodeURIComponent(JSON.stringify(filter));
-        const { data } = await axiosInstance.get(`/tools/list?filter=${filterString}`);
-        setToolOptions(data?.data || []);
-        console.log(data);
+        const { data } = await axiosInstance.get(`/api/users/list?filter=${filterString}`);
+        setUserOptions(data);
       } else {
-        setToolOptions([]);
+        setUserOptions([]);
       }
     } catch (err) {
       console.error(err);
@@ -87,22 +122,43 @@ export default function InventoryNewEditForm({ currentInventory }) {
 
   const onSubmit = handleSubmit(async (formData) => {
     try {
-      console.info('DATA', formData);
+      const { toolPartNumber, moQuantity, moPartNumber, moNumber, issuedBy } = formData;
 
-      const inputData = {
-        inventory: formData.inventory,
-        description: formData.description,
-        isActive: currentInventory ? formData.isActive : true,
-      };
+      const { data } = await axiosInstance.post('/tools/available-serials', {
+        partNumber: toolPartNumber,
+        quantity: moQuantity,
+      });
 
-      if (!currentInventory) {
-        await axiosInstance.post('/inventorys', inputData);
-      } else {
-        await axiosInstance.patch(`/inventorys/${currentInventory.id}`, inputData);
+      if (!data.length) {
+        enqueueSnackbar(`Only ${data.length} tools available for part number ${toolPartNumber}.`, {
+          variant: 'error',
+        });
+        return;
       }
-      reset();
-      enqueueSnackbar(currentInventory ? 'Update success!' : 'Create success!');
-      router.push(paths.dashboard.inventory.list);
+
+      setInventoryEntries((prev) => [
+        ...prev,
+        {
+          ...formData,
+          id: Date.now(),
+          serials: data,
+        },
+      ]);
+
+      reset({
+        toolPartNumber: '',
+        moQuantity: 0,
+        requiredDays: 0,
+        issuedDate: '',
+        issuedTo: null,
+        department: '',
+        moPartNumber, // Retaining the value
+        moNumber, // Retaining the value
+        issuedBy, // Retaining the value
+      });
+
+      setEditingEntry(null);
+      enqueueSnackbar(editingEntry ? 'Entry updated successfully!' : 'Entry added successfully!');
     } catch (error) {
       console.error(error);
       enqueueSnackbar(typeof error === 'string' ? error : error.error.message, {
@@ -111,72 +167,183 @@ export default function InventoryNewEditForm({ currentInventory }) {
     }
   });
 
-  useEffect(() => {
-    console.log(partNumber);
-    if (partNumber) {
-      setValue('serialNumber', partNumber.meanSerialNumber);
+  const submitInventoryOutEntry = async () => {
+    console.log('here', inventoryEntries);
+    setOutEntrySubmitLoading(true);
+    try {
+      const inputData = inventoryEntries.map(({ serials, ...rest }) => ({
+        ...rest,
+        issuedBy: rest.issuedBy.id,
+        issuedTo: rest.issuedTo.id,
+        issuedDate: new Date(rest.issuedDate).toISOString(),
+        tools: serials?.map((serial) => serial.toolId) || [],
+      }));
+
+      console.log(inputData);
+      await axiosInstance.post(`/inventory-out-entries`, inputData);
+      enqueueSnackbar('Out Entry Created Successfully');
+    } catch (error) {
+      console.error(error);
+      enqueueSnackbar(typeof error === 'string' ? error : error.error.message, {
+        variant: 'error',
+      });
+    } finally {
+      setOutEntrySubmitLoading(false);
     }
-  }, [partNumber, setValue]);
+  };
 
   useEffect(() => {
-    if (currentInventory) {
-      reset(defaultValues);
+    if (issuedTo) {
+      setValue('department', issuedTo?.department?.name);
+    } else {
+      setValue('department', '');
     }
-  }, [currentInventory, defaultValues, reset]);
+  }, [issuedTo, setValue]);
+
+  useEffect(() => {
+    if (user) {
+      console.log(user);
+      setIssuedByUserOptions([user]);
+      setValue('issuedBy', user);
+    }
+  }, [setValue, user]);
 
   return (
-    <FormProvider methods={methods} onSubmit={onSubmit}>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={12}>
-          <Card sx={{ p: 3 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <RHFAutocomplete
-                  name="moPartNumber"
-                  label="MO Part Number"
-                  onInputChange={(event) => fetchTools(event)}
-                  options={toolOptions}
-                  getOptionLabel={(option) => `${option?.partNumber}` || ''}
-                  filterOptions={(x) => x}
-                  isOptionEqualToValue={(option, value) => option.id === value.id}
-                  renderOption={(props, option) => (
-                    <li {...props}>
-                      <div>
-                        <Typography variant="subtitle2" fontWeight="bold">
-                          {`${option?.partNumber}`}
-                        </Typography>
-                        <Typography variant="subtitle2">
-                          {`Serial No: ${option?.meanSerialNumber}`}
-                        </Typography>
-                      </div>
-                    </li>
-                  )}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6} />
+    <>
+      <FormProvider methods={methods} onSubmit={onSubmit}>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={12}>
+            <Card sx={{ p: 3 }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <RHFTextField name="toolPartNumber" label="Tool Part Number" />
+                </Grid>
+                <Grid item xs={12} sm={6} />
 
-              <Grid item xs={12} sm={6}>
-                <RHFTextField name="serialNumber" label="Mean Serial No" disabled />
+                <Grid item xs={12} sm={6}>
+                  <RHFTextField
+                    name="moPartNumber"
+                    label="Mo Part Number"
+                    disabled={inventoryEntries.length > 0}
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <RHFTextField
+                    name="moNumber"
+                    label="Mo Number"
+                    type="number"
+                    disabled={inventoryEntries.length > 0}
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <RHFTextField name="moQuantity" label="Mo Quantity" type="number" />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Controller
+                    name="issuedDate"
+                    control={control}
+                    render={({ field, fieldState: { error } }) => (
+                      <DatePicker
+                        label="Issued Date"
+                        value={new Date(field.value)}
+                        onChange={(newValue) => {
+                          field.onChange(newValue);
+                        }}
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            error: !!error,
+                            helperText: error?.message,
+                          },
+                        }}
+                      />
+                    )}
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <RHFTextField name="requiredDays" label="Required Days" type="number" />
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <RHFAutocomplete
+                    name="issuedTo"
+                    label="Issued To"
+                    onInputChange={(event) => fetchUsers(event)}
+                    options={userOptions}
+                    getOptionLabel={(option) => `${option?.firstName} ${option?.lastName}` || ''}
+                    filterOptions={(x) => x}
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                    renderOption={(props, option) => (
+                      <li {...props}>
+                        <div>
+                          <Typography variant="subtitle2" fontWeight="bold">
+                            {`${option?.firstName} ${option?.lastName}`}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            {option.email}
+                          </Typography>
+                        </div>
+                      </li>
+                    )}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <RHFTextField name="department" label="Department" disabled />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <RHFAutocomplete
+                    name="issuedBy"
+                    label="Issued By"
+                    options={issuedByUserOptions}
+                    getOptionLabel={(option) => `${option?.firstName} ${option?.lastName}` || ''}
+                    filterOptions={(x) => x}
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                    renderOption={(props, option) => (
+                      <li {...props}>
+                        <div>
+                          <Typography variant="subtitle2" fontWeight="bold">
+                            {`${option?.firstName} ${option?.lastName}`}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            {option.email}
+                          </Typography>
+                        </div>
+                      </li>
+                    )}
+                    disabled
+                  />
+                </Grid>
               </Grid>
 
-              <Grid item xs={12} sm={6}>
-                <RHFTextField name="moNumber" label="Mo Number" disabled />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <RHFTextField name="moQuantity" label="Mo Quantity" disabled />
-              </Grid>
-            </Grid>
-
-            <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentInventory ? 'Create Inventory' : 'Save Changes'}
-              </LoadingButton>
-            </Stack>
-          </Card>
+              <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+                <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                  {editingEntry ? 'Update' : 'Add'}
+                </LoadingButton>
+              </Stack>
+            </Card>
+          </Grid>
         </Grid>
-      </Grid>
-    </FormProvider>
+      </FormProvider>
+      <InventoryOutEntries
+        inventoryOutEntries={inventoryEntries}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
+
+      <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+        <LoadingButton
+          type="button"
+          variant="contained"
+          loading={outEntrySubmitLoading}
+          onClick={submitInventoryOutEntry}
+        >
+          Save
+        </LoadingButton>
+      </Stack>
+    </>
   );
 }
 

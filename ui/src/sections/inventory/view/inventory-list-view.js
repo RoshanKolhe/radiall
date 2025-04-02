@@ -14,7 +14,7 @@ import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 // routes
 import { paths } from 'src/routes/paths';
-import { useParams } from 'src/routes/hook';
+import { useParams, useRouter } from 'src/routes/hook';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
@@ -50,9 +50,13 @@ import InventoryTableFiltersResult from '../inventory-table-filters-result';
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...COMMON_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: 'description', label: 'Description' },
-  { id: 'stock', label: 'Qty safety stock' },
-  { id: 'comment', label: 'Comment' },
+  { id: 'moNumber', label: 'MO Number' },
+  { id: 'moQuantity', label: 'Mo Qty' },
+  { id: 'department', label: 'Department' },
+  { id: 'user', label: 'Issued To' },
+  { id: 'issuedByUser', label: 'Issued By' },
+  { id: 'issuedDate', label: 'Issued Date Time' },
+  { id: 'returnDate', label: 'Returned Date' },
   { id: 'createdAt', label: 'Created At' },
   { id: 'status', label: 'Status', width: 100 },
   { id: '', width: 88 },
@@ -68,6 +72,7 @@ const defaultFilters = {
 
 export default function InventoryListView() {
   const params = useParams();
+  const router = useRouter();
 
   const { id: toolId } = params;
 
@@ -81,12 +86,9 @@ export default function InventoryListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const filter = JSON.stringify({ where: { toolId } });
-  const encodedFilter = encodeURIComponent(filter);
-
   const { tool } = useGetTool(toolId);
   const { filteredInventorys: inventorys, refreshFilterInventorys: refreshInventorys } =
-    useGetInventorysWithFilter(encodedFilter);
+    useGetInventorysWithFilter(`toolsId=${toolId}`);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -114,6 +116,13 @@ export default function InventoryListView() {
       }));
     },
     [table]
+  );
+
+  const handleInEntry = useCallback(
+    (row) => {
+      router.push(paths.dashboard.inventory.inEntry(row.id));
+    },
+    [router]
   );
 
   const handleDeleteRows = useCallback(() => {
@@ -314,6 +323,7 @@ export default function InventoryListView() {
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}
+                        handleInEntry={handleInEntry}
                       />
                     ))}
 

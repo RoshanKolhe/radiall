@@ -23,6 +23,7 @@ const ICONS = {
   mail: icon('ic_mail'),
   user: icon('ic_user'),
   spare: icon('ic_spare'),
+  inventory: icon('ic_inventory'),
   toolType: icon('ic_toolType'),
   manufacturer: icon('ic_manufacturer'),
   supplier: icon('ic_supplier'),
@@ -84,17 +85,17 @@ export function useNavData() {
             title: t('Production Means'),
             path: paths.dashboard.tools.root,
             icon: ICONS.toolType,
-            roles: ['production_head', 'validator'],
+            roles: ['production_head', 'validator', 'initiator'],
             children: [
               {
                 title: t('list'),
                 path: paths.dashboard.tools.list,
-                roles: ['production_head', 'validator'],
+                roles: ['production_head', 'validator', 'initiator'],
               },
               {
                 title: t('create'),
                 path: paths.dashboard.tools.new,
-                roles: ['production_head', 'validator'],
+                roles: ['production_head', 'validator', 'initiator'],
               },
             ],
           },
@@ -121,13 +122,13 @@ export function useNavData() {
                 title: t('list'),
                 path: paths.dashboard.scrap.toolList,
                 roles: ['production_head', 'validator', 'initiator'],
-              }
-            ]
+              },
+            ],
           },
           {
             title: t('inventory'),
             path: paths.dashboard.inventory.root,
-            icon: ICONS.spare,
+            icon: ICONS.inventory,
             roles: ['production_head'],
             children: [
               {

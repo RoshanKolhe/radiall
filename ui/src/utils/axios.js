@@ -66,9 +66,9 @@ export const endpoints = {
     details: (id) => `/spares/${id}`,
   },
   inventory: {
-    list: '/inventorys',
-    filterList: (filter) => `/inventorys?${filter}`,
-    details: (id) => `/inventorys/${id}`,
+    list: '/inventory-out-entries',
+    filterList: (filter) => `/inventory-out-entries?${filter}`,
+    details: (id) => `/inventory-out-entries/${id}`,
   },
   station: {
     list: '/stations',

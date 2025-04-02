@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import PropTypes from 'prop-types';
 // @mui
 import Tooltip from '@mui/material/Tooltip';
@@ -14,99 +15,111 @@ import { format } from 'date-fns';
 
 // ----------------------------------------------------------------------
 
-export default function InventoryTableRow({ row, selected, handleQuickEditRow, handleQuickViewRow }) {
-  const { description, stock, comment, isActive, createdAt } = row;
-
+export default function InventoryTableRow({ row, selected, handleInEntry }) {
+  const {
+    moNumber,
+    moQuantity,
+    department,
+    issuedByUser,
+    user,
+    issuedDate,
+    requiredDays,
+    status,
+    createdAt,
+  } = row;
+  const issuedDateObj = issuedDate ? new Date(issuedDate) : null;
+  const today = new Date();
+  const isOverdue =
+    status === 0 &&
+    issuedDateObj &&
+    (today.getTime() - issuedDateObj.getTime()) / (1000 * 60 * 60 * 24) > requiredDays;
   const popover = usePopover();
 
   return (
-    <>
-      <TableRow hover selected={selected}>
-        {/* <TableCell padding="checkbox">
+    <TableRow hover selected={selected}>
+      {/* <TableCell padding="checkbox">
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell> */}
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{description}</TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{stock}</TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{comment}</TableCell>
-        <TableCell>
-          <ListItemText
-            primary={format(new Date(createdAt), 'dd MMM yyyy')}
-            secondary={format(new Date(createdAt), 'p')}
+      <TableCell sx={{ whiteSpace: 'nowrap' }}>{moNumber}</TableCell>
+      <TableCell sx={{ whiteSpace: 'nowrap' }}>{moQuantity}</TableCell>
+      <TableCell sx={{ whiteSpace: 'nowrap' }}>{department}</TableCell>
+      <TableCell sx={{ whiteSpace: 'nowrap' }}>{`${issuedByUser?.firstName} ${
+        issuedByUser?.lastName ? issuedByUser?.lastName : ''
+      }`}</TableCell>
+      <TableCell sx={{ whiteSpace: 'nowrap' }}>{`${user?.firstName} ${
+        user?.lastName ? user?.lastName : ''
+      }`}</TableCell>
+      <TableCell>
+        <ListItemText
+          primary={format(new Date(issuedDate), 'dd MMM yyyy')}
+          secondary={format(new Date(issuedDate), 'p')}
+          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          secondaryTypographyProps={{
+            mt: 0.5,
+            component: 'span',
+            typography: 'caption',
+          }}
+        />
+      </TableCell>
+      <TableCell>
+        {/* <ListItemText
+            primary={createdAt ? format(new Date(createdAt), 'dd MMM yyyy') : 'NA'}
+            secondary={createdAt ? format(new Date(createdAt), 'p') : ''}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
             secondaryTypographyProps={{
               mt: 0.5,
               component: 'span',
               typography: 'caption',
             }}
-          />
-        </TableCell>
-        <TableCell>
-          <Label
-            variant="soft"
-            color={(isActive && 'success') || (!isActive && 'error') || 'default'}
+          /> */}{' '}
+        NA
+      </TableCell>
+      <TableCell>
+        <ListItemText
+          primary={format(new Date(createdAt), 'dd MMM yyyy')}
+          secondary={format(new Date(createdAt), 'p')}
+          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          secondaryTypographyProps={{
+            mt: 0.5,
+            component: 'span',
+            typography: 'caption',
+          }}
+        />
+      </TableCell>
+      <TableCell>
+        <Label
+          variant="soft"
+          color={
+            status === 1
+              ? 'success' // Returned
+              : isOverdue
+              ? 'error' // Overdue
+              : 'warning' // Out
+          }
+        >
+          {status === 1 ? 'Returned' : isOverdue ? 'Overdue' : 'Out'}
+        </Label>
+      </TableCell>
+
+      <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
+        <Tooltip title="In Entry" placement="top" arrow>
+          <IconButton
+            color="default"
+            onClick={() => {
+              handleInEntry(row);
+            }}
           >
-            {isActive ? 'Active' : 'Non-Active'}
-          </Label>
-        </TableCell>
-
-        <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
-          <Tooltip title="Quick Edit" placement="top" arrow>
-            <IconButton
-              color="default"
-              onClick={() => {
-                handleQuickEditRow(row);
-              }}
-            >
-              <Iconify icon="solar:pen-bold" />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="View" placement="top" arrow>
-            <IconButton
-              onClick={() => {
-                handleQuickViewRow(row);
-              }}
-            >
-              <Iconify icon="carbon:view-filled" />
-            </IconButton>
-          </Tooltip>
-        </TableCell>
-      </TableRow>
-
-      <CustomPopover
-        open={popover.open}
-        onClose={popover.onClose}
-        arrow="right-top"
-        sx={{ width: 140 }}
-      >
-        {/* <MenuItem
-          onClick={() => {
-            confirm.onTrue();
-            popover.onClose();
-          }}
-          sx={{ color: 'error.main' }}
-        >
-          <Iconify icon="solar:trash-bin-trash-bold" />
-          Delete
-        </MenuItem> */}
-
-        <MenuItem
-          onClick={() => {
-            handleQuickEditRow(row);
-          }}
-        >
-          <Iconify icon="solar:pen-bold" />
-          Edit
-        </MenuItem>
-      </CustomPopover>
-    </>
+            <Iconify icon="lets-icons:in" />
+          </IconButton>
+        </Tooltip>
+      </TableCell>
+    </TableRow>
   );
 }
 
 InventoryTableRow.propTypes = {
   row: PropTypes.object,
   selected: PropTypes.bool,
-  handleQuickEditRow: PropTypes.func,
-  handleQuickViewRow: PropTypes.func,
+  handleInEntry: PropTypes.func,
 };

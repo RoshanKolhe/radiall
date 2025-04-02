@@ -1,6 +1,14 @@
-import {Entity, model, property, belongsTo} from '@loopback/repository';
+import {
+  Entity,
+  model,
+  property,
+  belongsTo,
+  hasMany,
+} from '@loopback/repository';
 import {Tools} from './tools.model';
 import {User} from './user.model';
+import {InventoryOutEntryTools} from './inventory-out-entry-tools.model';
+import {InventoryInEntries} from './inventory-in-entries.model';
 
 @model()
 export class InventoryOutEntries extends Entity {
@@ -12,10 +20,10 @@ export class InventoryOutEntries extends Entity {
   id?: number;
 
   @property({
-    type: 'number',
+    type: 'string',
     required: true,
   })
-  serialNumber: number;
+  moPartNumber: string;
 
   @property({
     type: 'number',
@@ -41,6 +49,12 @@ export class InventoryOutEntries extends Entity {
   requiredDays: number;
 
   @property({
+    type: 'string',
+    required: true,
+  })
+  department: string;
+
+  @property({
     type: 'date',
   })
   createdAt?: Date;
@@ -62,24 +76,27 @@ export class InventoryOutEntries extends Entity {
   isDeleted: boolean;
 
   @property({
-    type: 'boolean',
-    required: true,
+    type: 'number',
+    default: 0,
   })
-  isActive: boolean;
+  status?: number; // 0: Out , 1: returned , 2: partially returned
 
   @property({
     type: 'string',
   })
   remark?: string;
 
-  @belongsTo(() => Tools)
-  toolsId: number;
-
   @belongsTo(() => User, {name: 'user'})
   issuedTo: number;
 
   @belongsTo(() => User, {name: 'issuedByUser'})
   issuedBy: number;
+
+  @hasMany(() => Tools, {through: {model: () => InventoryOutEntryTools}})
+  tools: Tools[];
+
+  @hasMany(() => InventoryInEntries)
+  inventoryInEntries: InventoryInEntries[];
 
   constructor(data?: Partial<InventoryOutEntries>) {
     super(data);

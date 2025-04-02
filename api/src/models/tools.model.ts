@@ -7,6 +7,7 @@ import {Spare} from './spare.model';
 import {InventoryOutEntries} from './inventory-out-entries.model';
 import {ToolsDepartment} from './tools-department.model';
 import {Station} from './station.model';
+import {InventoryOutEntryTools} from './inventory-out-entry-tools.model';
 
 @model()
 export class Tools extends Entity {
@@ -201,8 +202,8 @@ export class Tools extends Entity {
   @hasMany(() => Spare)
   spares: Spare[];
 
-  @hasMany(() => InventoryOutEntries)
-  inventoryOutEntries: InventoryOutEntries[];
+  @hasMany(() => InventoryOutEntryTools)
+  inventoryOutEntryTools: InventoryOutEntryTools[];
 
   constructor(data?: Partial<Tools>) {
     super(data);
