@@ -30,3 +30,8 @@ export * from './maintainance-plan-tools.controller';
 export * from './maintainance-plan-user.controller';
 export * from './inventory-in-entries.controller';
 export * from './tools-inventory-out-entry-tools.controller';
+export * from './tools-maintainance-plan.controller';
+export * from './maintainance-plan.controller';
+export * from './maintainance-entries-tools.controller';
+export * from './maintainance-entries-maintainance-plan.controller';
+export * from './maintainance-entries.controller';

@@ -14,9 +14,7 @@ import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 // routes
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hook';
-import { RouterLink } from 'src/routes/components';
-// _mock
+import { useParams } from 'src/routes/hook';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
@@ -37,22 +35,28 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
-import { useGetToolDepartments } from 'src/api/tools-department';
+import { useGetMaintainanceEntries } from 'src/api/maintainance-entries';
 import { _roles, COMMON_STATUS_OPTIONS } from 'src/utils/constants';
-import ToolDepartmentTableRow from '../toolsDepartment-table-row';
-import ToolDepartmentTableToolbar from '../toolsDepartment-table-toolbar';
-import ToolDepartmentTableFiltersResult from '../toolsDepartment-table-filters-result';
+import { useGetTool } from 'src/api/tools';
+import { Grid, Typography } from '@mui/material';
+import { format } from 'date-fns';
+import { RouterLink } from 'src/routes/components';
+import ToolInfoCard from '../components/tool-info-card';
+import MainatainanceTableRow from '../maintainance-table-row';
+import MaintainanceTableToolbar from '../maintainance-table-toolbar';
+import MaintainanceTableFiltersResult from '../maintainance-table-filters-result';
 
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...COMMON_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: 'toolDepartment', label: 'Tool Department', width: 180 },
   { id: 'description', label: 'Description' },
+  { id: 'level', label: 'Level' },
+  { id: 'periodicity', label: 'Periodicity' },
+  { id: 'responsible', label: 'Responsible' },
   { id: 'createdAt', label: 'Created At' },
-  { id: 'status', label: 'Status', width: 100 },
-  { id: '', width: 88 },
+//   { id: '', width: 88 },
 ];
 
 const defaultFilters = {
@@ -63,12 +67,14 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export default function ToolsDepartmentListView() {
+export default function MaintainanceEntriesListView() {
+  const params = useParams();
+
+  const { id: toolId } = params;
+
   const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc' });
 
   const settings = useSettingsContext();
-
-  const router = useRouter();
 
   const confirm = useBoolean();
 
@@ -76,9 +82,11 @@ export default function ToolsDepartmentListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const {
-    ToolDepartments,
-  } = useGetToolDepartments();
+  const filter = JSON.stringify({ where: { toolId } });
+  const encodedFilter = encodeURIComponent(filter);
+
+  const { tool } = useGetTool(toolId);
+  const { maintainanceEntries } = useGetMaintainanceEntries(toolId);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -108,16 +116,6 @@ export default function ToolsDepartmentListView() {
     [table]
   );
 
-  const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
-    },
-    [dataInPage.length, table, tableData]
-  );
-
   const handleDeleteRows = useCallback(() => {
     const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
     setTableData(deleteRows);
@@ -128,20 +126,6 @@ export default function ToolsDepartmentListView() {
       totalRowsFiltered: dataFiltered.length,
     });
   }, [dataFiltered.length, dataInPage.length, table, tableData]);
-
-  const handleEditRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.toolsDepartment.edit(id));
-    },
-    [router]
-  );
-
-  const handleViewRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.toolsDepartment.view(id));
-    },
-    [router]
-  );
 
   const handleFilterStatus = useCallback(
     (event, newValue) => {
@@ -155,10 +139,10 @@ export default function ToolsDepartmentListView() {
   }, []);
 
   useEffect(() => {
-    if (ToolDepartments) {
-      setTableData(ToolDepartments);
+    if (maintainanceEntries) {
+      setTableData(maintainanceEntries);
     }
-  }, [ToolDepartments]);
+  }, [maintainanceEntries]);
 
   return (
     <>
@@ -167,17 +151,17 @@ export default function ToolsDepartmentListView() {
           heading="List"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Tools Department', href: paths.dashboard.toolsDepartment.root },
+            { name: 'Tool List', href: paths.dashboard.maintainancePlan.toolList },
             { name: 'List' },
           ]}
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.toolsDepartment.new}
+              href={paths.dashboard.maintainancePlan.newEntry(tool?.id)}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              New Tool Department
+              New Maintainance Entry
             </Button>
           }
           sx={{
@@ -185,7 +169,9 @@ export default function ToolsDepartmentListView() {
           }}
         />
 
-        <Card>
+        <ToolInfoCard toolData={tool} />
+
+        <Card sx={{ marginTop: '10px' }}>
           <Tabs
             value={filters.status}
             onChange={handleFilterStatus}
@@ -213,17 +199,17 @@ export default function ToolsDepartmentListView() {
                   >
                     {tab.value === 'all' && tableData.length}
                     {tab.value === '1' &&
-                      tableData.filter((storageLocation) => storageLocation.isActive).length}
+                      tableData.filter((inventory) => inventory.isActive).length}
 
                     {tab.value === '0' &&
-                      tableData.filter((storageLocation) => !storageLocation.isActive).length}
+                      tableData.filter((inventory) => !inventory.isActive).length}
                   </Label>
                 }
               />
             ))}
           </Tabs>
 
-          <ToolDepartmentTableToolbar
+          <MaintainanceTableToolbar
             filters={filters}
             onFilters={handleFilters}
             //
@@ -231,7 +217,7 @@ export default function ToolsDepartmentListView() {
           />
 
           {canReset && (
-            <ToolDepartmentTableFiltersResult
+            <MaintainanceTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
               //
@@ -287,14 +273,10 @@ export default function ToolsDepartmentListView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <ToolDepartmentTableRow
+                      <MainatainanceTableRow
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        onEditRow={() => handleEditRow(row.id)}
-                        onViewRow={() => handleViewRow(row.id)}
                       />
                     ))}
 
@@ -367,26 +349,26 @@ function applyFilter({ inputData, comparator, filters }) {
   inputData = stabilizedThis.map((el) => el[0]);
 
   if (name) {
-    inputData = inputData.filter((storageLocation) =>
-      Object.values(storageLocation).some((value) =>
+    inputData = inputData.filter((inventory) =>
+      Object.values(inventory).some((value) =>
         String(value).toLowerCase().includes(name.toLowerCase())
       )
     );
   }
 
   if (status !== 'all') {
-    inputData = inputData.filter((storageLocation) =>
-      status === '1' ? storageLocation.isActive : !storageLocation.isActive
+    inputData = inputData.filter((inventory) =>
+      status === '1' ? inventory.isActive : !inventory.isActive
     );
   }
 
   if (role.length) {
     inputData = inputData.filter(
-      (storageLocation) =>
-        storageLocation.permissions &&
-        storageLocation.permissions.some((storageLocationRole) => {
-          console.log(storageLocationRole);
-          const mappedRole = roleMapping[storageLocationRole];
+      (inventory) =>
+        inventory.permissions &&
+        inventory.permissions.some((inventoryRole) => {
+          console.log(inventoryRole);
+          const mappedRole = roleMapping[inventoryRole];
           console.log('Mapped Role:', mappedRole); // Check the mapped role
           return mappedRole && role.includes(mappedRole);
         })

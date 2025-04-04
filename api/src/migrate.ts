@@ -29,6 +29,8 @@ export async function migrate(args: string[]) {
       'ToolsDepartment',
       'InventoryOutEntryTools',
       'InventoryInEntries',
+      'MaintainancePlan',
+      'MaintainanceEntries'
     ],
   });
 

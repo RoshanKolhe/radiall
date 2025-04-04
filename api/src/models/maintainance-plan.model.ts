@@ -15,10 +15,10 @@ export class MaintainancePlan extends Entity {
   toolsId: number;
 
   @property({
-    type : 'string',
+    type : 'number',
     required : true
   })
-  level: string;
+  level: number;
 
   @property({
     type : 'string',
@@ -37,6 +37,16 @@ export class MaintainancePlan extends Entity {
 
   @belongsTo(() => User)
   preparedByUserId: number;
+
+  @property({
+    type: 'date'
+  })
+  lastMaintainanceDate?: Date;
+
+  @property({
+    type : 'string'
+  })
+  status: string;
 
   @property({
     type: 'date',

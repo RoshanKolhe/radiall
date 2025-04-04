@@ -6,6 +6,8 @@ import {
   HasManyRepositoryFactory,
 } from '@loopback/repository';
 import {RadiallDataSource} from '../datasources';
+import {TimeStampRepositoryMixin} from '../mixins/timestamp-repository-mixin';
+
 import {
   Tools,
   ToolsRelations,
@@ -17,10 +19,9 @@ import {
   InventoryOutEntries,
   ToolsDepartment,
   Station,
+  MaintainancePlan,
   InventoryOutEntryTools,
 } from '../models';
-import {TimeStampRepositoryMixin} from '../mixins/timestamp-repository-mixin';
-
 import {ToolTypeRepository} from './tool-type.repository';
 import {ManufacturerRepository} from './manufacturer.repository';
 import {SupplierRepository} from './supplier.repository';
@@ -30,6 +31,7 @@ import {InventoryOutEntriesRepository} from './inventory-out-entries.repository'
 import {ToolsDepartmentRepository} from './tools-department.repository';
 import {StationRepository} from './station.repository';
 import {InventoryOutEntryToolsRepository} from './inventory-out-entry-tools.repository';
+import {MaintainancePlanRepository} from './maintainance-plan.repository';
 
 export class ToolsRepository extends TimeStampRepositoryMixin<
   Tools,
@@ -73,6 +75,16 @@ export class ToolsRepository extends TimeStampRepositoryMixin<
     typeof Tools.prototype.id
   >;
 
+  public readonly levelOneMaintainance: BelongsToAccessor<
+    MaintainancePlan,
+    typeof Tools.prototype.id
+  >;
+
+  public readonly levelTwoMaintainance: BelongsToAccessor<
+    MaintainancePlan,
+    typeof Tools.prototype.id
+  >;
+
   constructor(
     @inject('datasources.radiall') dataSource: RadiallDataSource,
     @repository.getter('ToolTypeRepository')
@@ -93,11 +105,29 @@ export class ToolsRepository extends TimeStampRepositoryMixin<
     protected toolsDepartmentRepositoryGetter: Getter<ToolsDepartmentRepository>,
     @repository.getter('StationRepository')
     protected stationRepositoryGetter: Getter<StationRepository>,
+    @repository.getter('MaintainancePlanRepository')
+    protected maintainancePlanRepositoryGetter: Getter<MaintainancePlanRepository>,
   ) {
     super(Tools, dataSource);
     this.station = this.createBelongsToAccessorFor(
       'station',
       stationRepositoryGetter,
+    );
+    this.levelTwoMaintainance = this.createBelongsToAccessorFor(
+      'levelTwoMaintainance',
+      maintainancePlanRepositoryGetter,
+    );
+    this.registerInclusionResolver(
+      'levelTwoMaintainance',
+      this.levelTwoMaintainance.inclusionResolver,
+    );
+    this.levelOneMaintainance = this.createBelongsToAccessorFor(
+      'levelOneMaintainance',
+      maintainancePlanRepositoryGetter,
+    );
+    this.registerInclusionResolver(
+      'levelOneMaintainance',
+      this.levelOneMaintainance.inclusionResolver,
     );
     this.registerInclusionResolver('station', this.station.inclusionResolver);
     this.toolsDepartment = this.createBelongsToAccessorFor(

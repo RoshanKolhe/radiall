@@ -8,6 +8,7 @@ import {InventoryOutEntries} from './inventory-out-entries.model';
 import {ToolsDepartment} from './tools-department.model';
 import {Station} from './station.model';
 import {InventoryOutEntryTools} from './inventory-out-entry-tools.model';
+import {MaintainancePlan} from './maintainance-plan.model';
 
 @model()
 export class Tools extends Entity {
@@ -199,6 +200,12 @@ export class Tools extends Entity {
   })
   remark?: string;
 
+  @belongsTo(() => MaintainancePlan)
+  levelOneMaintainanceId: number;
+
+  @belongsTo(() => MaintainancePlan)
+  levelTwoMaintainanceId: number;
+  
   @hasMany(() => Spare)
   spares: Spare[];
 

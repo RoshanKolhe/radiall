@@ -8,7 +8,7 @@ import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 //
 import { useGetToolDepartment } from 'src/api/tools-department';
-import StorageLocationViewForm from '../toolsDepartment-view-form';
+import ToolDepartmentViewForm from '../toolsDepartment-view-form';
 
 // ----------------------------------------------------------------------
 
@@ -43,7 +43,7 @@ export default function ToolsDepartmentView() {
         }}
       />
 
-      <StorageLocationViewForm currentToolDepartment={currentToolDepartmment} />
+      <ToolDepartmentViewForm currentToolDepartment={currentToolDepartmment} />
     </Container>
   );
 }
