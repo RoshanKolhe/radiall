@@ -71,7 +71,6 @@ export default function FunctionalTestingSection({ currentForm, verificationForm
         formState: { isSubmitting, errors },
     } = methods;
 
-    console.log('errors', errors);
     const values = watch();
 
     const fetchUsers = async (event, func, value) => {
@@ -160,9 +159,7 @@ export default function FunctionalTestingSection({ currentForm, verificationForm
         }
     }, [currentForm, currentUser, defaultValues, reset, setValue]);
 
-    const handleUpload = async (files) => {
-        console.log('Selected files:', files);
-    
+    const handleUpload = async (files) => {    
         if (!files || files.length === 0) {
             console.error('No files selected');
             return;
@@ -300,7 +297,10 @@ export default function FunctionalTestingSection({ currentForm, verificationForm
                                     upload
                                     <VisuallyHiddenInput
                                     type="file"
-                                    onChange={(event) => handleUpload(event.target.files)}
+                                    onChange={(event) => {
+                                        handleUpload(event.target.files);
+                                        event.target.value = ""; 
+                                    }}
                                     multiple
                                     />
                                 </Button>
@@ -354,7 +354,14 @@ export default function FunctionalTestingSection({ currentForm, verificationForm
                                     }
                                     renderOption={(props, option) => (
                                         <li {...props}>
-                                            <Typography variant="subtitle2">{`${option?.firstName} ${option?.lastName}`}</Typography>
+                                            <div>
+                                                <Typography variant="subtitle2" fontWeight="bold">
+                                                    {`${option?.firstName} ${option?.lastName} (${option?.department?.name})`}
+                                                </Typography>
+                                                <Typography variant="body2" color="textSecondary">
+                                                    {`${option.email}`}
+                                                </Typography>
+                                            </div>
                                         </li>
                                     )}
                                 />

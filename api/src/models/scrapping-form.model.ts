@@ -50,8 +50,11 @@ export class ScrappingForm extends Entity {
     toDo: boolean;
     actionOwner: {
       id: number;
-      fullName: string;
+      firstName: string;
+      lastName: string;
       role: string;
+      email: string;
+      department: object;
     };
     done: boolean;
     comment: string;

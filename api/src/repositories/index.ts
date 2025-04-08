@@ -20,3 +20,4 @@ export * from './maintainance-plan.repository';
 export * from './inventory-out-entry-tools.repository';
 export * from './inventory-in-entries.repository';
 export * from './maintainance-entries.repository';
+export * from './internal-validation-history.repository';

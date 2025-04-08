@@ -48,12 +48,12 @@ import ToolsTableFiltersResult from '../tools-table-filters-result';
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...COMMON_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: 'meanSerialNo', label: 'Mean Serial Number', width: 100 },
+  { id: 'meanSerialNo', label: 'Serial Number', width: 100 },
   { id: 'toolPartNumber', label: 'Part number' },
   { id: 'toolModelNumber', label: 'Model number' },
   { id: 'productionMeans', label: 'Production Means Masterlist'},
   { id: 'qty', label: 'QTY'},
-  { id: 'serialNo', label: 'SlNo'},
+  { id: 'serialNo', label: 'Individual Serial Number'},
   { id: 'assetNumber', label: 'Asset Number'},
   { id: 'installationChecklist', label: 'Installation Checklist'},
   { id: 'drawing', label: 'Drawing'},
@@ -62,6 +62,8 @@ const TABLE_HEAD = [
   { id: 'maintainancePlan', label: 'Maintainance Plan'},
   { id: 'callibration', label: 'Callibration'},
   { id: 'location', label: 'Location' },
+  { id: 'toolsDepartment', label: 'Tools Department'},
+  { id: 'station', label: 'Station'},
   { id: 'manufacturer', label: 'Manufacturer' },
   { id: 'supplier', label: 'Supplier' },
   { id: 'createdAt', label: 'Created At'},
@@ -71,6 +73,7 @@ const TABLE_HEAD = [
   { id: 'installationView', width: 50},
   { id: 'validationStatus', label: 'Internal Validation'},
   { id: 'validationView', width: 50 },
+  { id: 'remark', label: 'Comment'},
   { id: '', width: 100 },
 ];
 

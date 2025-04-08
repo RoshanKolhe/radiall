@@ -32,10 +32,15 @@ export class Tools extends Entity {
   modelNumber: string;
 
   @property({
-    type: 'string',
+    type: 'number',
     required: true
   })
-  meanSerialNumber: string;
+  meanSerialNumber: number;
+
+  @property({
+    type: 'string',
+  })
+  individualSerialNumber: string;
 
   @property({
     type: 'string',

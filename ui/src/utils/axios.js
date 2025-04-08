@@ -92,7 +92,8 @@ export const endpoints = {
   },
   // INTERNAL VALIDATION FORM
   internalValidationForm: {
-    details: (toolId) => `/internal-validation-form/form-by-toolId/${toolId}`
+    details: (toolId) => `/internal-validation-form/form-by-toolId/${toolId}`,
+    history: (id) => `/internal-validation-forms-history/${id}`
   },
   // SCRAPPING FORM
   scrappingForm: {

@@ -67,6 +67,7 @@ const ToolsEditPage = lazy(() => import('src/pages/dashboard/tools_management/ed
 const ToolsViewPage = lazy(() => import('src/pages/dashboard/tools_management/view'));
 const ToolsInstallationEditPage = lazy(() => import('src/pages/dashboard/tools_management/installation-form'));
 const ToolsInternalValidationEditPage = lazy(() => import('src/pages/dashboard/tools_management/internal-validation-form'));
+const ToolsInternalValidationHistoryPage = lazy(() => import('src/pages/dashboard/tools_management/internal-validation-history-page'));
 
 // SCRAP MASTER
 const ScrapToolListPage = lazy(() => import('src/pages/dashboard/scrap/tool-list'));
@@ -197,7 +198,8 @@ export const dashboardRoutes = [
           { path: ':id/edit', element: <ToolsEditPage/>},
           { path: ':id/view', element: <ToolsViewPage/>},
           { path: ':id/installation-form', element: <ToolsInstallationEditPage />},
-          { path: ':id/internal-validation-form', element: <ToolsInternalValidationEditPage />}
+          { path: ':id/internal-validation-form', element: <ToolsInternalValidationEditPage />},
+          { path: ':id/internal-validation-form-history', element: <ToolsInternalValidationHistoryPage />}
         ]
       },
 

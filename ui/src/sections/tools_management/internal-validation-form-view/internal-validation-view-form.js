@@ -7,8 +7,6 @@ import OtherSection from "./other-section";
 // ------------------------------------------------------------------------------------------------------------------------------------
 
 export default function InternalValidationViewForm({ currentForm, verificationForm }){
-    console.log('user', currentForm?.user);
-
     return(
         <>
             <DimensionsSection currentForm={currentForm} verificationForm={verificationForm} />

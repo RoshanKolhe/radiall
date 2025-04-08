@@ -32,8 +32,11 @@ export class MaintainancePlan extends Entity {
   })
   periodicity: number;
 
-  @belongsTo(() => User)
-  responsibleUserId: number;
+  @property({
+    type : 'string',
+    required : true
+  })  
+  responsibleUser: number;
 
   @belongsTo(() => User)
   preparedByUserId: number;

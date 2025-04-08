@@ -31,7 +31,7 @@ export default function ToolsTableRow({
   onDeleteRow,
 }) {
   const navigate = useNavigate();
-  const { id, meanSerialNumber, partNumber, modelNumber, productionMeans, isMaintaincePlanNeeded, calibration, manufacturer, supplier, toolFamily, criticalLevel, installationChecklist, technicalDrawing, quantity, assetNumber, createdAt, installationStatus, isActive, internalValidationStatus, status, storageLocation } = row;
+  const { individualSerialNumber, meanSerialNumber, partNumber, modelNumber, productionMeans, isMaintaincePlanNeeded, calibration, manufacturer, supplier, toolFamily, criticalLevel, installationChecklist, technicalDrawing, quantity, assetNumber, createdAt, installationStatus, isActive, internalValidationStatus, status, storageLocation, toolsDepartment, station, remark } = row;
 
   const confirm = useBoolean();
 
@@ -54,12 +54,12 @@ export default function ToolsTableRow({
         {/* <TableCell padding="checkbox">
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell> */}
-        <TableCell sx={{ whiteSpace: 'nowrap', pr:'150px'  }}>{id}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap', pr:'110px'  }}>{meanSerialNumber}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{partNumber}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{modelNumber}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{productionMeans}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{quantity}</TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{meanSerialNumber}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap', pr:'150px' }}>{individualSerialNumber || 'NA'}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{assetNumber || 'NA'}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{installationChecklist || 'NA'}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{technicalDrawing || 'NA'}</TableCell>
@@ -68,6 +68,8 @@ export default function ToolsTableRow({
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{isMaintaincePlanNeeded || 'NA'}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{calibration || 'NA'}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{storageLocation || 'NA'}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{toolsDepartment?.toolDepartment || 'NA'}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{station?.station || 'NA'}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{manufacturer?.manufacturer || 'NA'}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{supplier?.supplier || 'NA'}</TableCell>
         <TableCell>
@@ -136,6 +138,8 @@ export default function ToolsTableRow({
               </IconButton>
           </Tooltip>
         </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{remark || 'NA'}</TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Passport" placement="top" arrow>

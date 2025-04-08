@@ -2,10 +2,10 @@ import { repository } from "@loopback/repository";
 import { authenticate, AuthenticationBindings } from "@loopback/authentication";
 import { get, HttpErrors, param, patch, post, requestBody } from "@loopback/rest";
 import { PermissionKeys } from "../authorization/permission-keys";
-import { ApprovalUsersRepository, InternalValidationFormRepository, ToolsRepository, UserRepository } from "../repositories";
+import { ApprovalUsersRepository, InternalValidationFormRepository, InternalValidationHistoryRepository, ToolsRepository, UserRepository } from "../repositories";
 import { UserProfile } from "@loopback/security";
 import { inject } from "@loopback/core";
-import { Department } from "../models";
+import { EventSchedular } from "../services/event-schedular.service";
 
 export class InternalValidationFormController {
   constructor(
@@ -17,6 +17,10 @@ export class InternalValidationFormController {
       public approvalUsersRepository : ApprovalUsersRepository,
       @repository(ToolsRepository)
       public toolsRepository : ToolsRepository,
+      @repository(InternalValidationHistoryRepository)
+      public internalValidationHistoryRepository: InternalValidationHistoryRepository, 
+      @inject('service.eventScheduler.service')
+      public eventSchedulerService: EventSchedular,
     ) {}
   
     // Get internal validation form of a tool with tool id...
@@ -94,17 +98,32 @@ export class InternalValidationFormController {
             ]
           });
         }
+
+        const previousForms : any = [];
+
+        const previousFormsData = await this.internalValidationHistoryRepository.find({where : {toolsId : toolId}});
+
+        if(previousFormsData?.length > 0){
+          await Promise.all(previousFormsData?.map((form) => {
+            if(form?.createdAt){
+              const date = new Date(form.createdAt);
+              const year = date.getFullYear();
+              previousForms.push({formId: form?.id, year: year});
+            }
+          }))
+        }
   
         const finalData = {
           ...internalValidationForm,
           validators : validators,
-          productionHeads : productionHeads
+          productionHeads : productionHeads,
+          previousYearForms : previousForms
         }
   
         return{
           success : true,
           message : 'Internal validation Form Data',
-          data : finalData
+          data : finalData,
         }
       }catch(error){
         throw error;
@@ -650,6 +669,8 @@ export class InternalValidationFormController {
           if(savedTool && savedTool.installationStatus.toLowerCase() === 'approved' && savedTool.internalValidationStatus.toLowerCase() === 'approved'){
             await this.toolsRepository.updateById(form?.id, {isActive : true, status : 'Operational'});
           }
+
+          await this.eventSchedulerService.createValidationHistory(formId);
         }
 
       } catch (error) {

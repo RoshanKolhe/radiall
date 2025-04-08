@@ -105,11 +105,11 @@ export class MaintainancePlanController {
       let levelOnePlan = null;
       let levelTwoPlan = null;
       if(tool?.levelOneMaintainanceId){
-        levelOnePlan = await this.maintainancePlanRepository.findById(tool.levelOneMaintainanceId, {include : [{relation : 'responsibleUser'}, {relation : 'preparedByUser'}]});
+        levelOnePlan = await this.maintainancePlanRepository.findById(tool.levelOneMaintainanceId, {include : [{relation : 'preparedByUser'}]});
       }
 
       if(tool?.levelTwoMaintainanceId){
-        levelTwoPlan = await this.maintainancePlanRepository.findById(tool.levelTwoMaintainanceId, {include : [{relation : 'responsibleUser'}, {relation : 'preparedByUser'}]});
+        levelTwoPlan = await this.maintainancePlanRepository.findById(tool.levelTwoMaintainanceId, {include : [{relation : 'preparedByUser'}]});
       }
 
       return{

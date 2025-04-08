@@ -256,7 +256,14 @@ export default function FamilyClassificationSection({ currentForm, verificationF
                                     }
                                     renderOption={(props, option) => (
                                         <li {...props}>
-                                            <Typography variant="subtitle2">{`${option?.firstName} ${option?.lastName}`}</Typography>
+                                            <div>
+                                                <Typography variant="subtitle2" fontWeight="bold">
+                                                    {`${option?.firstName} ${option?.lastName} (${option?.department?.name})`}
+                                                </Typography>
+                                                <Typography variant="body2" color="textSecondary">
+                                                    {`${option.email}`}
+                                                </Typography>
+                                            </div>
                                         </li>
                                     )}
 
@@ -280,7 +287,14 @@ export default function FamilyClassificationSection({ currentForm, verificationF
                                     }
                                     renderOption={(props, option) => (
                                         <li {...props}>
-                                            <Typography variant="subtitle2">{`${option?.firstName} ${option?.lastName}`}</Typography>
+                                            <div>
+                                                <Typography variant="subtitle2" fontWeight="bold">
+                                                    {`${option?.firstName} ${option?.lastName} (${option?.department?.name})`}
+                                                </Typography>
+                                                <Typography variant="body2" color="textSecondary">
+                                                    {`${option.email}`}
+                                                </Typography>
+                                            </div>
                                         </li>
                                     )}
 
@@ -300,7 +314,7 @@ export default function FamilyClassificationSection({ currentForm, verificationF
                                         <li {...props}>
                                             <div>
                                                 <Typography variant="subtitle2" fontWeight="bold">
-                                                    {`${option?.firstName} ${option?.lastName}`}
+                                                    {`${option?.firstName} ${option?.lastName} (${option?.department?.name})`}
                                                 </Typography>
                                                 <Typography variant="body2" color="textSecondary">
                                                     {`${option.email}`}

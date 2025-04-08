@@ -36,7 +36,7 @@ export class EventSchedular {
                 include: [{ relation: 'user', scope: { include: [{ relation: 'department' }] } }]
             });
 
-            const approvalUser = await this.approvalUsersRepository.find({
+            const approvalUser = await this.approvalUsersRepository.findOne({
                 where: {
                     id: validationForm?.userId,
                     internalValidationFormId: validationForm?.id
@@ -69,7 +69,7 @@ export class EventSchedular {
                 INSERT INTO internalvalidationhistory 
                 (initiatorId, toolsId, user, validators, productionHeads, dimensionsQuestionery, functionalTestingQuestionery, otherQuestionery, createdAt, updatedAt)
                 VALUES 
-                (${validationForm.initiatorId}, ${validationForm.toolsId}, '${approvalUserJSON}', '${approvalValidatorsJSON}', '${approvalProductionHeadsJSON}', '${dimensionsJSON}', '${functionalTestingJSON}', '${otherQuestioneryJSON}', '${new Date()}', '${new Date()}');
+                (${validationForm.initiatorId}, ${validationForm.toolsId}, '${approvalUserJSON}', '${approvalValidatorsJSON}', '${approvalProductionHeadsJSON}', '${dimensionsJSON}', '${functionalTestingJSON}', '${otherQuestioneryJSON}', NOW(), NOW());
             `;
 
             await this.dataSource.execute(eventSQL);

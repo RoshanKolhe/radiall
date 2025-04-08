@@ -49,7 +49,8 @@ const ICONS = {
   analytics: icon('ic_analytics'),
   dashboard: icon('ic_dashboard'),
   scrap: icon('ic_scrap'),
-  maintainance: icon('ic_maintainance')
+  maintainance: icon('ic_maintainance'),
+  toolsDepartment: icon('ic-department')
 };
 
 // ----------------------------------------------------------------------
@@ -215,7 +216,7 @@ export function useNavData() {
           {
             title: t('Tools Department Master'),
             path: paths.dashboard.toolsDepartment.root,
-            icon: ICONS.storageLocation,
+            icon: ICONS.toolsDepartment,
             roles: ['production_head'],
             children: [
               {

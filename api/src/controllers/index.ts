@@ -35,3 +35,4 @@ export * from './maintainance-plan.controller';
 export * from './maintainance-entries-tools.controller';
 export * from './maintainance-entries-maintainance-plan.controller';
 export * from './maintainance-entries.controller';
+export * from './internal-validation-history.controller';

@@ -315,6 +315,9 @@ export class InstallationFormController {
         userId : userId,
       });
 
+      const form = await this.installationFormRepository.findById(formId);
+      await this.checkFieldValues(form);
+
       const response = await this.createValidatorsAndHeads(validatorsId, productionHeadsId, userId, formId);
 
       if(response.success){
@@ -402,10 +405,14 @@ export class InstallationFormController {
     try{
       const { criticity } = requestBody;
 
+      const form = await this.installationFormRepository.findById(formId);
+
       await this.installationFormRepository.updateById(formId, {
         criticityQuestionery : criticity,
         isCriticitySectionDone : true,
       });
+
+      await this.checkFieldValues(form);
 
       return{
         success : true,
@@ -455,10 +462,15 @@ export class InstallationFormController {
                           type: 'object',
                           properties: {
                             id: { type: 'number' },
-                            fullName: { type: 'string' },
+                            firstName: { type: 'string' },
+                            lastName: { type: 'string' },
                             role: { type: 'string' },
+                            email: { type: 'string' },
+                            department: { 
+                              type: 'object',
+                            },
                           },
-                          required: ['id', 'fullName', 'role'],
+                          required: ['id', 'firstName', 'lastName', 'email', 'role', 'department'],
                         },
                         { type: 'null' },
                       ],
@@ -493,7 +505,14 @@ export class InstallationFormController {
         critical: string;
         nonCritical: string;
         toDo: boolean;
-        actionOwner: any;
+        actionOwner: {
+          id: number;
+          firstName: string;
+          lastName: string;
+          role: string;
+          email: string;
+          department: object;
+        } | any;
         done: boolean;
         comment: string;
         upload: string;

@@ -172,7 +172,7 @@ export default function MaintainanceEntriesListView() {
         <ToolInfoCard toolData={tool} />
 
         <Card sx={{ marginTop: '10px' }}>
-          <Tabs
+          {/* <Tabs
             value={filters.status}
             onChange={handleFilterStatus}
             sx={{
@@ -207,7 +207,7 @@ export default function MaintainanceEntriesListView() {
                 }
               />
             ))}
-          </Tabs>
+          </Tabs> */}
 
           <MaintainanceTableToolbar
             filters={filters}

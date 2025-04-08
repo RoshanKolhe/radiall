@@ -26,7 +26,7 @@ export default function LevelMaintainanceCard({maintainanceData, levelNo, toolDa
     const maintainanceSchema = Yup.object().shape({
         level: Yup.number().required('Please Select level'),
         periodicity: Yup.number().required('Periodicity is required'),
-        responsibleUser: Yup.object().nullable().required('Responsible user is required'),
+        responsibleUser: Yup.string().required('Responsible user is required'),
         preparedByUser: Yup.object().nullable().required('Prepared By User is required'),
         description: Yup.string().required('Description is required'),
         date: Yup.string().required('Date is required'),
@@ -36,7 +36,7 @@ export default function LevelMaintainanceCard({maintainanceData, levelNo, toolDa
     () => ({
         level: maintainanceData?.level ? maintainanceData?.level : levelNo || '',
         periodicity: maintainanceData?.periodicity || 0,
-        responsibleUser: null,
+        responsibleUser: '',
         preparedByUser:null,
         description: maintainanceData?.description || '',
         date: maintainanceData?.createdAt ? format(new Date(maintainanceData?.createdAt), 'dd MM yyyy') : format(new Date(), 'dd MM yyyy'),
@@ -66,7 +66,7 @@ export default function LevelMaintainanceCard({maintainanceData, levelNo, toolDa
         toolsId: maintainanceData?.toolsId || toolData?.id,
         level: formData?.level,
         description: formData?.description,
-        responsibleUserId: formData?.responsibleUser?.id,
+        responsibleUser: formData?.responsibleUser,
         preparedByUserId: formData?.preparedByUser?.id,
         periodicity: formData?.periodicity,
         isActive: true,
@@ -172,23 +172,7 @@ export default function LevelMaintainanceCard({maintainanceData, levelNo, toolDa
                         </Grid>
 
                         <Grid item xs={12} sm={6}>
-                            <RHFAutocomplete
-                                name="responsibleUser"
-                                label="Responsible"
-                                options={usersData || []}
-                                onInputChange={(event) => fetchUsers(event, setUsersData, '')}
-                                getOptionLabel={(option) => `${option?.firstName} ${option?.lastName}` || ''}
-                                isOptionEqualToValue={(option, value) => option?.id === value.id}
-                                filterOptions={(options, { inputValue }) =>
-                                    options?.filter((option) => option?.firstName?.toLowerCase().includes(inputValue?.toLowerCase()) || option?.lastName?.toLowerCase().includes(inputValue?.toLowerCase()))
-                                }
-                                renderOption={(props, option) => (
-                                    <li {...props}>
-                                        <Typography variant="subtitle2">{`${option?.firstName} ${option?.lastName}`}</Typography>
-                                    </li>
-                                )}
-
-                            />
+                            <RHFTextField name='responsibleUser' label='Responsible User' />
                         </Grid>
 
                         <Grid item xs={12} sm={6}>
