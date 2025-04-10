@@ -176,14 +176,14 @@ export default function RequirementChecklistSection({ currentForm, verificationF
     const fetchUsers = async (event, func, value) => {
         try {
             const role = value || '';
-            if (event && event.target.value && event.target.value.length >= 3) {
+            // if (event && event?.target?.value && event.target.value.length >= 3) {
                 let filter = {
                     where: {
                         or: [
-                            { email: { like: `%${event.target.value}%` } },
-                            { firstName: { like: `%${event.target.value}%` } },
-                            { lastName: { like: `%${event.target.value}%` } },
-                            { phoneNumber: { like: `%${event.target.value}%` } },
+                            { email: { like: `%${event?.target?.value || ''}%` } },
+                            { firstName: { like: `%${event?.target?.value || ''}%` } },
+                            { lastName: { like: `%${event?.target?.value || ''}%` } },
+                            { phoneNumber: { like: `%${event?.target?.value || ''}%` } },
                         ],
                     },
                 };
@@ -193,10 +193,10 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                         where: {
                             permissions : [role],
                             or: [
-                                { email: { like: `%${event.target.value}%` } },
-                                { firstName: { like: `%${event.target.value}%` } },
-                                { lastName: { like: `%${event.target.value}%` } },
-                                { phoneNumber: { like: `%${event.target.value}%` } },
+                                { email: { like: `%${event?.target?.value || ''}%` } },
+                                { firstName: { like: `%${event?.target?.value || ''}%` } },
+                                { lastName: { like: `%${event?.target?.value || ''}%` } },
+                                { phoneNumber: { like: `%${event?.target?.value || ''}%` } },
                             ],
                         },
                     };
@@ -204,13 +204,14 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                 const filterString = encodeURIComponent(JSON.stringify(filter));
                 const { data } = await axiosInstance.get(`/api/users/list?filter=${filterString}`);
                 func(data);
-            } else {
-                func([]);
-            }
+            // } else {
+            //     func([]);
+            // }
         } catch (err) {
             console.error(err);
         }
     };
+
     
     return (
         <Card sx={{ p: 3, mt: 2 }}>

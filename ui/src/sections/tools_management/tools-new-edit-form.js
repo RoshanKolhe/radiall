@@ -364,7 +364,7 @@ export default function ToolsNewEditForm({ currentTool }) {
               </Grid>
 
               <Grid item="true" xs={12} sm={6}>
-                <RHFTextField type='number' name="quantity" label="Qunatity" disabled />
+                <RHFTextField type='number' name="quantity" label="Quantity" disabled />
               </Grid>
 
               <Grid item="true" xs={12} sm={6}>

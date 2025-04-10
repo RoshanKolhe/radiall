@@ -92,14 +92,14 @@ export default function FamilyClassificationSection({ currentForm, verificationF
     const fetchUsers = async (event, func, value) => {
         try {
             const role = value || '';
-            if (event && event?.target?.value && event.target.value.length >= 3) {
+            // if (event && event?.target?.value && event.target.value.length >= 3) {
                 let filter = {
                     where: {
                         or: [
-                            { email: { like: `%${event.target.value}%` } },
-                            { firstName: { like: `%${event.target.value}%` } },
-                            { lastName: { like: `%${event.target.value}%` } },
-                            { phoneNumber: { like: `%${event.target.value}%` } },
+                            { email: { like: `%${event?.target?.value || ''}%` } },
+                            { firstName: { like: `%${event?.target?.value || ''}%` } },
+                            { lastName: { like: `%${event?.target?.value || ''}%` } },
+                            { phoneNumber: { like: `%${event?.target?.value || ''}%` } },
                         ],
                     },
                 };
@@ -109,10 +109,10 @@ export default function FamilyClassificationSection({ currentForm, verificationF
                         where: {
                             permissions : [role],
                             or: [
-                                { email: { like: `%${event.target.value}%` } },
-                                { firstName: { like: `%${event.target.value}%` } },
-                                { lastName: { like: `%${event.target.value}%` } },
-                                { phoneNumber: { like: `%${event.target.value}%` } },
+                                { email: { like: `%${event?.target?.value || ''}%` } },
+                                { firstName: { like: `%${event?.target?.value || ''}%` } },
+                                { lastName: { like: `%${event?.target?.value || ''}%` } },
+                                { phoneNumber: { like: `%${event?.target?.value || ''}%` } },
                             ],
                         },
                     };
@@ -120,9 +120,9 @@ export default function FamilyClassificationSection({ currentForm, verificationF
                 const filterString = encodeURIComponent(JSON.stringify(filter));
                 const { data } = await axiosInstance.get(`/api/users/list?filter=${filterString}`);
                 func(data);
-            } else {
-                func([]);
-            }
+            // } else {
+            //     func([]);
+            // }
         } catch (err) {
             console.error(err);
         }
@@ -172,13 +172,22 @@ export default function FamilyClassificationSection({ currentForm, verificationF
             // user...
             const user = currentForm?.user ? currentForm?.user?.user : null;
             setValue('user', user);
+            if(!user){
+                fetchUsers(undefined, setUsersData, 'validator')  
+            }
             setUsersData((prev) => [...prev, user]);
             // validator...
             const validatorsArray = currentForm.validators?.map(item => item.user) || [];
+            if(validatorsArray?.length === 0){
+                fetchUsers(undefined, setValidatorsData, 'validator')  
+            }
             setValidatorsData(validatorsArray);
             setValue('validators', validatorsArray)
             // productionHeads
             const productionHeadsArray = currentForm?.productionHeads?.[0]?.user || null;
+            if(!productionHeadsArray){
+                fetchUsers(undefined, setProductionHeadsData, 'production_head')  
+            }
             setProductionHeadsData(productionHeadsArray);
             setValue('productionHeads', productionHeadsArray);
 

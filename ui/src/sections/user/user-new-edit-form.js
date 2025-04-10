@@ -317,6 +317,7 @@ export default function UserNewEditForm({ currentUser }) {
               <RHFTextField name="address" label="Address" />
               <RHFSelect fullWidth name="role" label="Role">
                 {[
+                  { value: 'admin', name: 'Admin' },
                   { value: 'production_head', name: 'Production Head' },
                   { value: 'initiator', name: 'Initiator' },
                   { value: 'validator', name: 'Validator' },
