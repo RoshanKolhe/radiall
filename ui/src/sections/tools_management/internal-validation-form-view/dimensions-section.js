@@ -9,12 +9,14 @@ import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import axiosInstance from 'src/utils/axios';
 import FormProvider, { RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
-import { Box, Button, Card, Grid, IconButton, Stack, Table, TableBody, TableCell, TableHead, TableRow, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
+import { Box, Button, Card, FormControl, Grid, IconButton, InputLabel, MenuItem, Select, Stack, Table, TableBody, TableCell, TableHead, TableRow, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { LoadingButton } from '@mui/lab';
 import { useAuthContext } from 'src/auth/hooks';
 import { useResponsive } from 'src/hooks/use-responsive';
 import Iconify from 'src/components/iconify';
+import { useNavigate } from 'react-router';
+import { paths } from 'src/routes/paths';
 // ----------------------------------------------------------------------
 
 const VisuallyHiddenInput = styled('input')({
@@ -31,6 +33,7 @@ const VisuallyHiddenInput = styled('input')({
 
 export default function DimensionsSection({ currentForm, verificationForm, userData }) {
     const isDesktop = useResponsive('up', 'md');
+    const navigate = useNavigate();
     const { user: currentUser } = useAuthContext();
     const { enqueueSnackbar } = useSnackbar();
     const [usersData, setUsersData] = useState([]);
@@ -91,22 +94,19 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
         formState: { isSubmitting, errors },
     } = methods;
 
-    console.log('errors', errors);
     const values = watch();
-
-    console.log('values', values);
 
     const fetchUsers = async (event, func, value) => {
         try {
             const role = value || '';
-            if (event && event?.target?.value && event.target.value.length >= 3) {
+            // if (event && event?.target?.value && event.target.value.length >= 3) {
                 let filter = {
                     where: {
                         or: [
-                            { email: { like: `%${event.target.value}%` } },
-                            { firstName: { like: `%${event.target.value}%` } },
-                            { lastName: { like: `%${event.target.value}%` } },
-                            { phoneNumber: { like: `%${event.target.value}%` } },
+                            { email: { like: `%${event?.target?.value || ''}%` } },
+                            { firstName: { like: `%${event?.target?.value || ''}%` } },
+                            { lastName: { like: `%${event?.target?.value || ''}%` } },
+                            { phoneNumber: { like: `%${event?.target?.value || ''}%` } },
                         ],
                     },
                 };
@@ -116,10 +116,10 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
                         where: {
                             permissions : [role],
                             or: [
-                                { email: { like: `%${event.target.value}%` } },
-                                { firstName: { like: `%${event.target.value}%` } },
-                                { lastName: { like: `%${event.target.value}%` } },
-                                { phoneNumber: { like: `%${event.target.value}%` } },
+                                { email: { like: `%${event?.target?.value || ''}%` } },
+                                { firstName: { like: `%${event?.target?.value || ''}%` } },
+                                { lastName: { like: `%${event?.target?.value || ''}%` } },
+                                { phoneNumber: { like: `%${event?.target?.value || ''}%` } },
                             ],
                         },
                     };
@@ -127,13 +127,14 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
                 const filterString = encodeURIComponent(JSON.stringify(filter));
                 const { data } = await axiosInstance.get(`/api/users/list?filter=${filterString}`);
                 func(data);
-            } else {
-                func([]);
-            }
+            // } else {
+            //     func([]);
+            // }
         } catch (err) {
             console.error(err);
         }
     };
+
 
     const onSubmit = handleSubmit(async (formData) => {
         try {
@@ -185,14 +186,23 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
             // user...
             const user = currentForm?.user ? currentForm?.user?.user : null;
             setValue('user', user);
+            if(!user){
+                fetchUsers(undefined, setUsersData, 'validator')  
+            }
             setUsersData((prev) => [...prev, user]);
             // validator...
             const validatorsArray = currentForm.validators?.map(item => item.user) || [];
+            if(validatorsArray?.length === 0){
+                fetchUsers(undefined, setValidatorsData, 'validator')  
+            }
             setValidatorsData(validatorsArray);
             setValue('validators', validatorsArray)
             // productionHeads
             const productionHeadsArray = currentForm?.productionHeads?.[0]?.user || null;
             setProductionHeadsData(productionHeadsArray);
+            if(!productionHeadsArray){
+                fetchUsers(undefined, setProductionHeadsData, 'validator')  
+            }
             setValue('productionHeads', productionHeadsArray);
             // controled Users..
             const controlUserData = currentForm?.dimensionsQuestionery?.controlledBy ? currentForm?.dimensionsQuestionery?.controlledBy : null;
@@ -201,9 +211,7 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
         }
     }, [currentForm, currentUser, defaultValues, reset, setValue]);
 
-    const handleUpload = async (files) => {
-        console.log('Selected files:', files);
-    
+    const handleUpload = async (files) => {    
         if (!files || files.length === 0) {
             console.error('No files selected');
             return;
@@ -281,7 +289,14 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
                                     }
                                     renderOption={(props, option) => (
                                         <li {...props}>
-                                            <Typography variant="subtitle2">{`${option?.firstName} ${option?.lastName}`}</Typography>
+                                            <div>
+                                                <Typography variant="subtitle2" fontWeight="bold">
+                                                    {`${option?.firstName} ${option?.lastName} (${option?.department?.name})`}
+                                                </Typography>
+                                                <Typography variant="body2" color="textSecondary">
+                                                    {`${option.email}`}
+                                                </Typography>
+                                            </div>
                                         </li>
                                     )}
 
@@ -305,7 +320,14 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
                                     }
                                     renderOption={(props, option) => (
                                         <li {...props}>
-                                            <Typography variant="subtitle2">{`${option?.firstName} ${option?.lastName}`}</Typography>
+                                            <div>
+                                                <Typography variant="subtitle2" fontWeight="bold">
+                                                    {`${option?.firstName} ${option?.lastName} (${option?.department?.name})`}
+                                                </Typography>
+                                                <Typography variant="body2" color="textSecondary">
+                                                    {`${option.email}`}
+                                                </Typography>
+                                            </div>
                                         </li>
                                     )}
                                 />
@@ -315,7 +337,7 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
                                     disabled={!!verificationForm}
                                     name="productionHeads"
                                     label="Production Heads"
-                                    onInputChange={(event) => fetchUsers(event, setProductionHeadsData, 'production_head')}
+                                    onInputChange={(event) => fetchUsers(event, setProductionHeadsData, 'validator')}
                                     options={productionHeadsData || []}
                                     getOptionLabel={(option) => `${option?.firstName} ${option?.lastName}` || ''}
                                     filterOptions={(x) => x}
@@ -324,7 +346,7 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
                                         <li {...props}>
                                             <div>
                                                 <Typography variant="subtitle2" fontWeight="bold">
-                                                    {`${option?.firstName} ${option?.lastName}`}
+                                                    {`${option?.firstName} ${option?.lastName} (${option?.department?.name})`}
                                                 </Typography>
                                                 <Typography variant="body2" color="textSecondary">
                                                     {`${option.email}`}
@@ -457,7 +479,6 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
                                     <VisuallyHiddenInput
                                     type="file"
                                     onChange={(event) => {
-                                        console.log('event', event);
                                         handleUpload(event.target.files);
                                         event.target.value = ""; 
                                     }}
@@ -488,7 +509,6 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
                                                     </p>
                                                     <IconButton onClick={() => {
                                                         const newEvidences = getValues('evidences')?.filter((newItem, i) => index !== i);
-                                                        console.log('new', newEvidences);
                                                         setValue('evidences', newEvidences);
                                                     }}>
                                                         <Iconify icon="solar:trash-bin-trash-bold" />
@@ -515,7 +535,14 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
                                     }
                                     renderOption={(props, option) => (
                                         <li {...props}>
-                                            <Typography variant="subtitle2">{`${option?.firstName} ${option?.lastName}`}</Typography>
+                                            <div>
+                                                <Typography variant="subtitle2" fontWeight="bold">
+                                                    {`${option?.firstName} ${option?.lastName} (${option?.department?.name})`}
+                                                </Typography>
+                                                <Typography variant="body2" color="textSecondary">
+                                                    {`${option.email}`}
+                                                </Typography>
+                                            </div>
                                         </li>
                                     )}
                                 />

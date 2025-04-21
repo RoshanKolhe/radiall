@@ -22,7 +22,7 @@ export class InstallationFormController {
   // Get installation form of a tool with tool id...
   @authenticate({
     strategy : 'jwt',
-    options : {required : [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
+    options : {required : [PermissionKeys.ADMIN, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
   })
   @get('/installation-form/form-by-toolId/{toolId}')
   async formByToolId(
@@ -220,7 +220,7 @@ export class InstallationFormController {
   // update family classification section...
   @authenticate({
     strategy : 'jwt',
-    options : {required : [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
+    options : {required : [PermissionKeys.ADMIN, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
   })
   @patch('/update-family-classification/{id}')
   async updateFamilyClassiffication(
@@ -315,6 +315,9 @@ export class InstallationFormController {
         userId : userId,
       });
 
+      const form = await this.installationFormRepository.findById(formId);
+      await this.checkFieldValues(form);
+
       const response = await this.createValidatorsAndHeads(validatorsId, productionHeadsId, userId, formId);
 
       if(response.success){
@@ -336,7 +339,7 @@ export class InstallationFormController {
   // update Criticity section...
   @authenticate({
     strategy : 'jwt',
-    options : {required : [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
+    options : {required : [PermissionKeys.ADMIN, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
   })
   @patch('/update-criticity/{id}')
   async updateCriticityClassiffication(
@@ -402,10 +405,14 @@ export class InstallationFormController {
     try{
       const { criticity } = requestBody;
 
+      const form = await this.installationFormRepository.findById(formId);
+
       await this.installationFormRepository.updateById(formId, {
         criticityQuestionery : criticity,
         isCriticitySectionDone : true,
       });
+
+      await this.checkFieldValues(form);
 
       return{
         success : true,
@@ -419,7 +426,7 @@ export class InstallationFormController {
   // update requirement checklist section...
   @authenticate({
     strategy : 'jwt',
-    options : {required : [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
+    options : {required : [PermissionKeys.ADMIN, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
   })
   @patch('/update-requirement-checklist/{id}')
   async updateRequirementCheckllist(
@@ -455,10 +462,15 @@ export class InstallationFormController {
                           type: 'object',
                           properties: {
                             id: { type: 'number' },
-                            fullName: { type: 'string' },
+                            firstName: { type: 'string' },
+                            lastName: { type: 'string' },
                             role: { type: 'string' },
+                            email: { type: 'string' },
+                            department: { 
+                              type: 'object',
+                            },
                           },
-                          required: ['id', 'fullName', 'role'],
+                          required: ['id', 'firstName', 'lastName', 'email', 'role', 'department'],
                         },
                         { type: 'null' },
                       ],
@@ -493,7 +505,14 @@ export class InstallationFormController {
         critical: string;
         nonCritical: string;
         toDo: boolean;
-        actionOwner: any;
+        actionOwner: {
+          id: number;
+          firstName: string;
+          lastName: string;
+          role: string;
+          email: string;
+          department: object;
+        } | any;
         done: boolean;
         comment: string;
         upload: string;
@@ -691,7 +710,7 @@ export class InstallationFormController {
   // approval user from approve api....
   @authenticate({
     strategy: 'jwt',
-    options: { required: [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.VALIDATOR] }
+    options: { required: [PermissionKeys.ADMIN, PermissionKeys.VALIDATOR] }
   })
   @post('/user-approval')
   async userApproval(
@@ -758,7 +777,7 @@ export class InstallationFormController {
   // approval user from save api....
   @authenticate({
     strategy: 'jwt',
-    options: { required: [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.VALIDATOR] }
+    options: { required: [PermissionKeys.ADMIN, PermissionKeys.VALIDATOR] }
   })
   @post('/user-saved-form')
     async saveFrom(

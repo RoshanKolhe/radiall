@@ -47,6 +47,10 @@ export default function OtherSection({ currentForm, verificationForm, userData }
         result: Yup.boolean(),
         evidences: Yup.array().of(Yup.string()),
         controlledBy: Yup.object().nullable(),
+        moNumber: Yup.string(),
+        moPartNumber: Yup.string(),
+        testingQuantity: Yup.number().nullable(),
+        totalQuantity: Yup.number().nullable(),
         date: Yup.string(),
     });
 
@@ -56,6 +60,10 @@ export default function OtherSection({ currentForm, verificationForm, userData }
         result: currentForm?.otherQuestionery?.result || false,
         evidences: currentForm?.otherQuestionery?.evidences || [],
         controlledBy: null,
+        moNumber: currentForm?.otherQuestionery?.moNumber || '',
+        moPartNumber: currentForm?.otherQuestionery?.moPartNumber || '',
+        testingQuantity: currentForm?.otherQuestionery?.testingQuantity || undefined,
+        totalQuantity: currentForm?.otherQuestionery?.totalQuantity || undefined,
         date: currentForm?.otherQuestionery?.date ? format(new Date(currentForm?.otherQuestionery?.date), "dd MMMM yyyy, HH:mm") : format(new Date(), "dd MMMM yyyy, HH:mm"),
     }), [currentForm]);
 
@@ -74,7 +82,6 @@ export default function OtherSection({ currentForm, verificationForm, userData }
         formState: { isSubmitting, errors },
     } = methods;
 
-    console.log('errors', errors);
     const values = watch();
 
     const fetchUsers = async (event, func, value) => {
@@ -131,6 +138,10 @@ export default function OtherSection({ currentForm, verificationForm, userData }
                     department: formData?.controlledBy?.department?.name,
                     email: formData?.controlledBy?.email
                 } : null,
+                moNumber: formData?.moNumber || '',
+                moPartNumber: formData?.moPartNumber || '',
+                testingQuantity: formData?.testingQuantity || null,
+                totalQuantity: formData?.totalQuantity || null,
                 date: formData?.date
             };
 
@@ -164,9 +175,7 @@ export default function OtherSection({ currentForm, verificationForm, userData }
         }
     }, [currentForm, currentUser, defaultValues, reset, setValue]);
 
-    const handleUpload = async (files) => {
-        console.log('Selected files:', files);
-    
+    const handleUpload = async (files) => {    
         if (!files || files.length === 0) {
             console.error('No files selected');
             return;
@@ -304,7 +313,10 @@ export default function OtherSection({ currentForm, verificationForm, userData }
                                     upload
                                     <VisuallyHiddenInput
                                     type="file"
-                                    onChange={(event) => handleUpload(event.target.files)}
+                                    onChange={(event) => {
+                                        handleUpload(event.target.files);
+                                        event.target.value = ""; 
+                                    }}
                                     multiple
                                     />
                                 </Button>
@@ -343,6 +355,23 @@ export default function OtherSection({ currentForm, verificationForm, userData }
                                 </Table>}
                             </Grid>
 
+                             {/* material order details */}
+                             <Grid item xs={12} md={6}>
+                                <RHFTextField disabled={!!verificationForm} name='moNumber' label='MO Number' />
+                            </Grid>
+
+                            <Grid item xs={12} md={6}>
+                                <RHFTextField disabled={!!verificationForm} name='moPartNumber' label='MO Part Number' />
+                            </Grid>
+
+                            <Grid item xs={12} md={6}>
+                                <RHFTextField disabled={!!verificationForm} name='testingQuantity' label='Testing Quantity' />
+                            </Grid>
+
+                            <Grid item xs={12} md={6}>
+                                <RHFTextField disabled={!!verificationForm} name='totalQuantity' label='Total Quantity' />
+                            </Grid>
+
                             {/* controlled by section */}
                             <Grid item xs={12} md={6}>
                                 <RHFAutocomplete
@@ -358,7 +387,14 @@ export default function OtherSection({ currentForm, verificationForm, userData }
                                     }
                                     renderOption={(props, option) => (
                                         <li {...props}>
-                                            <Typography variant="subtitle2">{`${option?.firstName} ${option?.lastName}`}</Typography>
+                                            <div>
+                                                <Typography variant="subtitle2" fontWeight="bold">
+                                                    {`${option?.firstName} ${option?.lastName} (${option?.department?.name})`}
+                                                </Typography>
+                                                <Typography variant="body2" color="textSecondary">
+                                                    {`${option.email}`}
+                                                </Typography>
+                                            </div>
                                         </li>
                                     )}
                                 />

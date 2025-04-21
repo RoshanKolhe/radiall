@@ -25,6 +25,7 @@ import {
 } from '@loopback/authentication';
 import {CronComponent} from '@loopback/cron';
 import {JWTStrategy} from './authentication-strategy/jwt-strategy';
+import { EventSchedular } from './services/event-schedular.service';
 
 export {ApplicationConfig};
 
@@ -69,6 +70,7 @@ export class RadiallApplication extends BootMixin(
     this.bind('service.hasher').toClass(BcryptHasher);
     this.bind('service.jwt.service').toClass(JWTService);
     this.bind('service.user.service').toClass(MyUserService);
+    this.bind('service.eventScheduler.service').toClass(EventSchedular);
     this.bind(EmailManagerBindings.SEND_MAIL).toClass(EmailService);
   }
 

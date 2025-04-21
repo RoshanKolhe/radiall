@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material'
 
 export default function ToolsViewForm({ currentTool }) {
   const identificationSectionColumns = [
-    { label: 'Designation:', value: 'designation' },
+    { label: 'Designation:', value: 'description' },
     { label: 'Serial Number:', value: 'meanSerialNumber' },
     { label: 'Part Number:', value: 'partNumber' },
     { label: 'Asset Number:', value: 'assetNumber' },
@@ -49,7 +49,10 @@ export default function ToolsViewForm({ currentTool }) {
       year: 'numeric'
     });
   };
-  
+
+  // check date is valid or not
+  const isValidDate = (value) => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value);
+    
   const getValue = (key) => {
     if (key === 'isActive') {
       return currentTool?.isActive ? 'Active' : 'In-Active';
@@ -63,7 +66,9 @@ export default function ToolsViewForm({ currentTool }) {
   
     // Automatically detect and format all valid date strings
     if (typeof value === 'string' && !Number.isNaN(Date.parse(value))) {
-      return formatDate(value);
+      if (isValidDate(value)) {
+        return formatDate(value);
+      }
     }
   
     return value !== undefined && value !== null && value !== '' ? value : 'NA';

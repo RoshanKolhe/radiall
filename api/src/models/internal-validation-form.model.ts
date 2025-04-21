@@ -73,6 +73,10 @@ export class InternalValidationForm extends Entity {
       department: string;
       email: string;
     };
+    moNumber: string;
+    moPartNumber: string;
+    testingQuantity: number;
+    totalQuantity: number;
     date: Date;
   };
 
@@ -98,6 +102,10 @@ export class InternalValidationForm extends Entity {
       department: string;
       email: string;
     };
+    moNumber: string;
+    moPartNumber: string;
+    testingQuantity: number;
+    totalQuantity: number;
     date: Date;
   };
 

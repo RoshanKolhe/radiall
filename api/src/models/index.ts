@@ -20,3 +20,5 @@ export * from './maintainance-plan.model';
 export * from './inventory-out-entry-tools.model';
 export * from './inventory-in-entries.model';
 export * from './maintainance-entries.model';
+export * from './internal-validation-history.model';
+export * from './tool-type-maintainance.model';

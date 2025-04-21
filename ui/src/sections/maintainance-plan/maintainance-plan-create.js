@@ -11,7 +11,7 @@ export default function CreateMaintainancePlan({currentPlan, toolData}){
     return(
         <Stack direction='column' spacing={1}>
             <ToolInfoCard toolData={toolData} />
-            <LevelMaintainanceCard maintainanceData={currentPlan?.levelOnePlan} levelNo={1} toolData={toolData}/>
+            {/* <LevelMaintainanceCard maintainanceData={currentPlan?.levelOnePlan} levelNo={1} toolData={toolData}/> */}
             <LevelMaintainanceCard maintainanceData={currentPlan?.levelTwoPlan} levelNo={2} toolData={toolData}/>
         </Stack>
     )

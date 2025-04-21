@@ -95,6 +95,7 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/toolType/list`,
       edit: (id) => `${ROOTS.DASHBOARD}/toolType/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/toolType/${id}/view`,
+      plan: (id) => `${ROOTS.DASHBOARD}/toolType/${id}/maintainance-plan`
     },
     // MANUFACTURER
     manufacturer: {
@@ -137,6 +138,7 @@ export const paths = {
       view: (id) => `${ROOTS.DASHBOARD}/tools/${id}/view`,
       installationForm: (id) => `${ROOTS.DASHBOARD}/tools/${id}/installation-form`,
       internalValidationForm: (id) => `${ROOTS.DASHBOARD}/tools/${id}/internal-validation-form`,
+      internalValidationFormHistory: (id) => `${ROOTS.DASHBOARD}/tools/${id}/internal-validation-form-history`
     },
     // SPARE
     spare: {

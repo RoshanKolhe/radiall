@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
 import { yupResolver } from "@hookform/resolvers/yup";
 import { LoadingButton } from "@mui/lab";
-import { Box, Button, Card, Grid, MenuItem, Stack, Typography } from "@mui/material";
+import { Card, Grid, MenuItem, Stack, Typography } from "@mui/material";
 import PropTypes from "prop-types"
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -26,7 +26,7 @@ export default function LevelMaintainanceEntryCard({maintainanceData, toolData})
     const maintainanceSchema = Yup.object().shape({
         level: Yup.number().required('Please Select level'),
         periodicity: Yup.number().required('Periodicity is required'),
-        responsibleUser: Yup.object().nullable().required('Responsible user is required'),
+        responsibleUser: Yup.string().required('Responsible user is required'),
         preparedByUser: Yup.object().nullable().required('Prepared By User is required'),
         description: Yup.string().required('Description is required'),
         date: Yup.string().required('Date is required'),
@@ -36,7 +36,7 @@ export default function LevelMaintainanceEntryCard({maintainanceData, toolData})
     () => ({
         level: '',
         periodicity: '',
-        responsibleUser: null,
+        responsibleUser: '',
         preparedByUser:null,
         description: '',
         date: '',
@@ -66,7 +66,11 @@ export default function LevelMaintainanceEntryCard({maintainanceData, toolData})
 
       const inputData = {
         toolsId: toolData?.id,
-        maintainancePlanId: formData.level === 1 ? maintainanceData?.levelOnePlan?.id : maintainanceData?.levelTwoPlan?.id,
+        level: formData?.level,
+        periodicity: formData?.periodicity,
+        description: formData?.description,
+        responsibleUser: formData?.responsibleUser,
+        preparedByUserId: formData?.preparedByUser?.id,
         isActive: true,
       };
 
@@ -125,11 +129,6 @@ export default function LevelMaintainanceEntryCard({maintainanceData, toolData})
     useEffect(() => {
         if (maintainanceData) {
             reset(defaultValues);
-            // Responsible User...
-            const responsibleUserData = maintainanceData?.responsibleUser ? maintainanceData?.responsibleUser : null;
-            setUsersData((prev) => [...prev, responsibleUserData]);
-            setValue('responsibleUser', responsibleUserData);
-
             // Prepared By user...
             const preparedByUserData = maintainanceData?.preparedByUser ? maintainanceData?.preparedByUser : currentUser;
             setUsersData((prev) => [...prev, preparedByUserData]);
@@ -145,19 +144,19 @@ export default function LevelMaintainanceEntryCard({maintainanceData, toolData})
 
     useEffect(() => {
         if(values.level === 1){
-            setValue('date', format(new Date(maintainanceData?.levelOnePlan?.createdAt), 'dd MM yyyy'));
-            setValue('description', maintainanceData?.levelOnePlan?.description);
-            setValue('periodicity', maintainanceData?.levelOnePlan?.periodicity);
-            setValue('responsibleUser', maintainanceData?.levelOnePlan?.responsibleUser);
-            setValue('preparedByUser', maintainanceData?.levelOnePlan?.preparedByUser);
+            setValue('date', maintainanceData?.levelOnePlan?.createdAt ? format(new Date(maintainanceData?.levelOnePlan?.createdAt), 'dd MM yyyy') : '');
+            setValue('description', maintainanceData?.levelOnePlan?.description || '');
+            setValue('periodicity', maintainanceData?.levelOnePlan?.periodicity || '');
+            setValue('responsibleUser', maintainanceData?.levelOnePlan?.responsibleUser || '');
+            setValue('preparedByUser', maintainanceData?.levelOnePlan?.preparedByUser || null);
         }
 
         if(values.level === 2){
-            setValue('date', format(new Date(maintainanceData?.levelTwoPlan?.createdAt)));
-            setValue('description', maintainanceData?.levelTwoPlan?.description);
-            setValue('periodicity', maintainanceData?.levelTwoPlan?.periodicity);
-            setValue('responsibleUser', maintainanceData?.levelTwoPlan?.responsibleUser);
-            setValue('preparedByUser', maintainanceData?.levelTwoPlan?.preparedByUser);
+            setValue('date', maintainanceData?.levelTwoPlan?.createdAt ? format(new Date(maintainanceData?.levelTwoPlan?.createdAt), 'dd MM yyyy') : '');
+            setValue('description', maintainanceData?.levelTwoPlan?.description || '');
+            setValue('periodicity', maintainanceData?.levelTwoPlan?.periodicity || '');
+            setValue('responsibleUser', maintainanceData?.levelTwoPlan?.responsibleUser || '');
+            setValue('preparedByUser', maintainanceData?.levelTwoPlan?.preparedByUser || null);
         }
     },[values.level, maintainanceData, setValue])
 
@@ -175,27 +174,11 @@ export default function LevelMaintainanceEntryCard({maintainanceData, toolData})
                         </Grid>
 
                         <Grid item xs={12} md={6}>
-                            <RHFTextField name='periodicity' label='Periodicity' type='number'/>
+                            <RHFTextField disabled name='periodicity' label='Periodicity' type='number'/>
                         </Grid>
 
                         <Grid item xs={12} sm={6}>
-                            <RHFAutocomplete
-                                name="responsibleUser"
-                                label="Responsible"
-                                options={usersData || []}
-                                onInputChange={(event) => fetchUsers(event, setUsersData, '')}
-                                getOptionLabel={(option) => `${option?.firstName} ${option?.lastName}` || ''}
-                                isOptionEqualToValue={(option, value) => option?.id === value.id}
-                                filterOptions={(options, { inputValue }) =>
-                                    options?.filter((option) => option?.firstName?.toLowerCase().includes(inputValue?.toLowerCase()) || option?.lastName?.toLowerCase().includes(inputValue?.toLowerCase()))
-                                }
-                                renderOption={(props, option) => (
-                                    <li {...props}>
-                                        <Typography variant="subtitle2">{`${option?.firstName} ${option?.lastName}`}</Typography>
-                                    </li>
-                                )}
-
-                            />
+                            <RHFTextField disabled name='responsibleUser' label='Responsible User'/>
                         </Grid>
 
                         <Grid item xs={12} sm={6}>
@@ -224,7 +207,7 @@ export default function LevelMaintainanceEntryCard({maintainanceData, toolData})
                         </Grid>
 
                         <Grid item xs={12} md={12}>
-                            <RHFTextField name='description' label='Description' multiline rows={3}/>
+                            <RHFTextField disabled name='description' label='Description' multiline rows={3}/>
                         </Grid>
                     </Grid>
                     <Stack alignItems="flex-end" sx={{ mt: 3 }}>

@@ -57,7 +57,7 @@ export default function ToolsNewEditForm({ currentTool }) {
   ];
 
   useEffect(() => {
-    if(currentTool){
+    if(currentTool && currentTool?.installationStatus !== 'approved'){
       setAllowEdit(true);
     }
   }, [currentTool])
@@ -72,8 +72,12 @@ export default function ToolsNewEditForm({ currentTool }) {
     .transform((value, originalValue) => (originalValue === '' ? null : value)) 
     .required('Quantity is required')
     .min(1, 'Quantity must be at least 1'),
-    serialNumber: Yup.string()
-    .required('Serial Number is required'),
+    serialNumber: Yup.number()
+    .nullable()  
+    .transform((value, originalValue) => (originalValue === '' ? null : value)) 
+    .required('Serial number is required')
+    .min(1, 'Serial number must be at least 1'),
+    individualSerialNumber: Yup.string(),
     toolType: Yup.object().nullable().required('Tool type is required'),
     supplier: Yup.object().nullable().required('Supplier is required'),
     manufacturer: Yup.object().nullable().required('Manufacturer is required'),
@@ -85,6 +89,7 @@ export default function ToolsNewEditForm({ currentTool }) {
     calibration: Yup.string(),
     technicalDrawing: Yup.string(), 
     isMaintainancePlanNeeded: Yup.boolean(),
+    isInternalValidationNeeded: Yup.boolean(),
     individualManagement: Yup.boolean(),
     designation: Yup.string(),
     criticalLevel: Yup.string(),
@@ -92,6 +97,7 @@ export default function ToolsNewEditForm({ currentTool }) {
     installationChecklist: Yup.boolean(),
     assetNumber: Yup.string(),
     isActive: Yup.boolean(),
+    remark: Yup.string(),
   });
 
   const defaultValues = useMemo(
@@ -101,6 +107,7 @@ export default function ToolsNewEditForm({ currentTool }) {
       description: currentTool?.description || '',
       quantity: currentTool?.quantity || 1, 
       serialNumber: currentTool?.meanSerialNumber || '', 
+      individualSerialNumber: currentTool?.individualSerialNumber || '',
       toolType: null,
       productionMeans: currentTool?.productionMeans || '',
       supplier: null,
@@ -113,6 +120,7 @@ export default function ToolsNewEditForm({ currentTool }) {
       calibration: currentTool?.calibration || '',
       technicalDrawing: currentTool?.technicalDrawing || '',
       isMaintainancePlanNeeded: currentTool?.isMaintaincePlanNeeded || false, 
+      isInternalValidationNeeded: currentTool?.isInternalValidationNeeded || false, 
       individualManagement: currentTool?.individualManagement || false,
       designation: currentTool?.designation || '',
       criticalLevel: currentTool?.criticalLevel || '',
@@ -120,6 +128,7 @@ export default function ToolsNewEditForm({ currentTool }) {
       installationChecklist: currentTool?.installationChecklist || false,
       assetNumber: currentTool?.assetNumber || '',
       isActive: currentTool?.isActive || false,
+      remark: currentTool?.remark || '',
     }),
     [currentTool]
   );
@@ -146,7 +155,7 @@ export default function ToolsNewEditForm({ currentTool }) {
       const inputData = {
         partNumber: formData.partNumber,
         modelNumber: formData.modelNumber,
-        meanSerialNumber: formData?.serialNumber?.replace(/\(\s*/g, "(").replace(/\s*,\s*/g, ",").trim(),
+        meanSerialNumber: formData?.serialNumber,
         description: formData.description,
         quantity: formData.quantity,
         balanceQuantity: formData.quantity,
@@ -165,10 +174,15 @@ export default function ToolsNewEditForm({ currentTool }) {
         internalValidationStatus : 'pending',
       };
 
+      if(formData?.individualSerialNumber && formData?.individualSerialNumber !== ''){
+        inputData.individualSerialNumber = formData?.individualSerialNumber?.replace(/\(\s*/g, "(").replace(/\s*,\s*/g, ",").trim();
+      }
+
       if(currentTool){
         inputData.calibration = formData.calibration;
         inputData.individualManagement = formData.individualManagement;
         inputData.isMaintaincePlanNeeded = formData.isMaintainancePlanNeeded;
+        inputData.isInternalValidationNeeded = formData.isInternalValidationNeeded;
         inputData.installationChecklist = formData.installationChecklist;
         inputData.assetNumber = formData.assetNumber;
         inputData.criticalLevel = formData.criticalLevel;
@@ -176,6 +190,9 @@ export default function ToolsNewEditForm({ currentTool }) {
         inputData.spareList = formData.spareList;
         inputData.technicalDrawing = formData.technicalDrawing;
         inputData.isActive = formData.isActive;
+        inputData.installationStatus = currentTool?.installationStatus || 'pending';
+        inputData.internalValidationStatus = currentTool?.internalValidationStatus || 'pending';
+        inputData.remark = formData?.remark || '';
       }
 
       if (!currentTool) {
@@ -234,17 +251,19 @@ export default function ToolsNewEditForm({ currentTool }) {
 
       if(response?.data?.success){
         setValue('modelNumber', response?.data?.data?.modelNumber);
-        setValue('toolType', toolTypeData?.find((toolType) => toolType.id === Number(response?.data?.data?.toolTypeId))?.id || undefined, { shouldValidate: true });
+        setValue('toolType', response?.data?.data?.toolType || null, { shouldValidate: true });
         setValue('description', response?.data?.data?.description);
-        // setValue('serialNumber', response?.data?.data?.meanSerialNumber, { shouldValidate: true });  // removing + 1
-        setValue('supplier', supplierData?.find((supplier) => supplier.id === Number(response?.data?.data?.supplierId))?.id || undefined, { shouldValidate: true });
-        setValue('manufacturer', manufacturersData?.find((manufacturer) => manufacturer.id === Number(response?.data?.data?.manufacturerId))?.id || undefined, { shouldValidate: true });
+        setValue('serialNumber', Number(response?.data?.data?.meanSerialNumber) + 1, { shouldValidate: true }); 
+        setValue('supplier', response?.data?.data?.supplier || null, { shouldValidate: true });
+        setValue('manufacturer', response?.data?.data?.manufacturer || null, { shouldValidate: true });
+        setValue('station', response?.data?.data?.station || null, { shouldValidate: true });
+        setValue('toolDepartment', response?.data?.data?.toolsDepartment || null, { shouldValidate: true });
         setValue('storageLocation', response?.data?.data?.storageLocation);
         setValue('productionMeans', response?.data?.data?.productionMeans);
         setAllowEdit(true);
         enqueueSnackbar('Tool with same part number found',{variant : 'success'});
       }else{
-        // setValue('serialNumber', 1);
+        setValue('serialNumber', 1);
         setAllowEdit(true);
         enqueueSnackbar('No tool found with same part number found, you can create new one',{variant : 'info'});
       }
@@ -266,7 +285,7 @@ export default function ToolsNewEditForm({ currentTool }) {
     try{
       const filter = {
         where: {
-          [field]: { like: `%${event.target.value}%` }
+          [field]: { like: `%${event?.target?.value}%` }
         }
       };
 
@@ -287,7 +306,7 @@ export default function ToolsNewEditForm({ currentTool }) {
               {currentTool && (
                 <>
                   <Grid item="true" xs={12} sm={6}>
-                    <RHFSelect name="isActive" label="Status">
+                    <RHFSelect disabled={allowEdit === true} name="isActive" label="Status">
                       {statusOptions.map((status) => (
                         <MenuItem key={status.value} value={status.value}>
                           {status.label}
@@ -335,7 +354,7 @@ export default function ToolsNewEditForm({ currentTool }) {
                   />
                 </Grid> : 
                 <Grid item="true" xs={12} sm={6}>
-                  <RHFTextField name="partNumber" label="Tool Part Number" disabled={!allowEdit} />
+                  <RHFTextField  name="partNumber" label="Tool Part Number" disabled={!allowEdit} />
                 </Grid>
               }
 
@@ -348,11 +367,15 @@ export default function ToolsNewEditForm({ currentTool }) {
               </Grid>
 
               <Grid item="true" xs={12} sm={6}>
-                <RHFTextField type='number' name="quantity" label="Qunatity" disabled />
+                <RHFTextField type='number' name="quantity" label="Quantity" disabled />
               </Grid>
 
               <Grid item="true" xs={12} sm={6}>
-                <RHFTextField name="serialNumber" label="Mean Serial Number" disabled={!allowEdit} />
+                <RHFTextField type='number' name="serialNumber" label="Serial Number" disabled />
+              </Grid>
+
+              <Grid item="true" xs={12} sm={6}>
+                <RHFTextField name="individualSerialNumber" label="Individual Serial Number" disabled={!allowEdit} />
               </Grid>
 
               {/* <Grid item="true" xs={12} sm={6}>
@@ -440,6 +463,7 @@ export default function ToolsNewEditForm({ currentTool }) {
                       onChange={(newValue) =>
                         field.onChange(newValue ? newValue.toISOString() : null)
                       }
+                      maxDate={new Date()}
                       disabled={!allowEdit}
                       slotProps={{
                         textField: {
@@ -552,7 +576,7 @@ export default function ToolsNewEditForm({ currentTool }) {
                   </Grid>
 
                   <Grid item="true" xs={12} sm={6}>
-                    <RHFSelect name="individualManagement" label="Individual Management" disabled={!allowEdit} >
+                    <RHFSelect name="isInternalValidationNeeded" label="Internal Validation Needed" disabled={!allowEdit} >
                       {booleanOptions?.length > 0 ? booleanOptions?.map((opt) => (
                         <MenuItem key={opt?.value} value={opt?.value}>{opt?.label}</MenuItem>
                       )) : (
@@ -562,8 +586,18 @@ export default function ToolsNewEditForm({ currentTool }) {
                   </Grid>
 
                   <Grid item="true" xs={12} sm={6}>
-                    <RHFTextField name="designation" label="Designation" disabled={!allowEdit} />
+                    <RHFSelect name="individualManagement" label="Individual Management" disabled={!allowEdit} >
+                      {booleanOptions?.length > 0 ? booleanOptions?.map((opt) => (
+                        <MenuItem key={opt?.value} value={opt?.value}>{opt?.label}</MenuItem>
+                      )) : (
+                        <MenuItem disabled value=''>No Options Found</MenuItem>
+                      )}
+                    </ RHFSelect>
                   </Grid>
+
+                  {/* <Grid item="true" xs={12} sm={6}>
+                    <RHFTextField name="designation" label="Designation" disabled={!allowEdit} />
+                  </Grid> */}
 
                   <Grid item="true" xs={12} sm={6}>
                     <RHFSelect name="criticalLevel" label="Critical Level" disabled={!allowEdit} >
@@ -593,6 +627,10 @@ export default function ToolsNewEditForm({ currentTool }) {
                         <MenuItem disabled value=''>No Options Found</MenuItem>
                       )}
                     </ RHFSelect>
+                  </Grid>
+
+                  <Grid item="true" xs={12} sm={6}>
+                    <RHFTextField name="remark" label="Comment" />
                   </Grid>
                 </>
               )}

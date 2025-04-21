@@ -30,7 +30,7 @@ export class ToolTypeController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required: [PermissionKeys.PRODUCTION_HEAD]},
+    options: {required: [PermissionKeys.ADMIN]},
   })
   @post('/tool-types')
   @response(200, {
@@ -96,7 +96,7 @@ export class ToolTypeController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required: [PermissionKeys.PRODUCTION_HEAD]},
+    options: {required: [PermissionKeys.ADMIN]},
   })
   @patch('/tool-types/{id}')
   @response(204, {
@@ -118,7 +118,7 @@ export class ToolTypeController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required: [PermissionKeys.PRODUCTION_HEAD]},
+    options: {required: [PermissionKeys.ADMIN]},
   })
   @del('/tool-types/{id}')
   @response(204, {

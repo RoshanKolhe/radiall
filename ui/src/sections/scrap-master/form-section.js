@@ -70,7 +70,7 @@ export default function FormSection({ currentForm, verificationForm, userData })
                 // nonCritical: item?.nonCritical || 'md',
                 toDo: item?.toDo || false,
                 done: item?.done || false,
-                actionOwner: item?.actionOwner ? item?.actionOwner?.id : undefined
+                actionOwner: item?.actionOwner ? item?.actionOwner : null
             }))
             setCheckList(list);
         };
@@ -157,11 +157,37 @@ export default function FormSection({ currentForm, verificationForm, userData })
         }
     };
 
+    const getUserInfo = (user) => {
+        if(user !== null){
+            return{
+                id : user?.id,
+                firstName: user?.firstName,
+                lastName: user?.lastName,
+                role: user?.permissions?.[0] === 'validator' ? user?.designation : '' || user?.role || '',
+                email: user?.email,
+                department: user?.department
+            }
+        }
+
+        return null;
+    }
+
     const onSubmit = handleSubmit(async (formData) => {
         try {
+            const finalCheckList = checkList.map((item) => ({
+                requirement: item?.requirement,
+                isNeedUpload: item?.isNeedUpload,
+                critical: item.critical,
+                toDo: item.toDo,
+                actionOwner: item?.actionOwner ? getUserInfo(item?.actionOwner) : null,
+                done: item?.done,
+                comment: item?.comment || '',
+                upload: item?.upload || '',
+            }));
+
             const inputData = {
                 justification: formData?.justification,
-                requirementChecklist: checkList,
+                requirementChecklist: finalCheckList,
                 initiatorId: formData?.initiator?.id,
                 userId: formData?.user?.id,
                 validatorsId: formData?.validators?.map((value) => value?.id),
@@ -172,6 +198,7 @@ export default function FormSection({ currentForm, verificationForm, userData })
 
             if (response?.data?.success) {
                 enqueueSnackbar(response?.data?.message, { variant: 'success' });
+                navigate(paths.dashboard.scrap.toolList);
             } else {
                 enqueueSnackbar('Update failed', { variant: 'error' });
             }
@@ -287,7 +314,14 @@ export default function FormSection({ currentForm, verificationForm, userData })
                                     }
                                     renderOption={(props, option) => (
                                         <li {...props}>
-                                            <Typography variant="subtitle2">{`${option?.firstName} ${option?.lastName}`}</Typography>
+                                            <div>
+                                                <Typography variant="subtitle2" fontWeight="bold">
+                                                    {`${option?.firstName} ${option?.lastName}( ${option?.department?.name})`}
+                                                </Typography>
+                                                <Typography variant="body2" color="textSecondary">
+                                                    {`${option.email}`}
+                                                </Typography>
+                                            </div>
                                         </li>
                                     )}
 
@@ -311,7 +345,14 @@ export default function FormSection({ currentForm, verificationForm, userData })
                                     }
                                     renderOption={(props, option) => (
                                         <li {...props}>
-                                            <Typography variant="subtitle2">{`${option?.firstName} ${option?.lastName}`}</Typography>
+                                            <div>
+                                                <Typography variant="subtitle2" fontWeight="bold">
+                                                    {`${option?.firstName} ${option?.lastName} (${option?.department?.name})`}
+                                                </Typography>
+                                                <Typography variant="body2" color="textSecondary">
+                                                    {`${option.email}`}
+                                                </Typography>
+                                            </div>
                                         </li>
                                     )}
 
@@ -331,7 +372,7 @@ export default function FormSection({ currentForm, verificationForm, userData })
                                         <li {...props}>
                                             <div>
                                                 <Typography variant="subtitle2" fontWeight="bold">
-                                                    {`${option?.firstName} ${option?.lastName}`}
+                                                    {`${option?.firstName} ${option?.lastName} (${option?.department?.name})`}
                                                 </Typography>
                                                 <Typography variant="body2" color="textSecondary">
                                                     {`${option.email}`}
@@ -479,17 +520,37 @@ export default function FormSection({ currentForm, verificationForm, userData })
                                                     <p>NA</p>
                                                 )
                                             : (
-                                                <p>{usersData?.find((user) => user?.id === checkList[index]?.actionOwner)?.firstName}</p>
+                                                <p>{`${checkList[index]?.actionOwner?.firstName || ''} ${checkList[index]?.actionOwner?.lastName || ''}`}</p>
                                             ) : (
                                                 <Autocomplete
                                                     disabled={!!verificationForm}
-                                                    fullWidth
+                                                    value={checkList[index]?.actionOwner || null}
                                                     options={usersData || []}
-                                                    getOptionLabel={(option) => `${option.firstName} ${option.lastName}`}
-                                                    value={usersData?.find(user => user?.id === checkList[index]?.actionOwner?.id) || null}
-                                                    onChange={(event, newValue) => handleChangeValue(newValue?.id || '', index, 'actionOwner')}
-                                                    renderInput={(params) => <TextField {...params} placeholder="Search User" variant="outlined" />}
-                                                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                                                    onInputChange={(event) => fetchUsers(event, setUsersData, 'validator')}
+                                                    onChange={(event, inputvalue) => handleChangeValue(inputvalue, index, 'actionOwner')}
+                                                    getOptionLabel={(option) => `${option?.firstName || ''} ${option?.lastName || ''}`}
+                                                    isOptionEqualToValue={(option, value) => option?.id === value?.id}
+                                                    filterOptions={(options, { inputValue }) =>
+                                                        options?.filter((option) =>
+                                                        option?.firstName?.toLowerCase().includes(inputValue.toLowerCase()) ||
+                                                        option?.lastName?.toLowerCase().includes(inputValue.toLowerCase())
+                                                        )
+                                                    }
+                                                    renderOption={(props, option) => (
+                                                        <li {...props}>
+                                                            <div>
+                                                                <Typography variant="subtitle2" fontWeight="bold">
+                                                                    {`${option?.firstName} ${option?.lastName} (${option?.department?.name})`}
+                                                                </Typography>
+                                                                <Typography variant="body2" color="textSecondary">
+                                                                    {`${option.email}`}
+                                                                </Typography>
+                                                            </div>
+                                                        </li>
+                                                    )}
+                                                    renderInput={(params) => (
+                                                        <TextField {...params} label="Select User" variant="outlined" />
+                                                    )}
                                                 />
                                             )}
                                             </TableCell>

@@ -30,7 +30,7 @@ export class ToolsDepartmentController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required: [PermissionKeys.PRODUCTION_HEAD]},
+    options: {required: [PermissionKeys.ADMIN]},
   })
   @post('/tools-departments')
   @response(200, {
@@ -84,7 +84,7 @@ export class ToolsDepartmentController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required: [PermissionKeys.PRODUCTION_HEAD]},
+    options: {required: [PermissionKeys.ADMIN]},
   })
   @patch('/tools-departments')
   @response(200, {
@@ -123,7 +123,7 @@ export class ToolsDepartmentController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required: [PermissionKeys.PRODUCTION_HEAD]},
+    options: {required: [PermissionKeys.ADMIN]},
   })
   @patch('/tools-departments/{id}')
   @response(204, {
@@ -145,7 +145,7 @@ export class ToolsDepartmentController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required: [PermissionKeys.PRODUCTION_HEAD]},
+    options: {required: [PermissionKeys.ADMIN]},
   })
   @put('/tools-departments/{id}')
   @response(204, {

@@ -46,7 +46,7 @@ export class InventoryOutEntriesController {
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR],
+      required: [PermissionKeys.ADMIN, PermissionKeys.INITIATOR],
     },
   })
   @post('/inventory-out-entries')
@@ -179,7 +179,7 @@ export class InventoryOutEntriesController {
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR],
+      required: [PermissionKeys.ADMIN, PermissionKeys.INITIATOR],
     },
   })
   @post('/tools/available-serials')
@@ -246,7 +246,7 @@ export class InventoryOutEntriesController {
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR],
+      required: [PermissionKeys.ADMIN, PermissionKeys.INITIATOR],
     },
   })
   @response(200, {
@@ -290,7 +290,7 @@ export class InventoryOutEntriesController {
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR],
+      required: [PermissionKeys.ADMIN, PermissionKeys.INITIATOR],
     },
   })
   @get('/inventory-out-entries/{id}')
@@ -342,7 +342,7 @@ export class InventoryOutEntriesController {
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR],
+      required: [PermissionKeys.ADMIN, PermissionKeys.INITIATOR],
     },
   })
   @patch('/inventory-out-entries/{id}')
@@ -369,7 +369,7 @@ export class InventoryOutEntriesController {
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD],
+      required: [PermissionKeys.ADMIN],
     },
   })
   @del('/inventory-out-entries/{id}')

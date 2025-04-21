@@ -1,5 +1,5 @@
 import { repository } from "@loopback/repository";
-import { MaintainancePlanRepository, ToolsRepository } from "../repositories";
+import { MaintainancePlanRepository, ToolsRepository, ToolTypeMaintainanceRepository } from "../repositories";
 import { authenticate } from "@loopback/authentication";
 import { PermissionKeys } from "../authorization/permission-keys";
 import { get, getModelSchemaRef, HttpErrors, param, patch, post, requestBody, response } from "@loopback/rest";
@@ -10,14 +10,16 @@ export class MaintainancePlanController {
     @repository(MaintainancePlanRepository)
     public maintainancePlanRepository: MaintainancePlanRepository,
     @repository(ToolsRepository)
-    public toolsRepository: ToolsRepository
+    public toolsRepository: ToolsRepository,
+    @repository(ToolTypeMaintainanceRepository)
+    public toolTypeMaintainanceRepository: ToolTypeMaintainanceRepository
   ) {}
 
   // create new maintainance plan...
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR],
+      required: [PermissionKeys.ADMIN, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR],
     },
   })
   @post('/maintainance-plan/create')
@@ -63,7 +65,7 @@ export class MaintainancePlanController {
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR],
+      required: [PermissionKeys.ADMIN, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR],
     },
   })
   @patch('/maintainance-plan/update/{id}')
@@ -93,7 +95,7 @@ export class MaintainancePlanController {
   @get('/maintainance-plan-by-toolId/{toolId}')
   async getMaintainancePlanByToolId(
     @param.path.number('toolId') toolId: number
-  ): Promise<{success : boolean; message: string; data : {levelOnePlan: MaintainancePlan | null, levelTwoPlan: MaintainancePlan | null}}>{
+  ): Promise<{success : boolean; message: string; data : {levelOnePlan: object | null, levelTwoPlan: MaintainancePlan | null}}>{
     try{
       console.log('toolId', toolId);
       const tool = await this.toolsRepository.findById(toolId);
@@ -104,12 +106,12 @@ export class MaintainancePlanController {
 
       let levelOnePlan = null;
       let levelTwoPlan = null;
-      if(tool?.levelOneMaintainanceId){
-        levelOnePlan = await this.maintainancePlanRepository.findById(tool.levelOneMaintainanceId, {include : [{relation : 'responsibleUser'}, {relation : 'preparedByUser'}]});
+      if(tool?.toolTypeId){
+        levelOnePlan = await this.toolTypeMaintainanceRepository.findOne({where : {toolTypeId: tool?.toolTypeId}, include : [{relation : 'preparedByUser'}]});
       }
 
       if(tool?.levelTwoMaintainanceId){
-        levelTwoPlan = await this.maintainancePlanRepository.findById(tool.levelTwoMaintainanceId, {include : [{relation : 'responsibleUser'}, {relation : 'preparedByUser'}]});
+        levelTwoPlan = await this.maintainancePlanRepository.findById(tool.levelTwoMaintainanceId, {include : [{relation : 'preparedByUser'}]});
       }
 
       return{

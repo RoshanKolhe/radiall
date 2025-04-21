@@ -1,5 +1,6 @@
 export const enum PermissionKeys {
-  PRODUCTION_HEAD = 'production_head',
+  ADMIN = 'admin',
   INITIATOR = 'initiator',
   VALIDATOR = 'validator',
+  VIEWER = 'viewer'
 }

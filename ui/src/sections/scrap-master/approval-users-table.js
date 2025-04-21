@@ -14,11 +14,33 @@ export default function ApprovalUsersSection({ validators, productionHeads, appr
         {value: 'status', label: 'Status'}
     ];
 
+    const mergeOrUpdateTableData = (prevData, newData) => {
+        const updatedData = [...prevData];
+    
+        newData.forEach((newEntry) => {
+            const index = updatedData.findIndex((item) => item.id === newEntry.id);
+    
+            if (index > -1) {
+                const existingEntry = updatedData[index];
+    
+                const hasChanged = Object.keys(newEntry).some(key => newEntry[key] !== existingEntry[key]);
+    
+                if (hasChanged) {
+                    updatedData[index] = { ...existingEntry, ...newEntry };
+                }
+            } else {
+                updatedData.push(newEntry);
+            }
+        });
+    
+        return updatedData;
+    };
+
     useEffect(() => {
         if (validators?.length > 0) {
             const data = validators.map((user) => ({
                 id: user?.id,
-                user: `${user?.user?.firstName} ${user?.user?.lastName ? user?.user?.lastName : ''}`,
+                user: `${user?.user?.firstName} ${user?.user?.lastName || ''}`,
                 role: 'Validator',
                 department: user?.user?.department?.name || '',
                 remark: user?.remark || '',
@@ -26,16 +48,10 @@ export default function ApprovalUsersSection({ validators, productionHeads, appr
                 status: user?.isApproved ? 'Approved' : 'Pending'
             }));
     
-            setTableData((prevData) => {
-                // Merge new data with existing table data, avoiding duplicates based on ID
-                const existingIds = new Set(prevData.map(item => item.id));
-                const newEntries = data.filter(item => !existingIds.has(item.id));
-    
-                return [...prevData, ...newEntries];
-            });
+            setTableData((prevData) => mergeOrUpdateTableData(prevData, data));
         }
     }, [validators]);
-    
+
     useEffect(() => {
         if (productionHeads?.length > 0) {
             const data = productionHeads.map((user) => ({
@@ -48,19 +64,13 @@ export default function ApprovalUsersSection({ validators, productionHeads, appr
                 status: user?.isApproved ? 'Approved' : 'Pending'
             }));
     
-            setTableData((prevData) => {
-                // Merge new data with existing table data, avoiding duplicates based on ID
-                const existingIds = new Set(prevData.map(item => item.id));
-                const newEntries = data.filter(item => !existingIds.has(item.id));
-    
-                return [...prevData, ...newEntries];
-            });
+            setTableData((prevData) => mergeOrUpdateTableData(prevData, data));
         }
     }, [productionHeads]);
 
     useEffect(() => {
         if (approvalUser) {
-            const data = {
+            const data = [{
                 id: approvalUser?.id,
                 user: `${approvalUser?.user?.firstName} ${approvalUser?.user?.lastName || ''}`,
                 role: 'User',
@@ -68,19 +78,8 @@ export default function ApprovalUsersSection({ validators, productionHeads, appr
                 remark: approvalUser?.remark || '',
                 approvedDate: approvalUser?.approvalDate ? format(new Date(approvalUser?.approvalDate), "dd MMMM yyyy") : '',
                 status: approvalUser?.isApproved ? 'Approved' : 'Pending'
-            };
-    
-            setTableData((prevData) => {
-                // Merge new data with existing table data, avoiding duplicates based on ID
-                const existingIds = new Set(prevData.map(item => item.id));
-    
-                // Check if the ID already exists
-                if (!existingIds.has(data.id)) {
-                    return [...prevData, data]; // ✅ Add only if it's not already in the array
-                }
-    
-                return prevData; // ✅ Return unchanged if duplicate
-            });
+            }];    
+            setTableData((prevData) => mergeOrUpdateTableData(prevData, data));
         }
     }, [approvalUser]);
     

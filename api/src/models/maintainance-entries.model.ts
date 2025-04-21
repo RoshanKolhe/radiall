@@ -1,6 +1,7 @@
 import {Entity, model, property, belongsTo} from '@loopback/repository';
 import {Tools} from './tools.model';
 import {MaintainancePlan} from './maintainance-plan.model';
+import {User} from './user.model';
 
 @model()
 export class MaintainanceEntries extends Entity {
@@ -14,8 +15,29 @@ export class MaintainanceEntries extends Entity {
   @belongsTo(() => Tools)
   toolsId: number;
 
-  @belongsTo(() => MaintainancePlan)
-  maintainancePlanId: number;
+  @property({
+    type: 'number',
+    required: true
+  })
+  level: number;
+
+  @property({
+    type: 'string',
+    required: true
+  })
+  description: string;
+
+  @property({
+    type: 'number',
+    required: true
+  })
+  periodicity: number;
+
+  @property({
+    type: 'string',
+    required: true
+  })
+  responsibleUser: string;
 
   @property({
     type: 'date',
@@ -48,6 +70,9 @@ export class MaintainanceEntries extends Entity {
     type: 'string',
   })
   remark?: string;
+
+  @belongsTo(() => User)
+  preparedByUserId: number;
 
   constructor(data?: Partial<MaintainanceEntries>) {
     super(data);

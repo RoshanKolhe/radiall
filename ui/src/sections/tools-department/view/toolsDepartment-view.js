@@ -32,7 +32,7 @@ export default function ToolsDepartmentView() {
           },
           {
             name: 'Tools Departmment',
-            href: paths.dashboard.storageLocation.root,
+            href: paths.dashboard.toolsDepartment.root,
           },
           {
             name: currentToolDepartmment?.toolDepartment,

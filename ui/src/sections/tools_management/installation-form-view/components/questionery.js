@@ -6,7 +6,7 @@ import { useResponsive } from 'src/hooks/use-responsive';
 
 // ----------------------------------------------------------------------
 
-export default function QuestionerySection({ formQuestionery, control, verificationForm, handleDecision }) {
+export default function QuestionerySection({ formQuestionery, control, verificationForm, handleDecision, isinitiator }) {
     const booleanOptions = [
         { value: true, label: 'Yes' },
         { value: false, label: 'No' }
@@ -37,7 +37,7 @@ export default function QuestionerySection({ formQuestionery, control, verificat
                             }
                             }}
                             sx={{
-                            pointerEvents : verificationForm ? 'none' : 'auto',
+                            pointerEvents : (verificationForm || !isinitiator) ? 'none' : 'auto',
                             display: "flex",
                             justifyContent: "flex-end",
                             width: isDesktop ? "40%" : '100%',
@@ -54,7 +54,7 @@ export default function QuestionerySection({ formQuestionery, control, verificat
                                 sx={{
                                 flex: 1,
                                 padding: '6px',
-                                pointerEvents : verificationForm ? 'none' : 'auto',
+                                pointerEvents : (verificationForm || !isinitiator) ? 'none' : 'auto',
                                 backgroundColor: "white",
                                 borderRadius: "0px !important",
                                 border: "1px solid #00BBD9",
@@ -93,7 +93,7 @@ export default function QuestionerySection({ formQuestionery, control, verificat
                                     fullWidth
                                     {...field}
                                     sx={{ pointerEvents: 'none' }}
-                                    disabled={!!verificationForm}
+                                    disabled={!!verificationForm || !isinitiator}
                                     displayEmpty
                                     value={field.value || ""} // Ensure selected value is visible
                                     onChange={(e) => field.onChange(e.target.value)} // Sync with form state
@@ -121,7 +121,7 @@ export default function QuestionerySection({ formQuestionery, control, verificat
             return (
                 <Grid container spacing={1} key={question?.question}>
                     <Grid item xs={12} md={12}>
-                        <RHFTextField disabled={!!verificationForm} name={question?.question} label={question?.question} defaultValue={question?.answer ?? ''} multiline minRows={3}/>
+                        <RHFTextField disabled={!!verificationForm || !isinitiator} name={question?.question} label={question?.question} defaultValue={question?.answer ?? ''} multiline minRows={3}/>
                     </Grid>
                 </Grid>
             );
@@ -141,5 +141,6 @@ QuestionerySection.propTypes = {
     formQuestionery: PropTypes.array,
     control: PropTypes.object,
     verificationForm: PropTypes.bool,
-    handleDecision: PropTypes.func
+    handleDecision: PropTypes.func,
+    isinitiator: PropTypes.bool
 };

@@ -30,7 +30,7 @@ export class ManufacturerController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required: [PermissionKeys.PRODUCTION_HEAD]},
+    options: {required: [PermissionKeys.ADMIN]},
   })
   @post('/manufacturers')
   @response(200, {
@@ -96,7 +96,7 @@ export class ManufacturerController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required: [PermissionKeys.PRODUCTION_HEAD]},
+    options: {required: [PermissionKeys.ADMIN]},
   })
   @patch('/manufacturers/{id}')
   @response(204, {
@@ -118,7 +118,7 @@ export class ManufacturerController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required: [PermissionKeys.PRODUCTION_HEAD]},
+    options: {required: [PermissionKeys.ADMIN]},
   })
   @del('/manufacturers/{id}')
   @response(204, {

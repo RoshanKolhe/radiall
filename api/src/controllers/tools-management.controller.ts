@@ -32,7 +32,7 @@ export class ToolsManagementController {
     strategy: 'jwt',
     options: {
       required: [
-        PermissionKeys.PRODUCTION_HEAD,
+        PermissionKeys.ADMIN,
         PermissionKeys.INITIATOR,
         PermissionKeys.VALIDATOR,
       ],
@@ -59,19 +59,25 @@ export class ToolsManagementController {
       IsolationLevel.READ_COMMITTED,
     );
     try {
-      const {meanSerialNumber, partNumber} = toolData;
-
-      const trimedSerialNumber = meanSerialNumber.trim();
+      const {meanSerialNumber, partNumber, individualSerialNumber} = toolData;
+      const trimedIndividualSerialNumber = individualSerialNumber?.trim();
       const trimedToolPartNumber = partNumber.trim();
-      const toolInfo = await this.toolsRepository.findOne({
+      const toolInfo = (trimedIndividualSerialNumber && trimedIndividualSerialNumber !== '') ?
+       await this.toolsRepository.findOne({
         where : {
           partNumber : trimedToolPartNumber,
-          meanSerialNumber : trimedSerialNumber
+          individualSerialNumber : trimedIndividualSerialNumber
+        }
+      }) : 
+      await this.toolsRepository.findOne({
+        where : {
+          partNumber : trimedToolPartNumber,
+          meanSerialNumber : meanSerialNumber,
         }
       });
 
       if(toolInfo){
-        throw new HttpErrors.BadRequest(`Same mean serial number exist for tool part number ${partNumber}`);
+        throw new HttpErrors.BadRequest(`Same Individual serial number exist for tool part number ${partNumber}`);
       };
 
       const savedTool = await this.toolsRepository.create(toolData);
@@ -150,6 +156,10 @@ export class ToolsManagementController {
             result: false,
             evidences: [],
             controlledBy: undefined,
+            moNumber: '',
+            moPartNumber: '',
+            testingQuantity: undefined,
+            totalQuantity: undefined,
             date: undefined,
           },
           otherQuestionery : {
@@ -158,8 +168,11 @@ export class ToolsManagementController {
             result: false,
             evidences: [],
             controlledBy: undefined,
+            moNumber: '',
+            moPartNumber: '',
+            testingQuantity: undefined,
+            totalQuantity: undefined,
             date: undefined,
-            
           },
           isDimensionsSectionDone: false,
           isFunctionalTestingSectionDone: false,
@@ -214,7 +227,7 @@ export class ToolsManagementController {
     strategy: 'jwt',
     options: {
       required: [
-        PermissionKeys.PRODUCTION_HEAD,
+        PermissionKeys.ADMIN,
         PermissionKeys.INITIATOR,
         PermissionKeys.VALIDATOR,
       ],
@@ -250,6 +263,13 @@ export class ToolsManagementController {
         where: { partNumber: trimedToolPartNumber },
         order: ['createdAt DESC'], 
         limit: 1, 
+        include: [
+          {relation : 'toolType'},
+          {relation : 'manufacturer'},
+          {relation : 'supplier'},
+          {relation : 'station'},
+          {relation : 'toolsDepartment'}
+        ]
       });
 
       if (tools.length > 0) {
@@ -274,7 +294,7 @@ export class ToolsManagementController {
     strategy: 'jwt',
     options: {
       required: [
-        PermissionKeys.PRODUCTION_HEAD,
+        PermissionKeys.ADMIN,
         PermissionKeys.INITIATOR,
         PermissionKeys.VALIDATOR,
       ],
@@ -302,7 +322,7 @@ export class ToolsManagementController {
   // update tool by id...
   @authenticate({
     strategy: 'jwt',
-    options: {required: [PermissionKeys.PRODUCTION_HEAD]},
+    options: {required: [PermissionKeys.ADMIN]},
   })
   @patch('/tools/update/{id}')
   @response(204, {
@@ -339,7 +359,7 @@ export class ToolsManagementController {
     strategy: 'jwt',
     options: {
       required: [
-        PermissionKeys.PRODUCTION_HEAD,
+        PermissionKeys.ADMIN,
         PermissionKeys.INITIATOR,
         PermissionKeys.VALIDATOR,
       ],

@@ -15,8 +15,7 @@ import { format } from 'date-fns';
 // ----------------------------------------------------------------------
 
 export default function MaintainanceTableRow({ row, selected, handleQuickEditRow, handleQuickViewRow }) {
-  const { maintainancePlan, createdAt } = row;
-  const { responsibleUser, description, level, periodicity} = maintainancePlan;
+  const { responsibleUser, description, level, periodicity, createdAt } = row;
 
   const popover = usePopover();
 
@@ -30,7 +29,7 @@ export default function MaintainanceTableRow({ row, selected, handleQuickEditRow
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{description}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{level === 1 ? 'level 1' : 'level 2' || 'NA'}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{periodicity}</TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{`${responsibleUser?.firstName} ${responsibleUser?.lastName}`}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{responsibleUser}</TableCell>
         <TableCell>
           <ListItemText
             primary={format(new Date(createdAt), 'dd MMM yyyy')}

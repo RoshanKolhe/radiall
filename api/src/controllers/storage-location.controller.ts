@@ -30,7 +30,7 @@ export class StorageLocationController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required: [PermissionKeys.PRODUCTION_HEAD]},
+    options: {required: [PermissionKeys.ADMIN]},
   })
   @post('/storage-locations')
   @response(200, {
@@ -96,7 +96,7 @@ export class StorageLocationController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required: [PermissionKeys.PRODUCTION_HEAD]},
+    options: {required: [PermissionKeys.ADMIN]},
   })
   @patch('/storage-locations/{id}')
   @response(204, {
@@ -118,7 +118,7 @@ export class StorageLocationController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required: [PermissionKeys.PRODUCTION_HEAD]},
+    options: {required: [PermissionKeys.ADMIN]},
   })
   @del('/storage-locations/{id}')
   @response(204, {

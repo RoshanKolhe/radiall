@@ -58,7 +58,7 @@ export class UserController {
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD],
+      required: [PermissionKeys.ADMIN],
     },
   })
   @post('/register', {
@@ -169,7 +169,7 @@ export class UserController {
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD],
+      required: [PermissionKeys.ADMIN],
     },
   })
   @get('/api/users/list')
@@ -209,7 +209,7 @@ export class UserController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required: [PermissionKeys.PRODUCTION_HEAD]},
+    options: {required: [PermissionKeys.ADMIN]},
   })
   @get('/api/users/{id}', {
     responses: {
@@ -465,7 +465,7 @@ export class UserController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required: [PermissionKeys.PRODUCTION_HEAD]},
+    options: {required: [PermissionKeys.ADMIN]},
   })
   @del('/user/{id}')
   @response(204, {

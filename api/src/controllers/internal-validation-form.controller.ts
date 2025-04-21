@@ -2,10 +2,10 @@ import { repository } from "@loopback/repository";
 import { authenticate, AuthenticationBindings } from "@loopback/authentication";
 import { get, HttpErrors, param, patch, post, requestBody } from "@loopback/rest";
 import { PermissionKeys } from "../authorization/permission-keys";
-import { ApprovalUsersRepository, InternalValidationFormRepository, ToolsRepository, UserRepository } from "../repositories";
+import { ApprovalUsersRepository, InternalValidationFormRepository, InternalValidationHistoryRepository, ToolsRepository, UserRepository } from "../repositories";
 import { UserProfile } from "@loopback/security";
 import { inject } from "@loopback/core";
-import { Department } from "../models";
+import { EventSchedular } from "../services/event-schedular.service";
 
 export class InternalValidationFormController {
   constructor(
@@ -17,12 +17,16 @@ export class InternalValidationFormController {
       public approvalUsersRepository : ApprovalUsersRepository,
       @repository(ToolsRepository)
       public toolsRepository : ToolsRepository,
+      @repository(InternalValidationHistoryRepository)
+      public internalValidationHistoryRepository: InternalValidationHistoryRepository, 
+      @inject('service.eventScheduler.service')
+      public eventSchedulerService: EventSchedular,
     ) {}
   
     // Get internal validation form of a tool with tool id...
     @authenticate({
       strategy : 'jwt',
-      options : {required : [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
+      options : {required : [PermissionKeys.ADMIN, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
     })
     @get('/internal-validation-form/form-by-toolId/{toolId}')
     async formByToolId(
@@ -94,17 +98,31 @@ export class InternalValidationFormController {
             ]
           });
         }
+
+        const previousForms : any = [];
+
+        const previousFormsData = await this.internalValidationHistoryRepository.find({where : {toolsId : toolId}});
+
+        if(previousFormsData?.length > 0){
+          await Promise.all(previousFormsData?.map((form) => {
+            if(form?.createdAt){
+              const date = new Date(form.createdAt);
+              previousForms.push({formId: form?.id, date: date});
+            }
+          }))
+        }
   
         const finalData = {
           ...internalValidationForm,
           validators : validators,
-          productionHeads : productionHeads
+          productionHeads : productionHeads,
+          previousYearForms : previousForms
         }
   
         return{
           success : true,
           message : 'Internal validation Form Data',
-          data : finalData
+          data : finalData,
         }
       }catch(error){
         throw error;
@@ -220,7 +238,7 @@ export class InternalValidationFormController {
     // update dimension section...
     @authenticate({
       strategy : 'jwt',
-      options : {required : [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
+      options : {required : [PermissionKeys.ADMIN, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
     })
     @patch('/update-dimensions-section/{id}')
     async updateDimensionsSection(
@@ -351,7 +369,7 @@ export class InternalValidationFormController {
     // update functional testing section...
     @authenticate({
       strategy : 'jwt',
-      options : {required : [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
+      options : {required : [PermissionKeys.ADMIN, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
     })
     @patch('/update-functional-testing-section/{id}')
     async functionalTestingSection(
@@ -402,6 +420,18 @@ export class InternalValidationFormController {
                         }
                       }
                     },
+                    moNumber: {
+                      type: 'string'
+                    },
+                    moPartNumber: {
+                      type: 'string'
+                    },
+                    testingQuantity: {
+                      type: 'number'
+                    },
+                    totalQuantity: {
+                      type: 'number'
+                    },
                     date: {
                       type: 'string'
                     }
@@ -426,6 +456,10 @@ export class InternalValidationFormController {
             department: string;
             email: string;
           };
+          moNumber: string;
+          moPartNumber: string;
+          testingQuantity: number;
+          totalQuantity: number;
           date: Date;
         };
       }
@@ -453,7 +487,7 @@ export class InternalValidationFormController {
     // last save
     @authenticate({
       strategy : 'jwt',
-      options : {required : [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
+      options : {required : [PermissionKeys.ADMIN, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
     })
     @patch('/update-complete-form/{id}')
     async updateInternalValidationForm(
@@ -489,6 +523,30 @@ export class InternalValidationFormController {
                         },
                       ],
                     },
+                    moNumber: {
+                      oneOf : [
+                        { type: 'string' },
+                        { type: 'null'}
+                      ]
+                    },
+                    moPartNumber: {
+                      oneOf : [
+                        { type: 'string' },
+                        { type: 'null'}
+                      ]
+                    },
+                    testingQuantity: {
+                      oneOf : [
+                        { type: 'number' },
+                        { type: 'null'}
+                      ]
+                    },
+                    totalQuantity: {
+                      oneOf : [
+                        { type: 'number' },
+                        { type: 'null'}
+                      ]
+                    },
                     date: { type: 'string' },
                   },
                 },
@@ -511,6 +569,10 @@ export class InternalValidationFormController {
             department: string;
             email: string;
           };
+          moNumber?: string;
+          moPartNumber?: string;
+          testingQuantity?: number;
+          totalQuantity?: number;
           date: Date;
         };
       }
@@ -650,6 +712,8 @@ export class InternalValidationFormController {
           if(savedTool && savedTool.installationStatus.toLowerCase() === 'approved' && savedTool.internalValidationStatus.toLowerCase() === 'approved'){
             await this.toolsRepository.updateById(form?.id, {isActive : true, status : 'Operational'});
           }
+
+          await this.eventSchedulerService.createValidationHistory(formId);
         }
 
       } catch (error) {
@@ -660,7 +724,7 @@ export class InternalValidationFormController {
     // approval user from approve api....
     @authenticate({
       strategy: 'jwt',
-      options: { required: [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.VALIDATOR] }
+      options: { required: [PermissionKeys.ADMIN, PermissionKeys.VALIDATOR] }
     })
     @post('/internal-validation-form/user-approval')
     async userApproval(
@@ -727,7 +791,7 @@ export class InternalValidationFormController {
     // approval user from save api....
     @authenticate({
       strategy: 'jwt',
-      options: { required: [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.VALIDATOR] }
+      options: { required: [PermissionKeys.ADMIN, PermissionKeys.VALIDATOR] }
     })
     @post('/internal-validation-form/user-saved-form')
       async saveFrom(

@@ -52,7 +52,7 @@ export class MyUserService implements UserService<User, Credentials> {
       email: user.email,
       [securityId]: `${user.id}`,
       permissions: user.permissions,
-      userType: user.permissions.includes('production_head') ? 'admin' : 'user',
+      userType: user.permissions.includes('admin') ? 'admin' : 'user',
     };
   }
 }
