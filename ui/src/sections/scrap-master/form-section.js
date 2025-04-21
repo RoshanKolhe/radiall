@@ -163,7 +163,7 @@ export default function FormSection({ currentForm, verificationForm, userData })
                 id : user?.id,
                 firstName: user?.firstName,
                 lastName: user?.lastName,
-                role: user?.permissions?.[0] || user?.role || '',
+                role: user?.permissions?.[0] === 'validator' ? user?.designation : '' || user?.role || '',
                 email: user?.email,
                 department: user?.department
             }

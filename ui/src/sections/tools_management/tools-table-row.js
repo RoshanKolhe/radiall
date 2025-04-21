@@ -31,7 +31,7 @@ export default function ToolsTableRow({
   onDeleteRow,
 }) {
   const navigate = useNavigate();
-  const { individualSerialNumber, meanSerialNumber, partNumber, modelNumber, productionMeans, isMaintaincePlanNeeded, calibration, manufacturer, supplier, toolFamily, criticalLevel, installationChecklist, technicalDrawing, quantity, assetNumber, createdAt, installationStatus, isActive, internalValidationStatus, status, storageLocation, toolsDepartment, station, remark } = row;
+  const { individualSerialNumber, meanSerialNumber, partNumber, modelNumber, productionMeans, isMaintaincePlanNeeded, calibration, manufacturer, supplier, toolFamily, criticalLevel, installationChecklist, technicalDrawing, quantity, assetNumber, createdAt, installationStatus, isActive, internalValidationStatus, status, storageLocation, toolsDepartment, station, remark, isInternalValidationNeeded } = row;
 
   const confirm = useBoolean();
 
@@ -119,25 +119,34 @@ export default function ToolsTableRow({
               </IconButton>
           </Tooltip>
         </TableCell>
-        <TableCell sx={{pr:'80px'}}>
-          <Label
-            variant="soft"
-            color={getColorCode(internalValidationStatus)}
-          >
-            {internalValidationStatus}
-          </Label>
-        </TableCell>
-        <TableCell sx={{ px: 1, whiteSpace: 'nowrap' }}>
-          <Tooltip title="Internal Validation Form" placement="top" arrow>
-              <IconButton
-                onClick={() => {
-                  navigate(paths.dashboard.tools.internalValidationForm(row.id));
-                }}
+        {isInternalValidationNeeded ? 
+          <>
+            <TableCell sx={{pr:'80px'}}>
+              <Label
+                variant="soft"
+                color={getColorCode(internalValidationStatus)}
               >
-                <Iconify icon="carbon:view-filled" />
-              </IconButton>
-          </Tooltip>
-        </TableCell>
+                {internalValidationStatus}
+              </Label>
+            </TableCell>
+            <TableCell sx={{ px: 1, whiteSpace: 'nowrap' }}>
+              <Tooltip title="Internal Validation Form" placement="top" arrow>
+                  <IconButton
+                    onClick={() => {
+                      navigate(paths.dashboard.tools.internalValidationForm(row.id));
+                    }}
+                  >
+                    <Iconify icon="carbon:view-filled" />
+                  </IconButton>
+              </Tooltip>
+            </TableCell>
+          </> 
+          : 
+          <>
+                      <TableCell>NA</TableCell>
+                      <TableCell>{' '}</TableCell>
+          </>
+        }
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{remark || 'NA'}</TableCell>
 

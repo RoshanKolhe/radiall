@@ -26,7 +26,7 @@ export class InternalValidationFormController {
     // Get internal validation form of a tool with tool id...
     @authenticate({
       strategy : 'jwt',
-      options : {required : [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
+      options : {required : [PermissionKeys.ADMIN, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
     })
     @get('/internal-validation-form/form-by-toolId/{toolId}')
     async formByToolId(
@@ -107,8 +107,7 @@ export class InternalValidationFormController {
           await Promise.all(previousFormsData?.map((form) => {
             if(form?.createdAt){
               const date = new Date(form.createdAt);
-              const year = date.getFullYear();
-              previousForms.push({formId: form?.id, year: year});
+              previousForms.push({formId: form?.id, date: date});
             }
           }))
         }
@@ -239,7 +238,7 @@ export class InternalValidationFormController {
     // update dimension section...
     @authenticate({
       strategy : 'jwt',
-      options : {required : [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
+      options : {required : [PermissionKeys.ADMIN, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
     })
     @patch('/update-dimensions-section/{id}')
     async updateDimensionsSection(
@@ -370,7 +369,7 @@ export class InternalValidationFormController {
     // update functional testing section...
     @authenticate({
       strategy : 'jwt',
-      options : {required : [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
+      options : {required : [PermissionKeys.ADMIN, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
     })
     @patch('/update-functional-testing-section/{id}')
     async functionalTestingSection(
@@ -421,6 +420,18 @@ export class InternalValidationFormController {
                         }
                       }
                     },
+                    moNumber: {
+                      type: 'string'
+                    },
+                    moPartNumber: {
+                      type: 'string'
+                    },
+                    testingQuantity: {
+                      type: 'number'
+                    },
+                    totalQuantity: {
+                      type: 'number'
+                    },
                     date: {
                       type: 'string'
                     }
@@ -445,6 +456,10 @@ export class InternalValidationFormController {
             department: string;
             email: string;
           };
+          moNumber: string;
+          moPartNumber: string;
+          testingQuantity: number;
+          totalQuantity: number;
           date: Date;
         };
       }
@@ -472,7 +487,7 @@ export class InternalValidationFormController {
     // last save
     @authenticate({
       strategy : 'jwt',
-      options : {required : [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
+      options : {required : [PermissionKeys.ADMIN, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
     })
     @patch('/update-complete-form/{id}')
     async updateInternalValidationForm(
@@ -508,6 +523,30 @@ export class InternalValidationFormController {
                         },
                       ],
                     },
+                    moNumber: {
+                      oneOf : [
+                        { type: 'string' },
+                        { type: 'null'}
+                      ]
+                    },
+                    moPartNumber: {
+                      oneOf : [
+                        { type: 'string' },
+                        { type: 'null'}
+                      ]
+                    },
+                    testingQuantity: {
+                      oneOf : [
+                        { type: 'number' },
+                        { type: 'null'}
+                      ]
+                    },
+                    totalQuantity: {
+                      oneOf : [
+                        { type: 'number' },
+                        { type: 'null'}
+                      ]
+                    },
                     date: { type: 'string' },
                   },
                 },
@@ -530,6 +569,10 @@ export class InternalValidationFormController {
             department: string;
             email: string;
           };
+          moNumber?: string;
+          moPartNumber?: string;
+          testingQuantity?: number;
+          totalQuantity?: number;
           date: Date;
         };
       }
@@ -681,7 +724,7 @@ export class InternalValidationFormController {
     // approval user from approve api....
     @authenticate({
       strategy: 'jwt',
-      options: { required: [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.VALIDATOR] }
+      options: { required: [PermissionKeys.ADMIN, PermissionKeys.VALIDATOR] }
     })
     @post('/internal-validation-form/user-approval')
     async userApproval(
@@ -748,7 +791,7 @@ export class InternalValidationFormController {
     // approval user from save api....
     @authenticate({
       strategy: 'jwt',
-      options: { required: [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.VALIDATOR] }
+      options: { required: [PermissionKeys.ADMIN, PermissionKeys.VALIDATOR] }
     })
     @post('/internal-validation-form/user-saved-form')
       async saveFrom(

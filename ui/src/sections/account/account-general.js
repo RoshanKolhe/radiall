@@ -191,9 +191,10 @@ export default function AccountGeneral() {
               <RHFTextField name="email" label="Email Address" />
               <RHFSelect fullWidth name="role" label="Role" disabled>
                 {[
-                  { value: 'production_head', name: 'Production Head' },
+                  { value: 'admin', name: 'Admin' },
                   { value: 'initiator', name: 'Initiator' },
                   { value: 'validator', name: 'Validator' },
+                  { value: 'viewer', name: 'Viewer' },
                 ].map((option) => (
                   <MenuItem key={option.value} value={option.value}>
                     {option.name}

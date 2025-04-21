@@ -89,6 +89,7 @@ export default function ToolsNewEditForm({ currentTool }) {
     calibration: Yup.string(),
     technicalDrawing: Yup.string(), 
     isMaintainancePlanNeeded: Yup.boolean(),
+    isInternalValidationNeeded: Yup.boolean(),
     individualManagement: Yup.boolean(),
     designation: Yup.string(),
     criticalLevel: Yup.string(),
@@ -119,6 +120,7 @@ export default function ToolsNewEditForm({ currentTool }) {
       calibration: currentTool?.calibration || '',
       technicalDrawing: currentTool?.technicalDrawing || '',
       isMaintainancePlanNeeded: currentTool?.isMaintaincePlanNeeded || false, 
+      isInternalValidationNeeded: currentTool?.isInternalValidationNeeded || false, 
       individualManagement: currentTool?.individualManagement || false,
       designation: currentTool?.designation || '',
       criticalLevel: currentTool?.criticalLevel || '',
@@ -180,6 +182,7 @@ export default function ToolsNewEditForm({ currentTool }) {
         inputData.calibration = formData.calibration;
         inputData.individualManagement = formData.individualManagement;
         inputData.isMaintaincePlanNeeded = formData.isMaintainancePlanNeeded;
+        inputData.isInternalValidationNeeded = formData.isInternalValidationNeeded;
         inputData.installationChecklist = formData.installationChecklist;
         inputData.assetNumber = formData.assetNumber;
         inputData.criticalLevel = formData.criticalLevel;
@@ -564,6 +567,16 @@ export default function ToolsNewEditForm({ currentTool }) {
 
                   <Grid item="true" xs={12} sm={6}>
                     <RHFSelect name="isMaintainancePlanNeeded" label="Maintainance Plan" disabled={!allowEdit} >
+                      {booleanOptions?.length > 0 ? booleanOptions?.map((opt) => (
+                        <MenuItem key={opt?.value} value={opt?.value}>{opt?.label}</MenuItem>
+                      )) : (
+                        <MenuItem disabled value=''>No Options Found</MenuItem>
+                      )}
+                    </ RHFSelect>
+                  </Grid>
+
+                  <Grid item="true" xs={12} sm={6}>
+                    <RHFSelect name="isInternalValidationNeeded" label="Internal Validation Needed" disabled={!allowEdit} >
                       {booleanOptions?.length > 0 ? booleanOptions?.map((opt) => (
                         <MenuItem key={opt?.value} value={opt?.value}>{opt?.label}</MenuItem>
                       )) : (

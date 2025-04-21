@@ -13,7 +13,7 @@ import CriticityQuestionerySection from './components/criticityQuestionery';
 
 // ---------------------------------------------------------------------------------------------------------------
 
-export default function CriticitySection({ currentForm, verificationForm }) {
+export default function CriticitySection({ currentForm, verificationForm, isInitiator }) {
     const { enqueueSnackbar } = useSnackbar();
     const [yupValidations, setYupValidations] = useState(null);
     const [questioneryValues, setQuestioneryValues] = useState({});
@@ -157,9 +157,9 @@ export default function CriticitySection({ currentForm, verificationForm }) {
                     <Box component='div' sx={{width : '100%', py: 2, px: 1, borderBottom: '2px solid lightGray'}}>
                         <Typography variant='h5'>Criticity</Typography>
                     </Box>
-                    <CriticityQuestionerySection formQuestionery={currentForm?.criticityQuestionery} control={control} verificationForm={verificationForm}/>
+                    <CriticityQuestionerySection formQuestionery={currentForm?.criticityQuestionery} control={control} verificationForm={verificationForm} isInitiator={isInitiator}/>
                     <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-                        {!verificationForm && <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                        {!verificationForm && !!isInitiator && <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                             Save
                         </LoadingButton>}
                     </Stack>
@@ -172,4 +172,5 @@ export default function CriticitySection({ currentForm, verificationForm }) {
 CriticitySection.propTypes = {
     currentForm: PropTypes.object,
     verificationForm: PropTypes.bool,
+    isInitiator: PropTypes.bool
 };

@@ -22,7 +22,7 @@ export class ScrappingFormController {
   // Get scrapping form of a tool with tool id...
   @authenticate({
     strategy : 'jwt',
-    options : {required : [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
+    options : {required : [PermissionKeys.ADMIN, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
   })
   @get('/scrapping-form/form-by-toolId/{toolId}')
   async formByToolId(
@@ -220,7 +220,7 @@ export class ScrappingFormController {
   // form submission...
   @authenticate({
     strategy : 'jwt',
-    options : {required : [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
+    options : {required : [PermissionKeys.ADMIN, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
   })
   @patch('/scrapping-form-submission/{id}')
   async scrappingFormSubmission(
@@ -484,7 +484,7 @@ export class ScrappingFormController {
   // approval user from approve api....
   @authenticate({
     strategy: 'jwt',
-    options: { required: [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.VALIDATOR] }
+    options: { required: [PermissionKeys.ADMIN, PermissionKeys.VALIDATOR] }
   })
   @post('/scrapping-form/user-approval')
   async userApproval(
@@ -551,7 +551,7 @@ export class ScrappingFormController {
   // approval user from save api....
   @authenticate({
     strategy: 'jwt',
-    options: { required: [PermissionKeys.PRODUCTION_HEAD, PermissionKeys.VALIDATOR] }
+    options: { required: [PermissionKeys.ADMIN, PermissionKeys.VALIDATOR] }
   })
   @post('/scrapping-form/user-saved-form')
     async saveFrom(

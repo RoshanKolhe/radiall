@@ -26,7 +26,7 @@ const VisuallyHiddenInput = styled('input')({
     width: 1,
 });
 
-export default function RequirementChecklistSection({ currentForm, verificationForm }) {
+export default function RequirementChecklistSection({ currentForm, verificationForm, isInitiator }) {
     const navigate = useNavigate();
     const { enqueueSnackbar } = useSnackbar();
     const [checkList, setCheckList] = useState([]);
@@ -112,7 +112,7 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                 id : user?.id,
                 firstName: user?.firstName,
                 lastName: user?.lastName,
-                role: user?.permissions?.[0] || user?.role || '',
+                role: user?.permissions?.[0] === 'validator' ? user?.designation : '' || user?.role || '',
                 email: user?.email,
                 department: user?.department
             }
@@ -282,10 +282,10 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                                         sx={{
                                             border: 'none',
                                             outline: 'none',
-                                            pointerEvents: verificationForm ? "none" : "auto",
+                                            pointerEvents: (verificationForm || !isInitiator) ? "none" : "auto",
                                             '&::before': { borderBottom: 'none' }, 
                                             '&::after': { borderBottom: 'none' }, 
-                                            '& .MuiSelect-icon': { right: '5px', display : verificationForm ? "none" : '' }, 
+                                            '& .MuiSelect-icon': { right: '5px', display : (verificationForm || !isInitiator) ? "none" : '' }, 
                                         }}
                                         value={checkList[index]?.toDo ?? false}
                                         onChange={(e) => handleChangeValue(e.target.value, index, 'toDo')}
@@ -296,7 +296,7 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                                     </Select>
                                 </TableCell>
                                 <TableCell>
-                                {verificationForm ? 
+                                {(verificationForm || !isInitiator) ? 
                                 (checkList[index]?.actionOwner === undefined || checkList[index]?.actionOwner === null)  ? 
                                     (
                                         <p>NA</p>
@@ -305,7 +305,7 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                                     <p>{`${checkList[index]?.actionOwner?.firstName || ''} ${checkList[index]?.actionOwner?.lastName || ''}`}</p>
                                 ) : (
                                     <Autocomplete
-                                        disabled={!!verificationForm}
+                                        disabled={!!verificationForm || !isInitiator}
                                         value={checkList[index]?.actionOwner || null}
                                         options={usersData || []}
                                         onInputChange={(event) => fetchUsers(event, setUsersData, 'validator')}
@@ -343,10 +343,10 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                                         sx={{
                                             border: 'none',
                                             outline: 'none',
-                                            pointerEvents: verificationForm ? "none" : "auto",
+                                            pointerEvents: (verificationForm || !isInitiator) ? "none" : "auto",
                                             '&::before': { borderBottom: 'none' }, 
                                             '&::after': { borderBottom: 'none' }, 
-                                            '& .MuiSelect-icon': { right: '5px', display : verificationForm ? "none" : '' }, 
+                                            '& .MuiSelect-icon': { right: '5px', display : (verificationForm || !isInitiator) ? "none" : '' }, 
                                         }}
                                         value={checkList[index]?.done ?? false}
                                         onChange={(e) => handleChangeValue(e.target.value, index, 'done')}
@@ -366,13 +366,13 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                                         display: "block"
                                     }}
                                 >    
-                                    {verificationForm ? 
+                                    {(verificationForm || !isInitiator) ? 
                                         <Tooltip title={checkList[index]?.comment ?? ''} placement="top" arrow>
                                             <p>{checkList[index]?.comment !== '' ? checkList[index]?.comment : 'NA'}</p>
                                         </Tooltip>
                                     : 
                                     <TextField 
-                                        disabled={!!verificationForm}
+                                        disabled={!!verificationForm || !isInitiator}
                                         value={checkList[index]?.comment ?? ''} 
                                         placeholder="comment" 
                                         onChange={(e) => handleChangeValue(e.target.value, index, 'comment')} 
@@ -381,7 +381,7 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                                 <TableCell>
                                 {requirement?.isNeedUpload ? 
                                     !requirement?.upload ? (
-                                    !verificationForm ? 
+                                    (!verificationForm || !!isInitiator) ? 
                                     (
                                         <Button
                                             component="label"
@@ -417,7 +417,7 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                                         >
                                             VIEW
                                         </p>
-                                        {!verificationForm && 
+                                        {(!verificationForm || !!isInitiator) && 
                                             (
                                                 <>
                                                     <IconButton onClick={() => handleDeleteFile(index)}>
@@ -478,7 +478,7 @@ export default function RequirementChecklistSection({ currentForm, verificationF
             </Grid>
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
                 <Box component='div' sx={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-                    {!verificationForm && (
+                    {(!verificationForm && !!isInitiator) && (
                         <>
                             <LoadingButton variant="contained" loading={isLoading} onClick={() => onSubmit()}>
                                 Save
@@ -497,4 +497,5 @@ export default function RequirementChecklistSection({ currentForm, verificationF
 RequirementChecklistSection.propTypes = {
     currentForm: PropTypes.object,
     verificationForm: PropTypes.bool,
+    isInitiator: PropTypes.bool
 };

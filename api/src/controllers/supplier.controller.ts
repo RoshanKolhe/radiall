@@ -30,7 +30,7 @@ export class SupplierController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required: [PermissionKeys.PRODUCTION_HEAD]},
+    options: {required: [PermissionKeys.ADMIN]},
   })
   @post('/suppliers')
   @response(200, {
@@ -96,7 +96,7 @@ export class SupplierController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required: [PermissionKeys.PRODUCTION_HEAD]},
+    options: {required: [PermissionKeys.ADMIN]},
   })
   @patch('/suppliers/{id}')
   @response(204, {
@@ -118,7 +118,7 @@ export class SupplierController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required: [PermissionKeys.PRODUCTION_HEAD]},
+    options: {required: [PermissionKeys.ADMIN]},
   })
   @del('/suppliers/{id}')
   @response(204, {

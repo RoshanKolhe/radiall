@@ -36,7 +36,7 @@ export class MaintainancePlan extends Entity {
     type : 'string',
     required : true
   })  
-  responsibleUser: number;
+  responsibleUser: string;
 
   @belongsTo(() => User)
   preparedByUserId: number;

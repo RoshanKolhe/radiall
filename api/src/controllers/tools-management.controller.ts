@@ -32,7 +32,7 @@ export class ToolsManagementController {
     strategy: 'jwt',
     options: {
       required: [
-        PermissionKeys.PRODUCTION_HEAD,
+        PermissionKeys.ADMIN,
         PermissionKeys.INITIATOR,
         PermissionKeys.VALIDATOR,
       ],
@@ -156,6 +156,10 @@ export class ToolsManagementController {
             result: false,
             evidences: [],
             controlledBy: undefined,
+            moNumber: '',
+            moPartNumber: '',
+            testingQuantity: undefined,
+            totalQuantity: undefined,
             date: undefined,
           },
           otherQuestionery : {
@@ -164,6 +168,10 @@ export class ToolsManagementController {
             result: false,
             evidences: [],
             controlledBy: undefined,
+            moNumber: '',
+            moPartNumber: '',
+            testingQuantity: undefined,
+            totalQuantity: undefined,
             date: undefined,
           },
           isDimensionsSectionDone: false,
@@ -219,7 +227,7 @@ export class ToolsManagementController {
     strategy: 'jwt',
     options: {
       required: [
-        PermissionKeys.PRODUCTION_HEAD,
+        PermissionKeys.ADMIN,
         PermissionKeys.INITIATOR,
         PermissionKeys.VALIDATOR,
       ],
@@ -286,7 +294,7 @@ export class ToolsManagementController {
     strategy: 'jwt',
     options: {
       required: [
-        PermissionKeys.PRODUCTION_HEAD,
+        PermissionKeys.ADMIN,
         PermissionKeys.INITIATOR,
         PermissionKeys.VALIDATOR,
       ],
@@ -314,7 +322,7 @@ export class ToolsManagementController {
   // update tool by id...
   @authenticate({
     strategy: 'jwt',
-    options: {required: [PermissionKeys.PRODUCTION_HEAD]},
+    options: {required: [PermissionKeys.ADMIN]},
   })
   @patch('/tools/update/{id}')
   @response(204, {
@@ -351,7 +359,7 @@ export class ToolsManagementController {
     strategy: 'jwt',
     options: {
       required: [
-        PermissionKeys.PRODUCTION_HEAD,
+        PermissionKeys.ADMIN,
         PermissionKeys.INITIATOR,
         PermissionKeys.VALIDATOR,
       ],

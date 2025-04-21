@@ -8,31 +8,31 @@ import {
 } from '@loopback/rest';
 import {
   MaintainanceEntries,
-  MaintainancePlan,
+  User,
 } from '../models';
 import {MaintainanceEntriesRepository} from '../repositories';
 
-export class MaintainanceEntriesMaintainancePlanController {
+export class MaintainanceEntriesUserController {
   constructor(
     @repository(MaintainanceEntriesRepository)
     public maintainanceEntriesRepository: MaintainanceEntriesRepository,
   ) { }
 
-  @get('/maintainance-entries/{id}/maintainance-plan', {
+  @get('/maintainance-entries/{id}/user', {
     responses: {
       '200': {
-        description: 'MaintainancePlan belonging to MaintainanceEntries',
+        description: 'User belonging to MaintainanceEntries',
         content: {
           'application/json': {
-            schema: getModelSchemaRef(MaintainancePlan),
+            schema: getModelSchemaRef(User),
           },
         },
       },
     },
   })
-  async getMaintainancePlan(
+  async getUser(
     @param.path.number('id') id: typeof MaintainanceEntries.prototype.id,
-  ): Promise<MaintainancePlan> {
-    return this.maintainanceEntriesRepository.maintainancePlan(id);
+  ): Promise<User> {
+    return this.maintainanceEntriesRepository.preparedByUser(id);
   }
 }

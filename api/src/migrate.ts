@@ -31,7 +31,8 @@ export async function migrate(args: string[]) {
       'InventoryInEntries',
       'MaintainancePlan',
       'MaintainanceEntries',
-      'InternalValidationHistory'
+      'InternalValidationHistory',
+      'ToolTypeMaintainance'
     ],
   });
 

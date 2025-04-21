@@ -23,13 +23,13 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 const OPTIONS = [
   {
     label: 'Home',
-    permissions: ['production_head', 'initiator', 'validator'],
+    permissions: ['admin', 'initiator', 'validator', 'viewer'],
     linkTo: '/',
   },
   {
     label: 'Profile',
     linkTo: paths.dashboard.profile,
-    permissions: ['production_head', 'initiator', 'validator'],
+    permissions: ['admin', 'initiator', 'validator', 'viewer'],
   },
 ];
 

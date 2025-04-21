@@ -98,7 +98,7 @@ export default function ToolsListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const { tools, toolsLoading, toolsEmpty, refreshTools } = useGetTools();
+  const { tools, toolsEmpty } = useGetTools();
 
   const dataFiltered = applyFilter({
     inputData: tableData,

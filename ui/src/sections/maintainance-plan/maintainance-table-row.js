@@ -15,8 +15,7 @@ import { format } from 'date-fns';
 // ----------------------------------------------------------------------
 
 export default function MaintainanceTableRow({ row, selected, handleQuickEditRow, handleQuickViewRow }) {
-  const { maintainancePlan, createdAt } = row;
-  const { responsibleUser, description, level, periodicity} = maintainancePlan;
+  const { responsibleUser, description, level, periodicity, createdAt } = row;
 
   const popover = usePopover();
 

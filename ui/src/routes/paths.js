@@ -95,6 +95,7 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/toolType/list`,
       edit: (id) => `${ROOTS.DASHBOARD}/toolType/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/toolType/${id}/view`,
+      plan: (id) => `${ROOTS.DASHBOARD}/toolType/${id}/maintainance-plan`
     },
     // MANUFACTURER
     manufacturer: {

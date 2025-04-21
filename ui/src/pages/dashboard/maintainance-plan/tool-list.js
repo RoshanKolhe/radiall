@@ -1,5 +1,5 @@
 import { ListItemText } from '@mui/material';
-import { format } from 'date-fns';
+import { differenceInDays, format } from 'date-fns';
 import { Helmet } from 'react-helmet-async';
 import Label from 'src/components/label';
 import { useRouter } from 'src/routes/hook';
@@ -34,7 +34,7 @@ export default function ScrapToolListPage() {
     { id: 'quantity', label: 'QTY' },
     {
       id: 'isActive',
-      label: 'Status',
+      label: 'Tool Status',
       render: (value) => (
         <Label variant="soft" color={(value && 'success') || (!value && 'error') || 'default'}>
           {value ? 'Active' : 'Non-Active'}
@@ -42,21 +42,54 @@ export default function ScrapToolListPage() {
       ),
     },
     {
-      id: 'levelOneMaintainance.status',
-      label: 'Level One status',
-      render: (value) => (
-          <Label variant="soft" color={(value && 'success') || (!value && 'error') || 'default'}>
-          {value ? 'Schedule' : 'No Plan'}
+      id: 'levelTwoMaintainance.status',
+      label: 'Maintainance Status',
+      render: (value, row) => {
+        const revalidationDate = row.revalidationDate ? new Date(row.revalidationDate) : null;
+        const currentDate = new Date();
+    
+        let status = 'No Maintenance';
+        let color = 'default';
+        // let daysLeft = '';
+    
+        if (revalidationDate) {
+          const diffDays = differenceInDays(revalidationDate, currentDate);
+    
+          if (diffDays > 22) {
+            status = `Operation (${diffDays} days left)`;
+            color = 'success';
+          } else if (diffDays > 2) {
+            status = `Caution (${diffDays} days left)`;
+            color = 'warning';
+          } else if (diffDays >= 0) {
+            status = `Due Today`;
+            color = 'error';
+          } else {
+            status = `Overdue (${Math.abs(diffDays)} days ago)`;
+            color = 'error';
+          }
+        }
+    
+        return (
+          <Label variant="soft" color={color}>
+            {status}
           </Label>
-      ),
+        );
+      },
     },
     {
-      id: 'levelTwoMaintainance.status',
-      label: 'Level Two Status',
+      id: 'revalidationDate',
+      label: 'Revalidation Date',
       render: (value) => (
-          <Label variant="soft" color={(value && 'success') || (!value && 'error') || 'default'}>
-            {value ? 'Schedule' : 'No plan'}
-          </Label>
+        <ListItemText
+          primary={value ? format(new Date(value), 'dd MMM yyyy') : 'NA'}
+          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          secondaryTypographyProps={{
+            mt: 0.5,
+            component: 'span',
+            typography: 'caption',
+          }}
+        />
       ),
     },
     { id: '', width: 88 },

@@ -6,7 +6,7 @@ import { useResponsive } from 'src/hooks/use-responsive';
 
 // ----------------------------------------------------------------------
 
-export default function CriticityQuestionerySection({ formQuestionery, control, verificationForm }) {
+export default function CriticityQuestionerySection({ formQuestionery, control, verificationForm, isInitiator }) {
     const booleanOptions = [
         { value: true, label: 'Yes' },
         { value: false, label: 'No' }
@@ -36,7 +36,7 @@ export default function CriticityQuestionerySection({ formQuestionery, control, 
                             }
                             }}
                             sx={{
-                            pointerEvents : verificationForm ? 'none' : 'auto',
+                            pointerEvents : (verificationForm || !isInitiator) ? 'none' : 'auto',
                             display: "flex",
                             justifyContent: "flex-end",
                             width: isDesktop ? "40%" : '100%',
@@ -51,7 +51,7 @@ export default function CriticityQuestionerySection({ formQuestionery, control, 
                                 key={opt.value.toString()}
                                 value={opt.value}
                                 sx={{
-                                pointerEvents : verificationForm ? 'none' : 'auto',
+                                pointerEvents : (verificationForm || !isInitiator) ? 'none' : 'auto',
                                 flex: 1,
                                 backgroundColor: "white",
                                 padding: '6px',
@@ -147,7 +147,7 @@ export default function CriticityQuestionerySection({ formQuestionery, control, 
             return (
                 <Grid container spacing={1} key={question?.question}>
                     <Grid item xs={12} md={12}>
-                        <RHFTextField disabled={!!verificationForm} name={question?.question} label={question?.question} defaultValue={question?.answer ?? ''} multiline minRows={3}/>
+                        <RHFTextField disabled={!!verificationForm || !isInitiator} name={question?.question} label={question?.question} defaultValue={question?.answer ?? ''} multiline minRows={3}/>
                     </Grid>
                 </Grid>
             );
@@ -167,4 +167,5 @@ CriticityQuestionerySection.propTypes = {
     formQuestionery: PropTypes.array,
     control: PropTypes.object,
     verificationForm: PropTypes.bool,
+    isInitiator: PropTypes.bool
 };

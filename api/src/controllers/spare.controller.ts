@@ -32,7 +32,7 @@ export class SpareController {
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD],
+      required: [PermissionKeys.ADMIN],
     },
   })
   @post('/spares')
@@ -70,7 +70,7 @@ export class SpareController {
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD],
+      required: [PermissionKeys.ADMIN],
     },
   })
   @get('/spares')
@@ -95,7 +95,7 @@ export class SpareController {
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD],
+      required: [PermissionKeys.ADMIN],
     },
   })
   @get('/spares/{id}')
@@ -121,7 +121,7 @@ export class SpareController {
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD],
+      required: [PermissionKeys.ADMIN],
     },
   })
   @patch('/spares/{id}')
@@ -160,7 +160,7 @@ export class SpareController {
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD],
+      required: [PermissionKeys.ADMIN],
     },
   })
   @del('/spares/{id}')

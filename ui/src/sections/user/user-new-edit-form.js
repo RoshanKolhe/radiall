@@ -74,6 +74,11 @@ export default function UserNewEditForm({ currentUser }) {
     state: Yup.string(),
     city: Yup.string(),
     role: Yup.string().required('Role is required'),
+    designation: Yup.string().when('role', {
+      is: 'validator',
+      then: (schema) => schema.required('Designation is required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),    
     zipCode: Yup.string(),
     avatarUrl: Yup.mixed().nullable(),
     isActive: Yup.boolean(),
@@ -84,6 +89,7 @@ export default function UserNewEditForm({ currentUser }) {
       firstName: currentUser?.firstName || '',
       lastName: currentUser?.lastName || '',
       role: currentUser?.permissions[0] || '',
+      designation: currentUser?.designation || '',
       dob: currentUser?.dob || '',
       employeeId: currentUser?.employeeId || '',
       email: currentUser?.email || '',
@@ -134,6 +140,9 @@ export default function UserNewEditForm({ currentUser }) {
         employeeId: formData.employeeId,
         departmentId: Number(formData.department),
       };
+      if(formData.designation){
+        inputData.designation = formData.designation;
+      }
       if (formData.avatarUrl) {
         inputData.avatar = {
           fileUrl: formData.avatarUrl,
@@ -295,6 +304,7 @@ export default function UserNewEditForm({ currentUser }) {
                     onChange={(newValue) => {
                       field.onChange(newValue);
                     }}
+                    maxDate={new Date()} 
                     slotProps={{
                       textField: {
                         fullWidth: true,
@@ -318,15 +328,26 @@ export default function UserNewEditForm({ currentUser }) {
               <RHFSelect fullWidth name="role" label="Role">
                 {[
                   { value: 'admin', name: 'Admin' },
-                  { value: 'production_head', name: 'Production Head' },
                   { value: 'initiator', name: 'Initiator' },
                   { value: 'validator', name: 'Validator' },
+                  { value: 'viewer', name: 'Viewer' },
                 ].map((option) => (
                   <MenuItem key={option.value} value={option.value}>
                     {option.name}
                   </MenuItem>
                 ))}
               </RHFSelect>
+
+              {values.role === 'validator' && <RHFSelect fullWidth name="designation" label="Designation">
+                {[
+                  { value: 'production_head', name: 'Production Head' },
+                  { value: 'user', name: 'User' },
+                ].map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.name}
+                  </MenuItem>
+                ))}
+              </RHFSelect>}
 
               <RHFSelect fullWidth name="department" label="Department">
                 {departments.map((option) => (

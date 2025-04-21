@@ -30,7 +30,7 @@ export class StationController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required: [PermissionKeys.PRODUCTION_HEAD]},
+    options: {required: [PermissionKeys.ADMIN]},
   })
   @post('/stations')
   @response(200, {
@@ -96,7 +96,7 @@ export class StationController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required: [PermissionKeys.PRODUCTION_HEAD]},
+    options: {required: [PermissionKeys.ADMIN]},
   })
   @patch('/stations/{id}')
   @response(204, {
@@ -118,7 +118,7 @@ export class StationController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required: [PermissionKeys.PRODUCTION_HEAD]},
+    options: {required: [PermissionKeys.ADMIN]},
   })
   @del('/stations/{id}')
   @response(204, {

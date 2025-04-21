@@ -77,27 +77,27 @@ export function useNavData() {
             title: t('user'),
             path: paths.dashboard.user.root,
             icon: ICONS.user,
-            roles: ['production_head'],
+            roles: ['admin'],
             children: [
-              { title: t('list'), path: paths.dashboard.user.list, roles: ['production_head'] },
-              { title: t('create'), path: paths.dashboard.user.new, roles: ['production_head'] },
+              { title: t('list'), path: paths.dashboard.user.list, roles: ['admin'] },
+              { title: t('create'), path: paths.dashboard.user.new, roles: ['admin'] },
             ],
           },
           {
             title: t('Production Means'),
             path: paths.dashboard.tools.root,
             icon: ICONS.toolType,
-            roles: ['production_head', 'validator', 'initiator'],
+            roles: ['admin', 'validator', 'initiator', 'viewer'],
             children: [
               {
                 title: t('list'),
                 path: paths.dashboard.tools.list,
-                roles: ['production_head', 'validator', 'initiator'],
+                roles: ['admin', 'validator', 'initiator', 'viewer'],
               },
               {
                 title: t('create'),
                 path: paths.dashboard.tools.new,
-                roles: ['production_head', 'validator', 'initiator'],
+                roles: ['admin', 'initiator'],
               },
             ],
           },
@@ -105,12 +105,12 @@ export function useNavData() {
             title: t('spare'),
             path: paths.dashboard.spare.root,
             icon: ICONS.spare,
-            roles: ['production_head'],
+            roles: ['admin'],
             children: [
               {
                 title: t('list'),
                 path: paths.dashboard.spare.toolList,
-                roles: ['production_head'],
+                roles: ['admin'],
               },
             ],
           },
@@ -118,12 +118,12 @@ export function useNavData() {
             title: t('scrap master'),
             path: paths.dashboard.scrap.root,
             icon: ICONS.scrap,
-            roles: ['production_head', 'validator', 'initiator'],
+            roles: ['admin', 'validator', 'initiator'],
             children: [
               {
                 title: t('list'),
                 path: paths.dashboard.scrap.toolList,
-                roles: ['production_head', 'validator', 'initiator'],
+                roles: ['admin', 'validator', 'initiator'],
               },
             ],
           },
@@ -131,12 +131,12 @@ export function useNavData() {
             title: t('inventory'),
             path: paths.dashboard.inventory.root,
             icon: ICONS.inventory,
-            roles: ['production_head'],
+            roles: ['admin'],
             children: [
               {
                 title: t('list'),
                 path: paths.dashboard.inventory.toolList,
-                roles: ['production_head'],
+                roles: ['admin'],
               },
             ],
           },
@@ -144,12 +144,12 @@ export function useNavData() {
             title: t('maintainance'),
             path: paths.dashboard.maintainancePlan.root,
             icon: ICONS.maintainance,
-            roles: ['production_head'],
+            roles: ['admin', 'initiator', 'validator', 'viewer'],
             children: [
               {
                 title: t('list'),
                 path: paths.dashboard.maintainancePlan.toolList,
-                roles: ['production_head'],
+                roles: ['admin', 'initiator', 'viewer', 'validator'],
               },
             ],
           },
@@ -157,23 +157,24 @@ export function useNavData() {
       },
       {
         subheader: t('masters'),
+        roles : ['admin'],
         items: [
           // Tool Type
           {
             title: t('Tool Type Master'),
             path: paths.dashboard.toolType.root,
             icon: ICONS.toolType,
-            roles: ['production_head'],
+            roles: ['admin'],
             children: [
               {
                 title: t('list'),
                 path: paths.dashboard.toolType.list,
-                roles: ['production_head'],
+                roles: ['admin'],
               },
               {
                 title: t('create'),
                 path: paths.dashboard.toolType.new,
-                roles: ['production_head'],
+                roles: ['admin'],
               },
             ],
           },
@@ -181,17 +182,17 @@ export function useNavData() {
             title: t('Manufacturer Master'),
             path: paths.dashboard.manufacturer.root,
             icon: ICONS.manufacturer,
-            roles: ['production_head'],
+            roles: ['admin'],
             children: [
               {
                 title: t('list'),
                 path: paths.dashboard.manufacturer.list,
-                roles: ['production_head'],
+                roles: ['admin'],
               },
               {
                 title: t('create'),
                 path: paths.dashboard.manufacturer.new,
-                roles: ['production_head'],
+                roles: ['admin'],
               },
             ],
           },
@@ -199,17 +200,17 @@ export function useNavData() {
             title: t('Supplier Master'),
             path: paths.dashboard.supplier.root,
             icon: ICONS.supplier,
-            roles: ['production_head'],
+            roles: ['admin'],
             children: [
               {
                 title: t('list'),
                 path: paths.dashboard.supplier.list,
-                roles: ['production_head'],
+                roles: ['admin'],
               },
               {
                 title: t('create'),
                 path: paths.dashboard.supplier.new,
-                roles: ['production_head'],
+                roles: ['admin'],
               },
             ],
           },
@@ -217,17 +218,17 @@ export function useNavData() {
             title: t('Tools Department Master'),
             path: paths.dashboard.toolsDepartment.root,
             icon: ICONS.toolsDepartment,
-            roles: ['production_head'],
+            roles: ['admin'],
             children: [
               {
                 title: t('list'),
                 path: paths.dashboard.toolsDepartment.list,
-                roles: ['production_head'],
+                roles: ['admin'],
               },
               {
                 title: t('create'),
                 path: paths.dashboard.toolsDepartment.new,
-                roles: ['production_head'],
+                roles: ['admin'],
               },
             ],
           },
@@ -235,17 +236,17 @@ export function useNavData() {
             title: t('Station Master'),
             path: paths.dashboard.station.root,
             icon: ICONS.station,
-            roles: ['production_head'],
+            roles: ['admin'],
             children: [
               {
                 title: t('list'),
                 path: paths.dashboard.station.list,
-                roles: ['production_head'],
+                roles: ['admin'],
               },
               {
                 title: t('create'),
                 path: paths.dashboard.station.new,
-                roles: ['production_head'],
+                roles: ['admin'],
               },
             ],
           },

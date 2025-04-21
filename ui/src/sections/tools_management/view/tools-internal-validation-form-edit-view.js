@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router';
+import { format } from 'date-fns';
 // @mui
 import Container from '@mui/material/Container';
 import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
@@ -49,18 +50,18 @@ export default function ToolsInternalValidationEditView() {
           }}
         />
 
-        {/* <Box sx={{width: '50%', textAlign: {xs: 'left', md: 'right'}}} component='div'>
+        <Box sx={{width: '50%', textAlign: {xs: 'left', md: 'right'}}} component='div'>
           <FormControl sx={{width: '250px'}}>
               <InputLabel id='previous-year-form'>Previous Years Records</InputLabel>
               <Select label='Previous Years Records' labelId='previous-year-form' onChange={(e) => navigate(paths.dashboard.tools.internalValidationFormHistory(e.target.value))}>
                   {currentForm?.previousYearForms?.length > 0 ? currentForm?.previousYearForms?.map((form) => (
-                      <MenuItem key={form?.formId} value={form?.formId}>Record - {form?.year}</MenuItem>
+                      <MenuItem key={form?.formId} value={form?.formId}>Record - {format(new Date(form?.date), 'dd MM yyyy')}</MenuItem>
                   )) : (
                       <MenuItem value='' disabled>No Records</MenuItem>
                   )}
               </Select>
           </FormControl>
-        </Box> */}
+        </Box>
       </Container>
 
       <ToolsInternalValidationForm currentForm={currentForm} verificationForm={!currentForm?.isEditable}/>

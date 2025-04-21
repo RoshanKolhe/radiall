@@ -15,7 +15,7 @@ export class InternalValidationHistoryController {
       strategy: 'jwt',
       options: {
         required: [
-          PermissionKeys.PRODUCTION_HEAD,
+          PermissionKeys.ADMIN,
           PermissionKeys.INITIATOR,
           PermissionKeys.VALIDATOR,
         ],

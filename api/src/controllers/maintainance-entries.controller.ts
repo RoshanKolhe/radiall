@@ -80,7 +80,7 @@ export class MaintainanceEntriesController {
       },
       ...filter,
       include : [
-        {relation : 'maintainancePlan', scope : {include : [{relation : 'preparedByUser'}]}}
+        {relation : 'preparedByUser'}
       ]
     });
   }

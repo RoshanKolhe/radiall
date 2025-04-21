@@ -17,6 +17,8 @@ import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router';
+import { paths } from 'src/routes/paths';
 
 // ----------------------------------------------------------------------
 
@@ -28,6 +30,7 @@ export default function ToolTypeTableRow({
   onSelectRow,
   onDeleteRow,
 }) {
+  const navigate = useNavigate();
   const { toolType, description, isActive, createdAt } = row;
 
   const confirm = useBoolean();
@@ -66,6 +69,16 @@ export default function ToolTypeTableRow({
         </TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
+        <Tooltip title="Maintainance Plan" placement="top" arrow>
+            <IconButton
+              color="default"
+              onClick={() => {
+                navigate(paths.dashboard.toolType.plan(row.id));
+              }}
+            >
+              <Iconify icon="mdi:plus-box" />
+            </IconButton>
+          </Tooltip>
           <Tooltip title="Quick Edit" placement="top" arrow>
             <IconButton
               color="default"
@@ -76,7 +89,6 @@ export default function ToolTypeTableRow({
               <Iconify icon="solar:pen-bold" />
             </IconButton>
           </Tooltip>
-
           <Tooltip title="View" placement="top" arrow>
             <IconButton
               onClick={() => {

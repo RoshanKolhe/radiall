@@ -24,6 +24,7 @@ const ToolTypeListPage = lazy(() => import('src/pages/dashboard/toolType/list'))
 const ToolTypeCreatePage = lazy(() => import('src/pages/dashboard/toolType/new'));
 const ToolTypeEditPage = lazy(() => import('src/pages/dashboard/toolType/edit'));
 const ToolTypeViewPage = lazy(() => import('src/pages/dashboard/toolType/view'));
+const ToolTypeMaintainancePlanPage = lazy(() => import('src/pages/dashboard/toolType/plan'));
 
 // MANUFACTURER
 const ManufacturerListPage = lazy(() => import('src/pages/dashboard/manufacturer/list'));
@@ -124,6 +125,7 @@ export const dashboardRoutes = [
           { path: 'new', element: <ToolTypeCreatePage /> },
           { path: ':id/edit', element: <ToolTypeEditPage /> },
           { path: ':id/view', element: <ToolTypeViewPage /> },
+          { path: ':id/maintainance-plan', element: <ToolTypeMaintainancePlanPage />}
         ],
       },
       {

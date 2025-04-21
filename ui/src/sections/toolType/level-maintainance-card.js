@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
 import { yupResolver } from "@hookform/resolvers/yup";
 import { LoadingButton } from "@mui/lab";
-import { Card, Grid, MenuItem, Stack, Typography } from "@mui/material";
+import { Box, Button, Card, Grid, MenuItem, Stack, Typography } from "@mui/material";
 import PropTypes from "prop-types"
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router';
 import { paths } from 'src/routes/paths';
 
 // -----------------------------------------------------------------------------------------------------------------
-export default function LevelMaintainanceEntryCard({maintainanceData, toolData}){
+export default function LevelMaintainanceCard({maintainanceData, levelNo, toolData}){
     const { user: currentUser } = useAuthContext();
     const { enqueueSnackbar } = useSnackbar();
     const navigate = useNavigate();
@@ -34,14 +34,14 @@ export default function LevelMaintainanceEntryCard({maintainanceData, toolData})
 
     const defaultValues = useMemo(
     () => ({
-        level: '',
-        periodicity: '',
+        level: maintainanceData?.level ? maintainanceData?.level : levelNo || '',
+        periodicity: maintainanceData?.periodicity || 0,
         responsibleUser: '',
         preparedByUser:null,
-        description: '',
-        date: '',
+        description: maintainanceData?.description || '',
+        date: maintainanceData?.createdAt ? format(new Date(maintainanceData?.createdAt), 'dd MM yyyy') : format(new Date(), 'dd MM yyyy'),
     }),
-    []
+    [maintainanceData, levelNo]
     );
 
     const methods = useForm({
@@ -58,26 +58,26 @@ export default function LevelMaintainanceEntryCard({maintainanceData, toolData})
         formState: { isSubmitting },
     } = methods;
 
-    const values = watch();
-
     const onSubmit = handleSubmit(async (formData) => {
     try {
         console.info('DATA', formData);
 
       const inputData = {
-        toolsId: toolData?.id,
-        level: formData?.level,
-        periodicity: formData?.periodicity,
+        toolTypeId: toolData?.id,
         description: formData?.description,
         responsibleUser: formData?.responsibleUser,
         preparedByUserId: formData?.preparedByUser?.id,
+        periodicity: formData?.periodicity,
         isActive: true,
       };
 
-    await axiosInstance.post('/maintainance-entries', inputData);
-      enqueueSnackbar('Entry Added');
-      navigate(paths.dashboard.maintainancePlan.entries(toolData?.id));
-      
+      if (!maintainanceData) {
+        await axiosInstance.post('/tool-type-maintainances', inputData);
+      } else {
+        await axiosInstance.patch(`/tool-type-maintainances/${maintainanceData?.id}`, inputData);
+      }
+      enqueueSnackbar(maintainanceData ? 'Update success!' : 'Create success!');
+      navigate(paths.dashboard.toolType.list);
     } catch (error) {
         console.error(error);
         enqueueSnackbar(typeof error === 'string' ? error : error.error.message, {
@@ -129,6 +129,11 @@ export default function LevelMaintainanceEntryCard({maintainanceData, toolData})
     useEffect(() => {
         if (maintainanceData) {
             reset(defaultValues);
+            // Responsible User...
+            const responsibleUserData = maintainanceData?.responsibleUser ? maintainanceData?.responsibleUser : null;
+            setUsersData((prev) => [...prev, responsibleUserData]);
+            setValue('responsibleUser', responsibleUserData);
+
             // Prepared By user...
             const preparedByUserData = maintainanceData?.preparedByUser ? maintainanceData?.preparedByUser : currentUser;
             setUsersData((prev) => [...prev, preparedByUserData]);
@@ -142,43 +147,28 @@ export default function LevelMaintainanceEntryCard({maintainanceData, toolData})
         }
     }, [maintainanceData, currentUser, defaultValues, reset, setValue]);
 
-    useEffect(() => {
-        if(values.level === 1){
-            setValue('date', maintainanceData?.levelOnePlan?.createdAt ? format(new Date(maintainanceData?.levelOnePlan?.createdAt), 'dd MM yyyy') : '');
-            setValue('description', maintainanceData?.levelOnePlan?.description || '');
-            setValue('periodicity', maintainanceData?.levelOnePlan?.periodicity || '');
-            setValue('responsibleUser', maintainanceData?.levelOnePlan?.responsibleUser || '');
-            setValue('preparedByUser', maintainanceData?.levelOnePlan?.preparedByUser || null);
-        }
-
-        if(values.level === 2){
-            setValue('date', maintainanceData?.levelTwoPlan?.createdAt ? format(new Date(maintainanceData?.levelTwoPlan?.createdAt), 'dd MM yyyy') : '');
-            setValue('description', maintainanceData?.levelTwoPlan?.description || '');
-            setValue('periodicity', maintainanceData?.levelTwoPlan?.periodicity || '');
-            setValue('responsibleUser', maintainanceData?.levelTwoPlan?.responsibleUser || '');
-            setValue('preparedByUser', maintainanceData?.levelTwoPlan?.preparedByUser || null);
-        }
-    },[values.level, maintainanceData, setValue])
-
     return(
         <FormProvider methods={methods} onSubmit={onSubmit}>
             <Card sx={{ p: 3, mt: 2 }}>
                 <Grid item xs={12} md={12}>
+                    <Box component='div' sx={{ width: '100%', py: 2, px: 1, borderBottom: '2px solid lightGray' }}>
+                        <Typography variant='h5'>{`Level ${levelNo === 1 ? 'One' : 'Two'} Maintainance`}</Typography>
+                    </Box>
                     <Grid sx={{mt : 1}} container spacing={1.5}>
-                        <Grid item xs={12} md={6}>
-                            <RHFSelect name='level' label='Level'>
+                        {/* <Grid item xs={12} md={6}>
+                            <RHFSelect disabled name='level' label='Level'>
                                 {levelOptions?.map((level) => (
                                     <MenuItem key={level.value} value={level.value}>{level.label}</MenuItem>
                                 ))}
                             </RHFSelect>
-                        </Grid>
+                        </Grid> */}
 
                         <Grid item xs={12} md={6}>
-                            <RHFTextField disabled name='periodicity' label='Periodicity' type='number'/>
+                            <RHFTextField name='periodicity' label='Periodicity' type='number'/>
                         </Grid>
 
                         <Grid item xs={12} sm={6}>
-                            <RHFTextField disabled name='responsibleUser' label='Responsible User'/>
+                            <RHFTextField name='responsibleUser' label='Responsible User' />
                         </Grid>
 
                         <Grid item xs={12} sm={6}>
@@ -207,7 +197,7 @@ export default function LevelMaintainanceEntryCard({maintainanceData, toolData})
                         </Grid>
 
                         <Grid item xs={12} md={12}>
-                            <RHFTextField disabled name='description' label='Description' multiline rows={3}/>
+                            <RHFTextField name='description' label='Description' multiline rows={3}/>
                         </Grid>
                     </Grid>
                     <Stack alignItems="flex-end" sx={{ mt: 3 }}>
@@ -221,7 +211,7 @@ export default function LevelMaintainanceEntryCard({maintainanceData, toolData})
     )
 };
 
-LevelMaintainanceEntryCard.propTypes = {
+LevelMaintainanceCard.propTypes = {
     maintainanceData : PropTypes.object,
     levelNo: PropTypes.number,
     toolData: PropTypes.object,

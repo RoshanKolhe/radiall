@@ -201,7 +201,7 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
             const productionHeadsArray = currentForm?.productionHeads?.[0]?.user || null;
             setProductionHeadsData(productionHeadsArray);
             if(!productionHeadsArray){
-                fetchUsers(undefined, setProductionHeadsData, 'production_head')  
+                fetchUsers(undefined, setProductionHeadsData, 'validator')  
             }
             setValue('productionHeads', productionHeadsArray);
             // controled Users..
@@ -337,7 +337,7 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
                                     disabled={!!verificationForm}
                                     name="productionHeads"
                                     label="Production Heads"
-                                    onInputChange={(event) => fetchUsers(event, setProductionHeadsData, 'production_head')}
+                                    onInputChange={(event) => fetchUsers(event, setProductionHeadsData, 'validator')}
                                     options={productionHeadsData || []}
                                     getOptionLabel={(option) => `${option?.firstName} ${option?.lastName}` || ''}
                                     filterOptions={(x) => x}

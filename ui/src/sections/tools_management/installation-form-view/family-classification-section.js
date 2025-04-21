@@ -13,7 +13,7 @@ import { useAuthContext } from 'src/auth/hooks';
 import QuestionerySection from './components/questionery';
 // ----------------------------------------------------------------------
 
-export default function FamilyClassificationSection({ currentForm, verificationForm, userData }) {
+export default function FamilyClassificationSection({ currentForm, verificationForm, isInitiator }) {
 
     const { user: currentUser } = useAuthContext();
     const { enqueueSnackbar } = useSnackbar();
@@ -284,7 +284,7 @@ export default function FamilyClassificationSection({ currentForm, verificationF
                         <Grid sx={{ my: 1 }} container spacing={2}>
                             <Grid item xs={12} sm={6}>
                                 <RHFAutocomplete
-                                    disabled={!!verificationForm}
+                                    disabled={!!verificationForm || !isInitiator}
                                     name="user"
                                     label="User"
                                     options={usersData || []}
@@ -311,10 +311,10 @@ export default function FamilyClassificationSection({ currentForm, verificationF
                             </Grid>
                             <Grid item xs={12} sm={6}>
                                 <RHFAutocomplete
-                                    disabled={!!verificationForm}
+                                    disabled={!!verificationForm || !isInitiator}
                                     name="productionHeads"
                                     label="Production Heads"
-                                    onInputChange={(event) => fetchUsers(event, setProductionHeadsData, 'production_head')}
+                                    onInputChange={(event) => fetchUsers(event, setProductionHeadsData, 'validator')}
                                     options={productionHeadsData || []}
                                     getOptionLabel={(option) => `${option?.firstName} ${option?.lastName}` || ''}
                                     filterOptions={(x) => x}
@@ -338,7 +338,7 @@ export default function FamilyClassificationSection({ currentForm, verificationF
                         <Grid sx={{ my: 1 }} container spacing={2}>
                             <Grid item xs={12} sm={6}>
                                 <RHFAutocomplete
-                                    disabled={!!verificationForm}
+                                    disabled={!!verificationForm || !isInitiator}
                                     multiple
                                     name="validators"
                                     label="Additional Approvals"
@@ -368,9 +368,9 @@ export default function FamilyClassificationSection({ currentForm, verificationF
                             <Box component='div' sx={{ width: '100%', py: 2, px: 1, borderBottom: '2px solid lightGray' }}>
                                 <Typography variant='h5'>Family Classification</Typography>
                             </Box>
-                            <QuestionerySection formQuestionery={currentForm?.familyClassificationQuestionery} control={control} verificationForm={verificationForm} handleDecision={handleDecision}/>
+                            <QuestionerySection formQuestionery={currentForm?.familyClassificationQuestionery} control={control} verificationForm={verificationForm} handleDecision={handleDecision} isinitiator={isInitiator}/>
                             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-                                {!verificationForm && <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                                {!verificationForm && !!isInitiator && <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                                     Save
                                 </LoadingButton>}
                             </Stack>
@@ -385,5 +385,6 @@ export default function FamilyClassificationSection({ currentForm, verificationF
 FamilyClassificationSection.propTypes = {
     currentForm: PropTypes.object,
     verificationForm: PropTypes.bool,
-    userData: PropTypes.object
+    userData: PropTypes.object,
+    isInitiator: PropTypes.bool
 };

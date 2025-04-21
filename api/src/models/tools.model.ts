@@ -142,6 +142,11 @@ export class Tools extends Entity {
   @property({
     type: 'boolean',
   })
+  isInternalValidationNeeded: boolean;
+
+  @property({
+    type: 'boolean',
+  })
   individualManagement: boolean;
 
   @belongsTo(() => ToolType)
@@ -210,6 +215,11 @@ export class Tools extends Entity {
 
   @belongsTo(() => MaintainancePlan)
   levelTwoMaintainanceId: number;
+
+  @property({
+    type: 'date'
+  })
+  revalidationDate: Date;
   
   @hasMany(() => Spare)
   spares: Spare[];

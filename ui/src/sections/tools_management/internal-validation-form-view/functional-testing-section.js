@@ -45,6 +45,10 @@ export default function FunctionalTestingSection({ currentForm, verificationForm
         evidences: Yup.array().of(Yup.string()).min(1, "At least one evidence is required"),
         controlledBy: Yup.object().required('Control User is required'),
         date: Yup.string(),
+        moNumber: Yup.string().required('MO number is required'),
+        moPartNumber: Yup.string().required('MO part number is required'),
+        testingQuantity: Yup.number().required('Testing quanity is required'),
+        totalQuantity: Yup.number().required('Total quantity is required')
     });
 
     const defaultValues = useMemo(() => ({
@@ -54,6 +58,10 @@ export default function FunctionalTestingSection({ currentForm, verificationForm
         evidences: currentForm?.functionalTestingQuestionery?.evidences || [],
         controlledBy: null,
         date: currentForm?.functionalTestingQuestionery?.date ? format(new Date(currentForm?.functionalTestingQuestionery?.date), "dd MMMM yyyy, HH:mm") : format(new Date(), "dd MMMM yyyy, HH:mm"),
+        moNumber: currentForm?.functionalTestingQuestionery?.moNumber || '',
+        moPartNumber: currentForm?.functionalTestingQuestionery?.moPartNumber || '',
+        testingQuantity: currentForm?.functionalTestingQuestionery?.testingQuantity || '',
+        totalQuantity: currentForm?.functionalTestingQuestionery?.totalQuantity || ''
     }), [currentForm]);
 
     const methods = useForm({
@@ -127,6 +135,10 @@ export default function FunctionalTestingSection({ currentForm, verificationForm
                     department: formData?.controlledBy?.department?.name,
                     email: formData?.controlledBy?.email
                 },
+                moNumber: formData?.moNumber,
+                moPartNumber: formData?.moPartNumber,
+                testingQuantity: formData?.testingQuantity,
+                totalQuantity: formData?.totalQuantity,
                 date: formData?.date
             };
 
@@ -337,6 +349,23 @@ export default function FunctionalTestingSection({ currentForm, verificationForm
                                         ))}
                                     </TableBody>
                                 </Table>}
+                            </Grid>
+                            
+                            {/* material order details */}
+                            <Grid item xs={12} md={6}>
+                                <RHFTextField disabled={!!verificationForm} name='moNumber' label='MO Number' />
+                            </Grid>
+
+                            <Grid item xs={12} md={6}>
+                                <RHFTextField disabled={!!verificationForm} name='moPartNumber' label='MO Part Number' />
+                            </Grid>
+
+                            <Grid item xs={12} md={6}>
+                                <RHFTextField disabled={!!verificationForm} name='testingQuantity' label='Testing Quantity' />
+                            </Grid>
+
+                            <Grid item xs={12} md={6}>
+                                <RHFTextField disabled={!!verificationForm} name='totalQuantity' label='Total Quantity' />
                             </Grid>
 
                             {/* controlled by section */}

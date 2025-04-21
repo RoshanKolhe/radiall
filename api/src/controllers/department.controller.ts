@@ -31,7 +31,7 @@ export class DepartmentController {
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD],
+      required: [PermissionKeys.ADMIN],
     },
   })
   @post('/departments')
@@ -99,7 +99,7 @@ export class DepartmentController {
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD],
+      required: [PermissionKeys.ADMIN],
     },
   })
   @patch('/departments/{id}')
@@ -123,7 +123,7 @@ export class DepartmentController {
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD],
+      required: [PermissionKeys.ADMIN],
     },
   })
   @del('/departments/{id}')

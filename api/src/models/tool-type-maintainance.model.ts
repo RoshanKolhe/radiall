@@ -1,10 +1,9 @@
 import {Entity, model, property, belongsTo} from '@loopback/repository';
-import {Tools} from './tools.model';
-import {MaintainancePlan} from './maintainance-plan.model';
+import {ToolType} from './tool-type.model';
 import {User} from './user.model';
 
 @model()
-export class MaintainanceEntries extends Entity {
+export class ToolTypeMaintainance extends Entity {
   @property({
     type: 'number',
     id: true,
@@ -12,14 +11,11 @@ export class MaintainanceEntries extends Entity {
   })
   id?: number;
 
-  @belongsTo(() => Tools)
-  toolsId: number;
+  @belongsTo(() => ToolType)
+  toolTypeId: number;
 
-  @property({
-    type: 'number',
-    required: true
-  })
-  level: number;
+  @belongsTo(() => User)
+  preparedByUserId: number;
 
   @property({
     type: 'string',
@@ -71,16 +67,13 @@ export class MaintainanceEntries extends Entity {
   })
   remark?: string;
 
-  @belongsTo(() => User)
-  preparedByUserId: number;
-
-  constructor(data?: Partial<MaintainanceEntries>) {
+  constructor(data?: Partial<ToolTypeMaintainance>) {
     super(data);
   }
 }
 
-export interface MaintainanceEntriesRelations {
+export interface ToolTypeMaintainanceRelations {
   // describe navigational properties here
 }
 
-export type MaintainanceEntriesWithRelations = MaintainanceEntries & MaintainanceEntriesRelations;
+export type ToolTypeMaintainanceWithRelations = ToolTypeMaintainance & ToolTypeMaintainanceRelations;

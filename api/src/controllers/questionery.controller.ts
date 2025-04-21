@@ -31,7 +31,7 @@ export class QuestioneryController {
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD],
+      required: [PermissionKeys.ADMIN],
     },
   })
   @post('/questioneries')
@@ -58,7 +58,7 @@ export class QuestioneryController {
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD],
+      required: [PermissionKeys.ADMIN],
     },
   })
   @get('/questioneries/count')
@@ -75,7 +75,7 @@ export class QuestioneryController {
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD],
+      required: [PermissionKeys.ADMIN],
     },
   })
   @get('/questioneries')
@@ -99,7 +99,7 @@ export class QuestioneryController {
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD],
+      required: [PermissionKeys.ADMIN],
     },
   })
   @patch('/questioneries')
@@ -124,7 +124,7 @@ export class QuestioneryController {
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD],
+      required: [PermissionKeys.ADMIN],
     },
   })
   @get('/questioneries/{id}')
@@ -146,7 +146,7 @@ export class QuestioneryController {
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD],
+      required: [PermissionKeys.ADMIN],
     },
   })
   @patch('/questioneries/{id}')
@@ -170,7 +170,7 @@ export class QuestioneryController {
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD],
+      required: [PermissionKeys.ADMIN],
     },
   })
   @put('/questioneries/{id}')
@@ -187,7 +187,7 @@ export class QuestioneryController {
   @authenticate({
     strategy: 'jwt',
     options: {
-      required: [PermissionKeys.PRODUCTION_HEAD],
+      required: [PermissionKeys.ADMIN],
     },
   })
   @del('/questioneries/{id}')
