@@ -159,7 +159,7 @@ export default function MaintainanceEntriesListView() {
           action={
             (currentUser && (currentUser?.permissions?.includes('admin') || currentUser?.permissions?.includes('initiator'))) && (<Button
               component={RouterLink}
-              hhref={paths.dashboard.maintainancePlan.newEntry(tool?.id)}
+              href={paths.dashboard.maintainancePlan.newEntry(tool?.id)}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
