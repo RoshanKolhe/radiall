@@ -31,7 +31,7 @@ const VisuallyHiddenInput = styled('input')({
     width: 1,
 });
 
-export default function OtherSection({ currentForm, verificationForm, userData }) {
+export default function OtherSection({ currentForm, verificationForm, userData, isInitiator }) {
     const navigate = useNavigate();
     const isDesktop = useResponsive('up', 'md');
     const { user: currentUser } = useAuthContext();
@@ -84,30 +84,45 @@ export default function OtherSection({ currentForm, verificationForm, userData }
 
     const values = watch();
 
-    const fetchUsers = async (event, func, value) => {
+    const fetchUsers = async (event, func, value, designation) => {
         try {
             const role = value || '';
-            if (event && event?.target?.value && event.target.value.length >= 3) {
+            // if (event && event?.target?.value && event.target.value.length >= 3) {
                 let filter = {
                     where: {
                         or: [
-                            { email: { like: `%${event.target.value}%` } },
-                            { firstName: { like: `%${event.target.value}%` } },
-                            { lastName: { like: `%${event.target.value}%` } },
-                            { phoneNumber: { like: `%${event.target.value}%` } },
+                            { email: { like: `%${event?.target?.value || ''}%` } },
+                            { firstName: { like: `%${event?.target?.value || ''}%` } },
+                            { lastName: { like: `%${event?.target?.value || ''}%` } },
+                            { phoneNumber: { like: `%${event?.target?.value || ''}%` } },
                         ],
                     },
                 };
 
-                if(role !== ''){
+                if(role !== '' && designation === ''){
                     filter = {
                         where: {
                             permissions : [role],
                             or: [
-                                { email: { like: `%${event.target.value}%` } },
-                                { firstName: { like: `%${event.target.value}%` } },
-                                { lastName: { like: `%${event.target.value}%` } },
-                                { phoneNumber: { like: `%${event.target.value}%` } },
+                                { email: { like: `%${event?.target?.value || ''}%` } },
+                                { firstName: { like: `%${event?.target?.value || ''}%` } },
+                                { lastName: { like: `%${event?.target?.value || ''}%` } },
+                                { phoneNumber: { like: `%${event?.target?.value || ''}%` } },
+                            ],
+                        },
+                    };
+                }
+
+                if(designation !== ''){
+                    filter = {
+                        where: {
+                            designation: [designation],
+                            role: ['validator'],
+                            or: [
+                                { email: { like: `%${event?.target?.value || ''}%` } },
+                                { firstName: { like: `%${event?.target?.value || ''}%` } },
+                                { lastName: { like: `%${event?.target?.value || ''}%` } },
+                                { phoneNumber: { like: `%${event?.target?.value || ''}%` } },
                             ],
                         },
                     };
@@ -115,9 +130,9 @@ export default function OtherSection({ currentForm, verificationForm, userData }
                 const filterString = encodeURIComponent(JSON.stringify(filter));
                 const { data } = await axiosInstance.get(`/api/users/list?filter=${filterString}`);
                 func(data);
-            } else {
-                func([]);
-            }
+            // } else {
+            //     func([]);
+            // }
         } catch (err) {
             console.error(err);
         }
@@ -172,6 +187,9 @@ export default function OtherSection({ currentForm, verificationForm, userData }
             const controlUserData = currentForm?.otherQuestionery?.controlledBy ? currentForm?.otherQuestionery?.controlledBy : null;
             setValue('controlledBy', controlUserData);
             setControlUsers((prev) => [...prev, controlUserData]);
+            if(!controlUserData){
+                fetchUsers(undefined, setControlUsers, 'validator', 'user')
+            }
         }
     }, [currentForm, currentUser, defaultValues, reset, setValue]);
 
@@ -224,7 +242,7 @@ export default function OtherSection({ currentForm, verificationForm, userData }
                                 <Typography variant='body1'>Description   (descibe the test performed Cp-Cpk, R&R, qualification. Refer the MO number if any)</Typography>
                             </Grid>
                             <Grid item xs={12} md={12}>
-                                <RHFTextField disabled={!!verificationForm} name='description' placeholder='description...' multiline minRows={2}/>
+                                <RHFTextField disabled={!!verificationForm || !isInitiator} name='description' placeholder='description...' multiline minRows={2}/>
                             </Grid>
 
                             {/* finding */}
@@ -232,7 +250,7 @@ export default function OtherSection({ currentForm, verificationForm, userData }
                                 <Typography variant='body1'>Finding: (For dimensional checking, print the drawing & highlight dimension controlled)</Typography>
                             </Grid>
                             <Grid item xs={12} md={12}>
-                                <RHFTextField disabled={!!verificationForm} name='finding' placeholder='finding...' multiline minRows={2}/>
+                                <RHFTextField disabled={!!verificationForm || !isInitiator} name='finding' placeholder='finding...' multiline minRows={2}/>
                             </Grid>
 
                             {/* result */}
@@ -254,7 +272,7 @@ export default function OtherSection({ currentForm, verificationForm, userData }
                                         }
                                         }}
                                         sx={{
-                                        pointerEvents : verificationForm ? 'none' : 'auto',
+                                        pointerEvents : (!!verificationForm || !isInitiator) ? 'none' : 'auto',
                                         display: "flex",
                                         justifyContent: "flex-end",
                                         width: isDesktop ? "40%" : '100%',
@@ -271,7 +289,7 @@ export default function OtherSection({ currentForm, verificationForm, userData }
                                             sx={{
                                             flex: 1,
                                             padding: '6px',
-                                            pointerEvents : verificationForm ? 'none' : 'auto',
+                                            pointerEvents : (!!verificationForm || !isInitiator) ? 'none' : 'auto',
                                             backgroundColor: "white",
                                             borderRadius: "0px !important",
                                             border: "1px solid #00BBD9",
@@ -308,6 +326,7 @@ export default function OtherSection({ currentForm, verificationForm, userData }
                                     minWidth: '50px',
                                     boxShadow: 'none',
                                     padding: '5px 10px',
+                                    pointerEvents: (!!verificationForm || !isInitiator) ? 'none' : 'auto'
                                     }}
                                 >
                                     upload
@@ -357,29 +376,29 @@ export default function OtherSection({ currentForm, verificationForm, userData }
 
                              {/* material order details */}
                              <Grid item xs={12} md={6}>
-                                <RHFTextField disabled={!!verificationForm} name='moNumber' label='MO Number' />
+                                <RHFTextField disabled={!!verificationForm || !isInitiator} name='moNumber' label='MO Number' />
                             </Grid>
 
                             <Grid item xs={12} md={6}>
-                                <RHFTextField disabled={!!verificationForm} name='moPartNumber' label='MO Part Number' />
+                                <RHFTextField disabled={!!verificationForm || !isInitiator} name='moPartNumber' label='MO Part Number' />
                             </Grid>
 
                             <Grid item xs={12} md={6}>
-                                <RHFTextField disabled={!!verificationForm} name='testingQuantity' label='Testing Quantity' />
+                                <RHFTextField disabled={!!verificationForm || !isInitiator} name='testingQuantity' label='Testing Quantity' />
                             </Grid>
 
                             <Grid item xs={12} md={6}>
-                                <RHFTextField disabled={!!verificationForm} name='totalQuantity' label='Total Quantity' />
+                                <RHFTextField disabled={!!verificationForm || !isInitiator} name='totalQuantity' label='Total Quantity' />
                             </Grid>
 
                             {/* controlled by section */}
                             <Grid item xs={12} md={6}>
                                 <RHFAutocomplete
-                                    disabled={!!verificationForm}
+                                    disabled={!!verificationForm || !isInitiator}
                                     name="controlledBy"
                                     label="Control By"
                                     options={controlUsers || []}
-                                    onInputChange={(event) => fetchUsers(event, setControlUsers, 'validator')}
+                                    onInputChange={(event) => fetchUsers(event, setControlUsers, 'validator', 'user')}
                                     getOptionLabel={(option) => `${option?.firstName} ${option?.lastName}` || ''}
                                     isOptionEqualToValue={(option, value) => option?.id === value.id}
                                     filterOptions={(options, { inputValue }) =>
@@ -405,7 +424,7 @@ export default function OtherSection({ currentForm, verificationForm, userData }
 
                             <Stack alignItems="flex-end" sx={{ mt: 3, display: 'flex', width:'100%', justifyContent: 'flex-end' }}>
                                 <Box component='div' sx={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-                                    {!verificationForm && (
+                                    {!verificationForm && isInitiator && (
                                         <>
                                             <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                                                 Save
@@ -428,5 +447,6 @@ export default function OtherSection({ currentForm, verificationForm, userData }
 OtherSection.propTypes = {
     currentForm: PropTypes.object,
     verificationForm: PropTypes.bool,
-    userData: PropTypes.object
+    userData: PropTypes.object,
+    isInitiator: PropTypes.bool
 };

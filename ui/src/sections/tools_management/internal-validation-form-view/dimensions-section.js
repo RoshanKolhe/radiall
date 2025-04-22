@@ -31,7 +31,7 @@ const VisuallyHiddenInput = styled('input')({
     width: 1,
 });
 
-export default function DimensionsSection({ currentForm, verificationForm, userData }) {
+export default function DimensionsSection({ currentForm, verificationForm, userData, isInitiator }) {
     const isDesktop = useResponsive('up', 'md');
     const navigate = useNavigate();
     const { user: currentUser } = useAuthContext();
@@ -96,7 +96,7 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
 
     const values = watch();
 
-    const fetchUsers = async (event, func, value) => {
+    const fetchUsers = async (event, func, value, designation) => {
         try {
             const role = value || '';
             // if (event && event?.target?.value && event.target.value.length >= 3) {
@@ -111,10 +111,25 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
                     },
                 };
 
-                if(role !== ''){
+                if(role !== '' && designation === ''){
                     filter = {
                         where: {
                             permissions : [role],
+                            or: [
+                                { email: { like: `%${event?.target?.value || ''}%` } },
+                                { firstName: { like: `%${event?.target?.value || ''}%` } },
+                                { lastName: { like: `%${event?.target?.value || ''}%` } },
+                                { phoneNumber: { like: `%${event?.target?.value || ''}%` } },
+                            ],
+                        },
+                    };
+                }
+
+                if(designation !== ''){
+                    filter = {
+                        where: {
+                            designation: [designation],
+                            role: ['validator'],
                             or: [
                                 { email: { like: `%${event?.target?.value || ''}%` } },
                                 { firstName: { like: `%${event?.target?.value || ''}%` } },
@@ -187,13 +202,13 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
             const user = currentForm?.user ? currentForm?.user?.user : null;
             setValue('user', user);
             if(!user){
-                fetchUsers(undefined, setUsersData, 'validator')  
+                fetchUsers(undefined, setUsersData, 'validator', 'user')  
             }
             setUsersData((prev) => [...prev, user]);
             // validator...
             const validatorsArray = currentForm.validators?.map(item => item.user) || [];
             if(validatorsArray?.length === 0){
-                fetchUsers(undefined, setValidatorsData, 'validator')  
+                fetchUsers(undefined, setValidatorsData, 'validator', 'user')  
             }
             setValidatorsData(validatorsArray);
             setValue('validators', validatorsArray)
@@ -201,13 +216,16 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
             const productionHeadsArray = currentForm?.productionHeads?.[0]?.user || null;
             setProductionHeadsData(productionHeadsArray);
             if(!productionHeadsArray){
-                fetchUsers(undefined, setProductionHeadsData, 'validator')  
+                fetchUsers(undefined, setProductionHeadsData, 'validator', 'production_head')  
             }
             setValue('productionHeads', productionHeadsArray);
             // controled Users..
             const controlUserData = currentForm?.dimensionsQuestionery?.controlledBy ? currentForm?.dimensionsQuestionery?.controlledBy : null;
             setValue('controlledBy', controlUserData);
             setControlUsers((prev) => [...prev, controlUserData]);
+            if(!controlUserData){
+                fetchUsers(undefined, setControlUsers, 'validator', 'user')
+            }
         }
     }, [currentForm, currentUser, defaultValues, reset, setValue]);
 
@@ -279,7 +297,7 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
                                 <RHFAutocomplete
                                     disabled
                                     name="initiator"
-                                    label="Initiator"
+                                    label="Initiator *"
                                     options={initiatorsData || []}
                                     onInputChange={(event) => fetchUsers(event, setInitiatorsData, 'initiator')}
                                     getOptionLabel={(option) => `${option?.firstName} ${option?.lastName}` || ''}
@@ -308,11 +326,11 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
                         <Grid sx={{ my: 1 }} container spacing={2}>
                             <Grid item xs={12} sm={6}>
                                 <RHFAutocomplete
-                                    disabled={!!verificationForm}
+                                    disabled={!!verificationForm || !isInitiator}
                                     name="user"
-                                    label="User"
+                                    label="User *"
                                     options={usersData || []}
-                                    onInputChange={(event) => fetchUsers(event, setUsersData, 'validator')}
+                                    onInputChange={(event) => fetchUsers(event, setUsersData, 'validator', 'user')}
                                     getOptionLabel={(option) => `${option?.firstName} ${option?.lastName}` || ''}
                                     isOptionEqualToValue={(option, value) => option?.id === value.id}
                                     filterOptions={(options, { inputValue }) =>
@@ -334,10 +352,10 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
                             </Grid>
                             <Grid item xs={12} sm={6}>
                                 <RHFAutocomplete
-                                    disabled={!!verificationForm}
+                                    disabled={!!verificationForm || !isInitiator}
                                     name="productionHeads"
-                                    label="Production Heads"
-                                    onInputChange={(event) => fetchUsers(event, setProductionHeadsData, 'validator')}
+                                    label="Production Heads *"
+                                    onInputChange={(event) => fetchUsers(event, setProductionHeadsData, 'validator', 'production_head')}
                                     options={productionHeadsData || []}
                                     getOptionLabel={(option) => `${option?.firstName} ${option?.lastName}` || ''}
                                     filterOptions={(x) => x}
@@ -361,11 +379,11 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
                         <Grid sx={{ my: 1 }} container spacing={2}>
                             <Grid item xs={12} sm={6}>
                                 <RHFAutocomplete
-                                    disabled={!!verificationForm}
+                                    disabled={!!verificationForm || !isInitiator}
                                     multiple
                                     name="validators"
                                     label="Additional Approvals"
-                                    onInputChange={(event) => fetchUsers(event, setValidatorsData, 'validator')}
+                                    onInputChange={(event) => fetchUsers(event, setValidatorsData, 'validator', 'user')}
                                     options={validatorsData || []}
                                     getOptionLabel={(option) => `${option?.firstName} ${option?.lastName} (${option?.department?.name})` || ''}
                                     filterOptions={(x) => x}
@@ -395,15 +413,15 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
                         <Grid container spacing={2}>
                             {/* finding */}
                             <Grid item xs={12} md={12}>
-                                <Typography variant='body1'>Finding: (For dimensional checking, print the drawing & highlight dimension controlled)</Typography>
+                                <Typography variant='body1'>Finding: (For dimensional checking, print the drawing & highlight dimension controlled) *</Typography>
                             </Grid>
                             <Grid item xs={12} md={12}>
-                                <RHFTextField disabled={!!verificationForm} name='finding' placeholder='finding...' multiline minRows={2}/>
+                                <RHFTextField disabled={!!verificationForm || !isInitiator} name='finding' placeholder='finding...' multiline minRows={2}/>
                             </Grid>
 
                             {/* result */}
                             <Grid item xs={6} md={8}>
-                                <Typography variant='body1'>Result</Typography>
+                                <Typography variant='body1'>Result *</Typography>
                             </Grid>
                             <Grid item xs={6} md={4} sx={{ display: "flex", justifyContent: "flex-end" }}>
                                 <Controller
@@ -420,7 +438,7 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
                                         }
                                         }}
                                         sx={{
-                                        pointerEvents : verificationForm ? 'none' : 'auto',
+                                        pointerEvents : (!!verificationForm || !isInitiator) ? 'none' : 'auto',
                                         display: "flex",
                                         justifyContent: "flex-end",
                                         width: isDesktop ? "40%" : '100%',
@@ -437,7 +455,7 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
                                             sx={{
                                             flex: 1,
                                             padding: '6px',
-                                            pointerEvents : verificationForm ? 'none' : 'auto',
+                                            pointerEvents : (!!verificationForm || !isInitiator) ? 'none' : 'auto',
                                             backgroundColor: "white",
                                             borderRadius: "0px !important",
                                             border: "1px solid #00BBD9",
@@ -460,7 +478,7 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
                             
                             {/* upload */}
                             <Grid item xs={6} md={8}>
-                                <Typography variant='body1'>Evidences</Typography>
+                                <Typography variant='body1'>Evidences *</Typography>
                             </Grid>
                             <Grid sx={{display : 'flex', justifyContent : 'flex-end'}} item xs={6} md={4}>
                                 <Button
@@ -473,6 +491,7 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
                                     minWidth: '50px',
                                     boxShadow: 'none',
                                     padding: '5px 10px',
+                                    pointerEvents: (!!verificationForm || !isInitiator) ? 'none' : 'auto'
                                     }}
                                 >
                                     upload
@@ -523,11 +542,11 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
                             {/* controlled by section */}
                             <Grid item xs={12} md={6}>
                                 <RHFAutocomplete
-                                    disabled={!!verificationForm}
+                                    disabled={!!verificationForm || !isInitiator}
                                     name="controlledBy"
-                                    label="Control By"
+                                    label="Control By *"
                                     options={controlUsers || []}
-                                    onInputChange={(event) => fetchUsers(event, setControlUsers, 'validator')}
+                                    onInputChange={(event) => fetchUsers(event, setControlUsers, 'validator', 'user')}
                                     getOptionLabel={(option) => `${option?.firstName} ${option?.lastName}` || ''}
                                     isOptionEqualToValue={(option, value) => option?.id === value.id}
                                     filterOptions={(options, { inputValue }) =>
@@ -552,7 +571,7 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
                             </Grid>
 
                             <Stack alignItems="flex-end" sx={{ mt: 3, width:'100%', display : 'flex', justifyContent: 'flex-end' }}>
-                                {!verificationForm && <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                                {!verificationForm && !!isInitiator && <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                                     Save
                                 </LoadingButton>}
                             </Stack>
@@ -567,5 +586,6 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
 DimensionsSection.propTypes = {
     currentForm: PropTypes.object,
     verificationForm: PropTypes.bool,
-    userData: PropTypes.object
+    userData: PropTypes.object,
+    isInitiator: PropTypes.bool
 };

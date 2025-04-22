@@ -16,8 +16,12 @@ export default function ToolsInternalValidationForm({ currentForm, verificationF
     const [validApprovalUser, setValidApprovalUser] = useState(false);
     const [approvalStatus, setApprovalStatus] = useState(false);
     const [canGiveApproval, setCanGiveApproval] = useState(false);
+    const [isInitiator, setIsInitiator] = useState(false);
 
     useEffect(() => {
+        if(currentUser?.permissions && (currentUser?.permissions?.includes('admin') || (currentUser?.permissions?.includes('initiator')))){
+            setIsInitiator(true);
+        }
         const validatorsArray = currentForm?.validators || [] ;
         if (Array.isArray(validatorsArray) && Array.isArray(currentForm?.productionHeads) && currentUser && currentForm?.user) {
             const data = [
@@ -59,9 +63,9 @@ export default function ToolsInternalValidationForm({ currentForm, verificationF
 
     return (
         <>
-            <DimensionsSection currentForm={currentForm} verificationForm={verificationForm} />
-            <FunctionalTestingSection currentForm={currentForm} verificationForm={verificationForm} />
-            <OtherSection currentForm={currentForm} verificationForm={verificationForm} />
+            <DimensionsSection currentForm={currentForm} verificationForm={verificationForm} isInitiator={isInitiator}/>
+            <FunctionalTestingSection currentForm={currentForm} verificationForm={verificationForm} isInitiator={isInitiator}/>
+            <OtherSection currentForm={currentForm} verificationForm={verificationForm} isInitiator={isInitiator}/>
             <ApprovalUsersSection validators={currentForm?.validators} productionHeads={currentForm?.productionHeads} approvalUser={currentForm?.user}/>
             {verificationForm && validApprovalUser && canGiveApproval && <ApprovalSection userData={userData} formId={currentForm?.id} approvalStatus={approvalStatus} />}
         </>

@@ -89,7 +89,7 @@ export default function FamilyClassificationSection({ currentForm, verificationF
 
     const values = watch();
 
-    const fetchUsers = async (event, func, value) => {
+    const fetchUsers = async (event, func, value, designation) => {
         try {
             const role = value || '';
             // if (event && event?.target?.value && event.target.value.length >= 3) {
@@ -104,10 +104,25 @@ export default function FamilyClassificationSection({ currentForm, verificationF
                     },
                 };
 
-                if(role !== ''){
+                if(role !== '' && designation === ''){
                     filter = {
                         where: {
                             permissions : [role],
+                            or: [
+                                { email: { like: `%${event?.target?.value || ''}%` } },
+                                { firstName: { like: `%${event?.target?.value || ''}%` } },
+                                { lastName: { like: `%${event?.target?.value || ''}%` } },
+                                { phoneNumber: { like: `%${event?.target?.value || ''}%` } },
+                            ],
+                        },
+                    };
+                }
+
+                if(designation !== ''){
+                    filter = {
+                        where: {
+                            designation: [designation],
+                            role: ['validator'],
                             or: [
                                 { email: { like: `%${event?.target?.value || ''}%` } },
                                 { firstName: { like: `%${event?.target?.value || ''}%` } },
@@ -173,20 +188,20 @@ export default function FamilyClassificationSection({ currentForm, verificationF
             const user = currentForm?.user ? currentForm?.user?.user : null;
             setValue('user', user);
             if(!user){
-                fetchUsers(undefined, setUsersData, 'validator')  
+                fetchUsers(undefined, setUsersData, 'validator', 'user')  
             }
             setUsersData((prev) => [...prev, user]);
             // validator...
             const validatorsArray = currentForm.validators?.map(item => item.user) || [];
             if(validatorsArray?.length === 0){
-                fetchUsers(undefined, setValidatorsData, 'validator')  
+                fetchUsers(undefined, setValidatorsData, 'validator', 'user')  
             }
             setValidatorsData(validatorsArray);
             setValue('validators', validatorsArray)
             // productionHeads
             const productionHeadsArray = currentForm?.productionHeads?.[0]?.user || null;
             if(!productionHeadsArray){
-                fetchUsers(undefined, setProductionHeadsData, 'production_head')  
+                fetchUsers(undefined, setProductionHeadsData, 'validator', 'production_head')  
             }
             setProductionHeadsData(productionHeadsArray);
             setValue('productionHeads', productionHeadsArray);
@@ -255,7 +270,7 @@ export default function FamilyClassificationSection({ currentForm, verificationF
                                 <RHFAutocomplete
                                     disabled
                                     name="initiator"
-                                    label="Initiator"
+                                    label="Initiator *"
                                     options={initiatorsData || []}
                                     onInputChange={(event) => fetchUsers(event, setInitiatorsData, 'initiator')}
                                     getOptionLabel={(option) => `${option?.firstName} ${option?.lastName}` || ''}
@@ -286,9 +301,9 @@ export default function FamilyClassificationSection({ currentForm, verificationF
                                 <RHFAutocomplete
                                     disabled={!!verificationForm || !isInitiator}
                                     name="user"
-                                    label="User"
+                                    label="User *"
                                     options={usersData || []}
-                                    onInputChange={(event) => fetchUsers(event, setUsersData, 'validator')}
+                                    onInputChange={(event) => fetchUsers(event, setUsersData, 'validator', 'user')}
                                     getOptionLabel={(option) => `${option?.firstName} ${option?.lastName}` || ''}
                                     isOptionEqualToValue={(option, value) => option?.id === value.id}
                                     filterOptions={(options, { inputValue }) =>
@@ -313,8 +328,8 @@ export default function FamilyClassificationSection({ currentForm, verificationF
                                 <RHFAutocomplete
                                     disabled={!!verificationForm || !isInitiator}
                                     name="productionHeads"
-                                    label="Production Heads"
-                                    onInputChange={(event) => fetchUsers(event, setProductionHeadsData, 'validator')}
+                                    label="Production Heads *"
+                                    onInputChange={(event) => fetchUsers(event, setProductionHeadsData, 'validator', 'production_head')}
                                     options={productionHeadsData || []}
                                     getOptionLabel={(option) => `${option?.firstName} ${option?.lastName}` || ''}
                                     filterOptions={(x) => x}
@@ -342,7 +357,7 @@ export default function FamilyClassificationSection({ currentForm, verificationF
                                     multiple
                                     name="validators"
                                     label="Additional Approvals"
-                                    onInputChange={(event) => fetchUsers(event, setValidatorsData, 'validator')}
+                                    onInputChange={(event) => fetchUsers(event, setValidatorsData, 'validator', 'user')}
                                     options={validatorsData || []}
                                     getOptionLabel={(option) => `${option?.firstName} ${option?.lastName} (${option?.department?.name})` || ''}
                                     filterOptions={(x) => x}

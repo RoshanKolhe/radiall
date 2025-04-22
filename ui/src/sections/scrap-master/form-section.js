@@ -32,7 +32,7 @@ const VisuallyHiddenInput = styled('input')({
     width: 1,
 });
 
-export default function FormSection({ currentForm, verificationForm, userData }) {
+export default function FormSection({ currentForm, verificationForm, userData, isInitiator }) {
     const navigate = useNavigate();
     const { user: currentUser } = useAuthContext();
     const { enqueueSnackbar } = useSnackbar();
@@ -118,30 +118,45 @@ export default function FormSection({ currentForm, verificationForm, userData })
 
     const values = watch();
 
-    const fetchUsers = async (event, func, value) => {
+    const fetchUsers = async (event, func, value, designation) => {
         try {
             const role = value || '';
-            if (event && event?.target?.value && event.target.value.length >= 3) {
+            // if (event && event?.target?.value && event.target.value.length >= 3) {
                 let filter = {
                     where: {
                         or: [
-                            { email: { like: `%${event.target.value}%` } },
-                            { firstName: { like: `%${event.target.value}%` } },
-                            { lastName: { like: `%${event.target.value}%` } },
-                            { phoneNumber: { like: `%${event.target.value}%` } },
+                            { email: { like: `%${event?.target?.value || ''}%` } },
+                            { firstName: { like: `%${event?.target?.value || ''}%` } },
+                            { lastName: { like: `%${event?.target?.value || ''}%` } },
+                            { phoneNumber: { like: `%${event?.target?.value || ''}%` } },
                         ],
                     },
                 };
 
-                if(role !== ''){
+                if(role !== '' && designation === '' && !designation){
                     filter = {
                         where: {
                             permissions : [role],
                             or: [
-                                { email: { like: `%${event.target.value}%` } },
-                                { firstName: { like: `%${event.target.value}%` } },
-                                { lastName: { like: `%${event.target.value}%` } },
-                                { phoneNumber: { like: `%${event.target.value}%` } },
+                                { email: { like: `%${event?.target?.value || ''}%` } },
+                                { firstName: { like: `%${event?.target?.value || ''}%` } },
+                                { lastName: { like: `%${event?.target?.value || ''}%` } },
+                                { phoneNumber: { like: `%${event?.target?.value || ''}%` } },
+                            ],
+                        },
+                    };
+                }
+
+                if(designation !== '' && designation){
+                    filter = {
+                        where: {
+                            designation: [designation],
+                            role: ['validator'],
+                            or: [
+                                { email: { like: `%${event?.target?.value || ''}%` } },
+                                { firstName: { like: `%${event?.target?.value || ''}%` } },
+                                { lastName: { like: `%${event?.target?.value || ''}%` } },
+                                { phoneNumber: { like: `%${event?.target?.value || ''}%` } },
                             ],
                         },
                     };
@@ -149,9 +164,9 @@ export default function FormSection({ currentForm, verificationForm, userData })
                 const filterString = encodeURIComponent(JSON.stringify(filter));
                 const { data } = await axiosInstance.get(`/api/users/list?filter=${filterString}`);
                 func(data);
-            } else {
-                func([]);
-            }
+            // } else {
+            //     func([]);
+            // }
         } catch (err) {
             console.error(err);
         }
@@ -221,15 +236,23 @@ export default function FormSection({ currentForm, verificationForm, userData })
             const user = currentForm?.user ? currentForm?.user?.user : null;
             setValue('user', user);
             setUsersData((prev) => [...prev, user]);
+            if(!user){
+                fetchUsers(undefined, setUsersData, 'validator', 'user');
+            }
             // validator...
             const validatorsArray = currentForm.validators?.map(item => item.user) || [];
             setValidatorsData(validatorsArray);
             setValue('validators', validatorsArray)
+            if(!validatorsArray || validatorsArray?.length === 0){
+                fetchUsers(undefined, setValidatorsData, 'validator', 'user');
+            }
             // productionHeads
             const productionHeadsArray = currentForm?.productionHeads?.[0]?.user || null;
             setProductionHeadsData(productionHeadsArray);
             setValue('productionHeads', productionHeadsArray);
-
+            if(!productionHeadsArray){
+                fetchUsers(undefined, setProductionHeadsData, 'validator', 'production_head');
+            }
         }
     }, [currentForm, currentUser, defaultValues, reset, setValue]);
 
@@ -304,7 +327,7 @@ export default function FormSection({ currentForm, verificationForm, userData })
                                 <RHFAutocomplete
                                     disabled
                                     name="initiator"
-                                    label="Initiator"
+                                    label="Initiator *"
                                     options={initiatorsData || []}
                                     onInputChange={(event) => fetchUsers(event, setInitiatorsData, 'initiator')}
                                     getOptionLabel={(option) => `${option?.firstName} ${option?.lastName}` || ''}
@@ -333,11 +356,11 @@ export default function FormSection({ currentForm, verificationForm, userData })
                         <Grid sx={{ my: 1 }} container spacing={2}>
                             <Grid item xs={12} sm={6}>
                                 <RHFAutocomplete
-                                    disabled={!!verificationForm}
+                                    disabled={!!verificationForm || !isInitiator}
                                     name="user"
-                                    label="User"
+                                    label="User *"
                                     options={usersData || []}
-                                    onInputChange={(event) => fetchUsers(event, setUsersData, 'validator')}
+                                    onInputChange={(event) => fetchUsers(event, setUsersData, 'validator', 'user')}
                                     getOptionLabel={(option) => `${option?.firstName} ${option?.lastName}` || ''}
                                     isOptionEqualToValue={(option, value) => option?.id === value.id}
                                     filterOptions={(options, { inputValue }) =>
@@ -360,10 +383,10 @@ export default function FormSection({ currentForm, verificationForm, userData })
                             </Grid>
                             <Grid item xs={12} sm={6}>
                                 <RHFAutocomplete
-                                    disabled={!!verificationForm}
+                                    disabled={!!verificationForm || !isInitiator}
                                     name="productionHeads"
-                                    label="Production Heads"
-                                    onInputChange={(event) => fetchUsers(event, setProductionHeadsData, 'production_head')}
+                                    label="Production Heads *"
+                                    onInputChange={(event) => fetchUsers(event, setProductionHeadsData, 'validator', 'production_head')}
                                     options={productionHeadsData || []}
                                     getOptionLabel={(option) => `${option?.firstName} ${option?.lastName}` || ''}
                                     filterOptions={(x) => x}
@@ -387,11 +410,11 @@ export default function FormSection({ currentForm, verificationForm, userData })
                         <Grid sx={{ my: 1 }} container spacing={2}>
                             <Grid item xs={12} sm={6}>
                                 <RHFAutocomplete
-                                    disabled={!!verificationForm}
+                                    disabled={!!verificationForm || !isInitiator}
                                     multiple
                                     name="validators"
                                     label="Additional Approvals"
-                                    onInputChange={(event) => fetchUsers(event, setValidatorsData, 'validator')}
+                                    onInputChange={(event) => fetchUsers(event, setValidatorsData, 'validator', 'user')}
                                     options={validatorsData || []}
                                     getOptionLabel={(option) => `${option?.firstName} ${option?.lastName} (${option?.department?.name})` || ''}
                                     filterOptions={(x) => x}
@@ -422,10 +445,10 @@ export default function FormSection({ currentForm, verificationForm, userData })
 
                             {/* Justification */}
                             <Grid sx={{mb:1}} item xs={12} md={12}>
-                                <Typography variant='body1'>Reason to scrap the tool/equipent:</Typography>
+                                <Typography variant='body1'>Reason to scrap the tool/equipent *:</Typography>
                             </Grid>
                             <Grid item xs={12} md={12}>
-                                <RHFTextField disabled={!!verificationForm} name='justification' placeholder='justification...' multiline minRows={3}/>
+                                <RHFTextField disabled={!!verificationForm || !isInitiator} name='justification' placeholder='justification...' multiline minRows={3}/>
                             </Grid>
                         </Grid>
                     </Card>
@@ -499,10 +522,10 @@ export default function FormSection({ currentForm, verificationForm, userData })
                                                     sx={{
                                                         border: 'none',
                                                         outline: 'none',
-                                                        pointerEvents: verificationForm ? "none" : "auto",
+                                                        pointerEvents: (!!verificationForm || !isInitiator) ? "none" : "auto",
                                                         '&::before': { borderBottom: 'none' }, 
                                                         '&::after': { borderBottom: 'none' }, 
-                                                        '& .MuiSelect-icon': { right: '5px', display : verificationForm ? "none" : '' }, 
+                                                        '& .MuiSelect-icon': { right: '5px', display : (!!verificationForm || !isInitiator) ? "none" : '' }, 
                                                     }}
                                                     value={checkList[index]?.toDo ?? false}
                                                     onChange={(e) => handleChangeValue(e.target.value, index, 'toDo')}
@@ -514,7 +537,7 @@ export default function FormSection({ currentForm, verificationForm, userData })
                                             </TableCell>
                                             <TableCell>
                                             {/* eslint-disable-next-line no-nested-ternary */}
-                                            {verificationForm ? 
+                                            {(verificationForm || !isInitiator) ? 
                                             (checkList[index]?.actionOwner === undefined || checkList[index]?.actionOwner === null)  ? 
                                                 (
                                                     <p>NA</p>
@@ -523,10 +546,10 @@ export default function FormSection({ currentForm, verificationForm, userData })
                                                 <p>{`${checkList[index]?.actionOwner?.firstName || ''} ${checkList[index]?.actionOwner?.lastName || ''}`}</p>
                                             ) : (
                                                 <Autocomplete
-                                                    disabled={!!verificationForm}
+                                                    disabled={!!verificationForm || !isInitiator}
                                                     value={checkList[index]?.actionOwner || null}
                                                     options={usersData || []}
-                                                    onInputChange={(event) => fetchUsers(event, setUsersData, 'validator')}
+                                                    onInputChange={(event) => fetchUsers(event, setUsersData, 'validator', 'user')}
                                                     onChange={(event, inputvalue) => handleChangeValue(inputvalue, index, 'actionOwner')}
                                                     getOptionLabel={(option) => `${option?.firstName || ''} ${option?.lastName || ''}`}
                                                     isOptionEqualToValue={(option, value) => option?.id === value?.id}
@@ -561,10 +584,10 @@ export default function FormSection({ currentForm, verificationForm, userData })
                                                     sx={{
                                                         border: 'none',
                                                         outline: 'none',
-                                                        pointerEvents: verificationForm ? "none" : "auto",
+                                                        pointerEvents: (!!verificationForm || !isInitiator) ? "none" : "auto",
                                                         '&::before': { borderBottom: 'none' }, 
                                                         '&::after': { borderBottom: 'none' }, 
-                                                        '& .MuiSelect-icon': { right: '5px', display : verificationForm ? "none" : '' }, 
+                                                        '& .MuiSelect-icon': { right: '5px', display : (!!verificationForm || !isInitiator) ? "none" : '' }, 
                                                     }}
                                                     value={checkList[index]?.done ?? false}
                                                     onChange={(e) => handleChangeValue(e.target.value, index, 'done')}
@@ -584,13 +607,13 @@ export default function FormSection({ currentForm, verificationForm, userData })
                                                     display: "block"
                                                 }}
                                             >    
-                                                {verificationForm ? 
+                                                {(verificationForm || !isInitiator) ? 
                                                     <Tooltip title={checkList[index]?.comment ?? ''} placement="top" arrow>
                                                         <p>{checkList[index]?.comment !== '' ? checkList[index]?.comment : 'NA'}</p>
                                                     </Tooltip>
                                                 : 
                                                 <TextField 
-                                                    disabled={!!verificationForm}
+                                                    disabled={!!verificationForm || !isInitiator}
                                                     value={checkList[index]?.comment ?? ''} 
                                                     placeholder="comment" 
                                                     onChange={(e) => handleChangeValue(e.target.value, index, 'comment')} 
@@ -599,7 +622,7 @@ export default function FormSection({ currentForm, verificationForm, userData })
                                             <TableCell>
                                             {requirement?.isNeedUpload ? 
                                                 !requirement?.upload ? (
-                                                !verificationForm ? 
+                                                (!verificationForm && isInitiator) ? 
                                                 (
                                                     <Button
                                                         component="label"
@@ -632,7 +655,7 @@ export default function FormSection({ currentForm, verificationForm, userData })
                                                     >
                                                         VIEW
                                                     </p>
-                                                    {!verificationForm && 
+                                                    {!verificationForm && isInitiator && 
                                                         (
                                                             <>
                                                                 <IconButton onClick={() => handleDeleteFile(index)}>
@@ -700,7 +723,7 @@ export default function FormSection({ currentForm, verificationForm, userData })
                                     flexDirection: 'row'  // ✅ Align buttons in a row
                                 }}
                             >
-                                {!verificationForm && (
+                                {!verificationForm && !!isInitiator && (
                                     <>
                                         <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                                             Save
@@ -722,5 +745,6 @@ export default function FormSection({ currentForm, verificationForm, userData })
 FormSection.propTypes = {
     currentForm: PropTypes.object,
     verificationForm: PropTypes.bool,
-    userData: PropTypes.object
+    userData: PropTypes.object,
+    isInitiator: PropTypes.bool
 };
