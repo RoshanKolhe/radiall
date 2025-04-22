@@ -24,11 +24,13 @@ import {  IconButton, InputAdornment, MenuItem, TextField, Typography } from '@m
 import axiosInstance from 'src/utils/axios';
 import Iconify from 'src/components/iconify';
 import { DatePicker } from '@mui/x-date-pickers';
+import { useAuthContext } from 'src/auth/hooks';
 // ----------------------------------------------------------------------
 
 export default function ToolsNewEditForm({ currentTool }) {
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
+  const { user: currentUser } = useAuthContext();
   const [allowEdit, setAllowEdit] = useState(false);
   const [ toolTypeData, setToolTypeData ] = useState([]); 
   const [ supplierData, setSupplierData ] = useState([]);
@@ -57,7 +59,17 @@ export default function ToolsNewEditForm({ currentTool }) {
   ];
 
   useEffect(() => {
-    if(currentTool && currentTool?.installationStatus !== 'approved'){
+    if(
+      currentTool && 
+      (currentTool?.installationStatus !== 'approved' && currentUser?.permissions && (currentUser?.permissions?.includes('admin') || currentUser?.permissions?.includes('initiator')))
+    ){
+      setAllowEdit(true);
+    }
+
+    else if(
+      currentTool && 
+      (currentTool?.installationStatus === 'approved' && currentUser?.permissions && currentUser?.permissions?.includes('admin'))
+    ){
       setAllowEdit(true);
     }
   }, [currentTool])

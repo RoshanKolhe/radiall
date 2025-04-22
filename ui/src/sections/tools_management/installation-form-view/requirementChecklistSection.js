@@ -173,7 +173,7 @@ export default function RequirementChecklistSection({ currentForm, verificationF
 
     // fetch users...
     
-    const fetchUsers = async (event, func, value) => {
+    const fetchUsers = async (event, func, value, designation) => {
         try {
             const role = value || '';
             // if (event && event?.target?.value && event.target.value.length >= 3) {
@@ -188,10 +188,25 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                     },
                 };
 
-                if(role !== ''){
+                if(role !== '' && designation === ''){
                     filter = {
                         where: {
                             permissions : [role],
+                            or: [
+                                { email: { like: `%${event?.target?.value || ''}%` } },
+                                { firstName: { like: `%${event?.target?.value || ''}%` } },
+                                { lastName: { like: `%${event?.target?.value || ''}%` } },
+                                { phoneNumber: { like: `%${event?.target?.value || ''}%` } },
+                            ],
+                        },
+                    };
+                }
+
+                if(designation !== ''){
+                    filter = {
+                        where: {
+                            designation: [designation],
+                            role: ['validator'],
                             or: [
                                 { email: { like: `%${event?.target?.value || ''}%` } },
                                 { firstName: { like: `%${event?.target?.value || ''}%` } },
@@ -308,7 +323,7 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                                         disabled={!!verificationForm || !isInitiator}
                                         value={checkList[index]?.actionOwner || null}
                                         options={usersData || []}
-                                        onInputChange={(event) => fetchUsers(event, setUsersData, 'validator')}
+                                        onInputChange={(event) => fetchUsers(event, setUsersData, 'validator', 'user')}
                                         onChange={(event, inputvalue) => handleChangeValue(inputvalue, index, 'actionOwner')}
                                         getOptionLabel={(option) => `${option?.firstName || ''} ${option?.lastName || ''}`}
                                         isOptionEqualToValue={(option, value) => option?.id === value?.id}

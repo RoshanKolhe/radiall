@@ -26,6 +26,7 @@ import Scrollbar from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import { useAuthContext } from 'src/auth/hooks';
 import {
   useTable,
   getComparator,
@@ -86,6 +87,7 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export default function ToolsListView() {
+  const {user: currentUser} = useAuthContext();
   const table = useTable();
 
   const settings = useSettingsContext();
@@ -191,14 +193,14 @@ export default function ToolsListView() {
             { name: 'List' },
           ]}
           action={
-            <Button
+            (currentUser && (currentUser?.permissions?.includes('admin') || currentUser?.permissions?.includes('initiator'))) && (<Button
               component={RouterLink}
               href={paths.dashboard.tools.new}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
               New Tool
-            </Button>
+            </Button>)
           }
           sx={{
             mb: { xs: 3, md: 5 },
