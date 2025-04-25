@@ -71,8 +71,9 @@ export class EventSchedular {
     
                 // Add time difference (in minutes) manually if needed
                 const offsetMinutes = 330; // Example: IST (UTC+5:30) = 330 minutes ahead
-                nextYearDate.setHours(nextYearDate.getHours() + (maintainancePlan?.periodicity * 24) + offsetMinutes);
-    
+                // nextYearDate.setHours(nextYearDate.getHours() + (maintainancePlan?.periodicity * 24) + offsetMinutes);
+                nextYearDate.setMinutes(nextYearDate.getMinutes() + 15 + offsetMinutes);
+
                 // Format to MySQL datetime format (YYYY-MM-DD HH:MM:SS)
                 const formattedDate = nextYearDate.toISOString().slice(0, 19).replace('T', ' ');
     
