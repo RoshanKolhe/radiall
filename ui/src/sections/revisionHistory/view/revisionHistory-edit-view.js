@@ -35,7 +35,7 @@ export default function RevisionHistoryEditView() {
             href: paths.dashboard.revisionHistory.root,
           },
           {
-            name: currentRevisionHistory?.revision,
+            name: `${currentRevisionHistory?.revision}`,
           },
         ]}
         sx={{
