@@ -1,61 +1,42 @@
+/* eslint-disable no-nested-ternary */
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
-import LoadingButton from '@mui/lab/LoadingButton';
-import Box from '@mui/material/Box';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import Card from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import Switch from '@mui/material/Switch';
+
 import Grid from '@mui/material/Unstable_Grid2';
-import Typography from '@mui/material/Typography';
-import FormControlLabel from '@mui/material/FormControlLabel';
-// utils
-import { fData } from 'src/utils/format-number';
-// routes
-import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hook';
-// assets
-import { countries } from 'src/assets/data';
 // components
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
-import FormProvider, {
-  RHFSwitch,
-  RHFTextField,
-  RHFUploadAvatar,
-  RHFAutocomplete,
-  RHFSelect,
-} from 'src/components/hook-form';
-import { IconButton, InputAdornment, MenuItem } from '@mui/material';
-import { COMMON_STATUS_OPTIONS, states } from 'src/utils/constants';
-import axiosInstance from 'src/utils/axios';
-import { useBoolean } from 'src/hooks/use-boolean';
-import { useGetDepartments } from 'src/api/department';
+import FormProvider, { RHFTextField, RHFSelect } from 'src/components/hook-form';
+import { MenuItem } from '@mui/material';
+import { COMMON_STATUS_OPTIONS } from 'src/utils/constants';
 
 // ----------------------------------------------------------------------
 
 export default function RevisionHistoryViewForm({ currentRevisionHistory }) {
-  const router = useRouter();
-
   const { enqueueSnackbar } = useSnackbar();
 
   const NewRevisionHistorySchema = Yup.object().shape({
-    revisionHistory: Yup.string().required('Tool Type is required'),
-    description: Yup.string(),
+    revision: Yup.number().required('Revision is required').min(1, 'Minimum Should Be 1'),
+    date: Yup.string().required('Date is required'),
+    author: Yup.string().required('Author is required'),
+    reason: Yup.string().required('Reason is required'),
+    change: Yup.string().required('Change is required'),
     isActive: Yup.boolean(),
   });
 
   const defaultValues = useMemo(
     () => ({
-      revisionHistory: currentRevisionHistory?.revisionHistory || '',
-      description: currentRevisionHistory?.description || '',
-      isActive: currentRevisionHistory?.isActive ? '1' : '0' || '1',
+      revision: currentRevisionHistory?.revision || '',
+      date: currentRevisionHistory?.date || '',
+      author: currentRevisionHistory?.author || '',
+      reason: currentRevisionHistory?.reason || '',
+      change: currentRevisionHistory?.change || '',
+      isActive: currentRevisionHistory ? (currentRevisionHistory?.isActive ? '1' : '0') : '1',
     }),
     [currentRevisionHistory]
   );
@@ -69,12 +50,23 @@ export default function RevisionHistoryViewForm({ currentRevisionHistory }) {
     reset,
     watch,
     control,
-    setValue,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
 
   const values = watch();
+
+  const onSubmit = handleSubmit(async (formData) => {
+    try {
+      console.info('DATA', formData);
+    } catch (error) {
+      console.error(error);
+      enqueueSnackbar(typeof error === 'string' ? error : error.error.message, {
+        variant: 'error',
+      });
+    }
+  });
+
   useEffect(() => {
     if (currentRevisionHistory) {
       reset(defaultValues);
@@ -82,7 +74,7 @@ export default function RevisionHistoryViewForm({ currentRevisionHistory }) {
   }, [currentRevisionHistory, defaultValues, reset]);
 
   return (
-    <FormProvider methods={methods}>
+    <FormProvider methods={methods} onSubmit={onSubmit}>
       <Grid container spacing={3}>
         <Grid item xs={12} md={12}>
           <Card sx={{ p: 3 }}>
@@ -103,11 +95,43 @@ export default function RevisionHistoryViewForm({ currentRevisionHistory }) {
               )}
 
               <Grid item xs={12} sm={6}>
-                <RHFTextField name="revisionHistory" label="Tool Type" disabled />
+                <RHFTextField name="revision" label="Revision No" type="number" disabled />
               </Grid>
 
               <Grid item xs={12} sm={6}>
-                <RHFTextField name="description" label="Description" disabled />
+                <Controller
+                  name="date"
+                  control={control}
+                  render={({ field, fieldState: { error } }) => (
+                    <DatePicker
+                      label="Date"
+                      value={new Date(field.value)}
+                      onChange={(newValue) => {
+                        field.onChange(newValue);
+                      }}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          error: !!error,
+                          helperText: error?.message,
+                        },
+                      }}
+                      disabled
+                    />
+                  )}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <RHFTextField name="author" label="Author" disabled />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <RHFTextField name="reason" label="Reason" disabled />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <RHFTextField name="change" label="Change" disabled />
               </Grid>
             </Grid>
           </Card>

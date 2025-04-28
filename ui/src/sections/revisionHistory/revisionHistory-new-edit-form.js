@@ -23,7 +23,6 @@ import axiosInstance from 'src/utils/axios';
 // ----------------------------------------------------------------------
 
 export default function RevisionHistoryNewEditForm({ currentRevisionHistory }) {
-  console.log(currentRevisionHistory);
   const router = useRouter();
 
   const { enqueueSnackbar } = useSnackbar();
