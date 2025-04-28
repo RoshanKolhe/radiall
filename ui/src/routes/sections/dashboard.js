@@ -26,6 +26,12 @@ const ToolTypeEditPage = lazy(() => import('src/pages/dashboard/toolType/edit'))
 const ToolTypeViewPage = lazy(() => import('src/pages/dashboard/toolType/view'));
 const ToolTypeMaintainancePlanPage = lazy(() => import('src/pages/dashboard/toolType/plan'));
 
+// REVISION HISTORY
+const RevisionHistoryListPage = lazy(() => import('src/pages/dashboard/revisionHistory/list'));
+const RevisionHistoryCreatePage = lazy(() => import('src/pages/dashboard/revisionHistory/new'));
+const RevisionHistoryEditPage = lazy(() => import('src/pages/dashboard/revisionHistory/edit'));
+const RevisionHistoryViewPage = lazy(() => import('src/pages/dashboard/revisionHistory/view'));
+
 // MANUFACTURER
 const ManufacturerListPage = lazy(() => import('src/pages/dashboard/manufacturer/list'));
 const ManufacturerCreatePage = lazy(() => import('src/pages/dashboard/manufacturer/new'));
@@ -66,9 +72,15 @@ const ToolsListPage = lazy(() => import('src/pages/dashboard/tools_management/li
 const ToolsCreatePage = lazy(() => import('src/pages/dashboard/tools_management/new'));
 const ToolsEditPage = lazy(() => import('src/pages/dashboard/tools_management/edit'));
 const ToolsViewPage = lazy(() => import('src/pages/dashboard/tools_management/view'));
-const ToolsInstallationEditPage = lazy(() => import('src/pages/dashboard/tools_management/installation-form'));
-const ToolsInternalValidationEditPage = lazy(() => import('src/pages/dashboard/tools_management/internal-validation-form'));
-const ToolsInternalValidationHistoryPage = lazy(() => import('src/pages/dashboard/tools_management/internal-validation-history-page'));
+const ToolsInstallationEditPage = lazy(() =>
+  import('src/pages/dashboard/tools_management/installation-form')
+);
+const ToolsInternalValidationEditPage = lazy(() =>
+  import('src/pages/dashboard/tools_management/internal-validation-form')
+);
+const ToolsInternalValidationHistoryPage = lazy(() =>
+  import('src/pages/dashboard/tools_management/internal-validation-history-page')
+);
 
 // SCRAP MASTER
 const ScrapToolListPage = lazy(() => import('src/pages/dashboard/scrap/tool-list'));
@@ -84,10 +96,16 @@ const ToolsDepartmentViewPage = lazy(() => import('src/pages/dashboard/tools-dep
 const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
 
 // MAINTAINANCE
-const MaintainanceToolListPage = lazy(() => import('src/pages/dashboard/maintainance-plan/tool-list'));
-const MaintainancePlanCreatePage = lazy(() => import('src/pages/dashboard/maintainance-plan/new-plan'));
+const MaintainanceToolListPage = lazy(() =>
+  import('src/pages/dashboard/maintainance-plan/tool-list')
+);
+const MaintainancePlanCreatePage = lazy(() =>
+  import('src/pages/dashboard/maintainance-plan/new-plan')
+);
 const MaintainanceEntriesPage = lazy(() => import('src/pages/dashboard/maintainance-plan/entries'));
-const MaintainanceEntryCreatePage = lazy(() => import('src/pages/dashboard/maintainance-plan/new-entry'));
+const MaintainanceEntryCreatePage = lazy(() =>
+  import('src/pages/dashboard/maintainance-plan/new-entry')
+);
 
 // ----------------------------------------------------------------------
 
@@ -125,7 +143,17 @@ export const dashboardRoutes = [
           { path: 'new', element: <ToolTypeCreatePage /> },
           { path: ':id/edit', element: <ToolTypeEditPage /> },
           { path: ':id/view', element: <ToolTypeViewPage /> },
-          { path: ':id/maintainance-plan', element: <ToolTypeMaintainancePlanPage />}
+          { path: ':id/maintainance-plan', element: <ToolTypeMaintainancePlanPage /> },
+        ],
+      },
+      {
+        path: 'revisionHistory',
+        children: [
+          { element: <RevisionHistoryListPage />, index: true },
+          { path: 'list', element: <RevisionHistoryListPage /> },
+          { path: 'new', element: <RevisionHistoryCreatePage /> },
+          { path: ':id/edit', element: <RevisionHistoryEditPage /> },
+          { path: ':id/view', element: <RevisionHistoryViewPage /> },
         ],
       },
       {
@@ -194,15 +222,18 @@ export const dashboardRoutes = [
       {
         path: 'tools',
         children: [
-          { element: <ToolsListPage/>, index: true},
-          { path: 'list', element: <ToolsListPage/>},
-          { path: 'new', element: <ToolsCreatePage/>},
-          { path: ':id/edit', element: <ToolsEditPage/>},
-          { path: ':id/view', element: <ToolsViewPage/>},
-          { path: ':id/installation-form', element: <ToolsInstallationEditPage />},
-          { path: ':id/internal-validation-form', element: <ToolsInternalValidationEditPage />},
-          { path: ':id/internal-validation-form-history', element: <ToolsInternalValidationHistoryPage />}
-        ]
+          { element: <ToolsListPage />, index: true },
+          { path: 'list', element: <ToolsListPage /> },
+          { path: 'new', element: <ToolsCreatePage /> },
+          { path: ':id/edit', element: <ToolsEditPage /> },
+          { path: ':id/view', element: <ToolsViewPage /> },
+          { path: ':id/installation-form', element: <ToolsInstallationEditPage /> },
+          { path: ':id/internal-validation-form', element: <ToolsInternalValidationEditPage /> },
+          {
+            path: ':id/internal-validation-form-history',
+            element: <ToolsInternalValidationHistoryPage />,
+          },
+        ],
       },
 
       // SCRAP MASTER

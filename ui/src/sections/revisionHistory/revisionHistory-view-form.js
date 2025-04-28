@@ -1,4 +1,3 @@
-/* eslint-disable no-nested-ternary */
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { useCallback, useEffect, useMemo } from 'react';
@@ -41,33 +40,28 @@ import { useGetDepartments } from 'src/api/department';
 
 // ----------------------------------------------------------------------
 
-export default function ToolTypeNewEditForm({ currentToolType }) {
+export default function RevisionHistoryViewForm({ currentRevisionHistory }) {
   const router = useRouter();
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const { departments, departmentsLoading, departmentsEmpty, refreshDepartments } =
-    useGetDepartments();
-
-  const password = useBoolean();
-
-  const NewToolTypeSchema = Yup.object().shape({
-    toolType: Yup.string().required('Tool Type is required'),
+  const NewRevisionHistorySchema = Yup.object().shape({
+    revisionHistory: Yup.string().required('Tool Type is required'),
     description: Yup.string(),
     isActive: Yup.boolean(),
   });
 
   const defaultValues = useMemo(
     () => ({
-      toolType: currentToolType?.toolType || '',
-      description: currentToolType?.description || '',
-      isActive: currentToolType ? (currentToolType?.isActive ? '1' : '0') : '1',
+      revisionHistory: currentRevisionHistory?.revisionHistory || '',
+      description: currentRevisionHistory?.description || '',
+      isActive: currentRevisionHistory?.isActive ? '1' : '0' || '1',
     }),
-    [currentToolType]
+    [currentRevisionHistory]
   );
 
   const methods = useForm({
-    resolver: yupResolver(NewToolTypeSchema),
+    resolver: yupResolver(NewRevisionHistorySchema),
     defaultValues,
   });
 
@@ -81,49 +75,22 @@ export default function ToolTypeNewEditForm({ currentToolType }) {
   } = methods;
 
   const values = watch();
-
-  const onSubmit = handleSubmit(async (formData) => {
-    try {
-      console.info('DATA', formData);
-
-      const inputData = {
-        toolType: formData.toolType,
-        description: formData.description,
-        isActive: currentToolType ? formData.isActive : true,
-      };
-
-      if (!currentToolType) {
-        await axiosInstance.post('/tool-types', inputData);
-      } else {
-        await axiosInstance.patch(`/tool-types/${currentToolType.id}`, inputData);
-      }
-      reset();
-      enqueueSnackbar(currentToolType ? 'Update success!' : 'Create success!');
-      router.push(paths.dashboard.toolType.list);
-    } catch (error) {
-      console.error(error);
-      enqueueSnackbar(typeof error === 'string' ? error : error.error.message, {
-        variant: 'error',
-      });
-    }
-  });
-
   useEffect(() => {
-    if (currentToolType) {
+    if (currentRevisionHistory) {
       reset(defaultValues);
     }
-  }, [currentToolType, defaultValues, reset]);
+  }, [currentRevisionHistory, defaultValues, reset]);
 
   return (
-    <FormProvider methods={methods} onSubmit={onSubmit}>
+    <FormProvider methods={methods}>
       <Grid container spacing={3}>
         <Grid item xs={12} md={12}>
           <Card sx={{ p: 3 }}>
             <Grid container spacing={2}>
-              {currentToolType && (
+              {currentRevisionHistory && (
                 <>
                   <Grid item xs={12} sm={6}>
-                    <RHFSelect name="isActive" label="Status">
+                    <RHFSelect name="isActive" label="Status" disabled>
                       {COMMON_STATUS_OPTIONS.map((status) => (
                         <MenuItem key={status.value} value={status.value}>
                           {status.label}
@@ -136,19 +103,13 @@ export default function ToolTypeNewEditForm({ currentToolType }) {
               )}
 
               <Grid item xs={12} sm={6}>
-                <RHFTextField name="toolType" label="Tool Type" />
+                <RHFTextField name="revisionHistory" label="Tool Type" disabled />
               </Grid>
 
               <Grid item xs={12} sm={6}>
-                <RHFTextField name="description" label="Description" />
+                <RHFTextField name="description" label="Description" disabled />
               </Grid>
             </Grid>
-
-            <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentToolType ? 'Create Tool Type' : 'Save Changes'}
-              </LoadingButton>
-            </Stack>
           </Card>
         </Grid>
       </Grid>
@@ -156,6 +117,6 @@ export default function ToolTypeNewEditForm({ currentToolType }) {
   );
 }
 
-ToolTypeNewEditForm.propTypes = {
-  currentToolType: PropTypes.object,
+RevisionHistoryViewForm.propTypes = {
+  currentRevisionHistory: PropTypes.object,
 };

@@ -39,3 +39,4 @@ export * from './tool-type-maintainance-tool-type.controller';
 export * from './tool-type-maintainance-user.controller';
 export * from './tool-type-maintainance.controller';
 export * from './maintainance-entries-user.controller';
+export * from './revision-history.controller';

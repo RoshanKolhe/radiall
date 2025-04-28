@@ -25,6 +25,7 @@ const ICONS = {
   spare: icon('ic_spare'),
   inventory: icon('ic_inventory'),
   toolType: icon('ic_toolType'),
+  revisionHistory: icon('ic_revisionHistory'),
   manufacturer: icon('ic_manufacturer'),
   supplier: icon('ic_supplier'),
   station: icon('ic_station'),
@@ -50,7 +51,7 @@ const ICONS = {
   dashboard: icon('ic_dashboard'),
   scrap: icon('ic_scrap'),
   maintainance: icon('ic_maintainance'),
-  toolsDepartment: icon('ic-department')
+  toolsDepartment: icon('ic-department'),
 };
 
 // ----------------------------------------------------------------------
@@ -153,11 +154,29 @@ export function useNavData() {
               },
             ],
           },
+          {
+            title: t('Revision History'),
+            path: paths.dashboard.revisionHistory.root,
+            icon: ICONS.revisionHistory,
+            roles: ['admin'],
+            children: [
+              {
+                title: t('list'),
+                path: paths.dashboard.revisionHistory.list,
+                roles: ['admin'],
+              },
+              {
+                title: t('create'),
+                path: paths.dashboard.revisionHistory.new,
+                roles: ['admin'],
+              },
+            ],
+          },
         ],
       },
       {
         subheader: t('masters'),
-        roles : ['admin'],
+        roles: ['admin'],
         items: [
           // Tool Type
           {

@@ -95,7 +95,15 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/toolType/list`,
       edit: (id) => `${ROOTS.DASHBOARD}/toolType/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/toolType/${id}/view`,
-      plan: (id) => `${ROOTS.DASHBOARD}/toolType/${id}/maintainance-plan`
+      plan: (id) => `${ROOTS.DASHBOARD}/toolType/${id}/maintainance-plan`,
+    },
+    // REVISION HISTORY
+    revisionHistory: {
+      root: `${ROOTS.DASHBOARD}/revisionHistory`,
+      new: `${ROOTS.DASHBOARD}/revisionHistory/new`,
+      list: `${ROOTS.DASHBOARD}/revisionHistory/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/revisionHistory/${id}/edit`,
+      view: (id) => `${ROOTS.DASHBOARD}/revisionHistory/${id}/view`,
     },
     // MANUFACTURER
     manufacturer: {
@@ -138,7 +146,8 @@ export const paths = {
       view: (id) => `${ROOTS.DASHBOARD}/tools/${id}/view`,
       installationForm: (id) => `${ROOTS.DASHBOARD}/tools/${id}/installation-form`,
       internalValidationForm: (id) => `${ROOTS.DASHBOARD}/tools/${id}/internal-validation-form`,
-      internalValidationFormHistory: (id) => `${ROOTS.DASHBOARD}/tools/${id}/internal-validation-form-history`
+      internalValidationFormHistory: (id) =>
+        `${ROOTS.DASHBOARD}/tools/${id}/internal-validation-form-history`,
     },
     // SPARE
     spare: {
@@ -153,9 +162,9 @@ export const paths = {
     scrap: {
       root: `${ROOTS.DASHBOARD}/scrap`,
       toolList: `${ROOTS.DASHBOARD}/scrap/toolList`,
-      scrappingForm: (id) => `${ROOTS.DASHBOARD}/scrap/${id}/scrapping-form`
+      scrappingForm: (id) => `${ROOTS.DASHBOARD}/scrap/${id}/scrapping-form`,
     },
-    
+
     // INVENTORY
     inventory: {
       root: `${ROOTS.DASHBOARD}/inventory`,
@@ -181,7 +190,7 @@ export const paths = {
       toolList: `${ROOTS.DASHBOARD}/maintainance/toolList`,
       newPlan: (id) => `${ROOTS.DASHBOARD}/maintainance/maintainance-plan/${id}`,
       entries: (id) => `${ROOTS.DASHBOARD}/maintainance/entries/${id}`,
-      newEntry: (id) => `${ROOTS.DASHBOARD}/maintainance/new-entry/${id}`
+      newEntry: (id) => `${ROOTS.DASHBOARD}/maintainance/new-entry/${id}`,
     },
 
     product: {
