@@ -105,6 +105,14 @@ export const paths = {
       edit: (id) => `${ROOTS.DASHBOARD}/revisionHistory/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/revisionHistory/${id}/view`,
     },
+    // HISTORY CARD
+    historyCard: {
+      root: `${ROOTS.DASHBOARD}/historyCard`,
+      new: `${ROOTS.DASHBOARD}/historyCard/new`,
+      list: `${ROOTS.DASHBOARD}/historyCard/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/historyCard/${id}/edit`,
+      view: (id) => `${ROOTS.DASHBOARD}/historyCard/${id}/view`,
+    },
     // MANUFACTURER
     manufacturer: {
       root: `${ROOTS.DASHBOARD}/manufacturer`,

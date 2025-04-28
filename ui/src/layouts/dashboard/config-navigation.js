@@ -26,6 +26,7 @@ const ICONS = {
   inventory: icon('ic_inventory'),
   toolType: icon('ic_toolType'),
   revisionHistory: icon('ic_revisionHistory'),
+  historyCard: icon('ic_historyCard'),
   manufacturer: icon('ic_manufacturer'),
   supplier: icon('ic_supplier'),
   station: icon('ic_station'),
@@ -168,6 +169,24 @@ export function useNavData() {
               {
                 title: t('create'),
                 path: paths.dashboard.revisionHistory.new,
+                roles: ['admin'],
+              },
+            ],
+          },
+          {
+            title: t('History Card'),
+            path: paths.dashboard.historyCard.root,
+            icon: ICONS.historyCard,
+            roles: ['admin'],
+            children: [
+              {
+                title: t('list'),
+                path: paths.dashboard.historyCard.list,
+                roles: ['admin'],
+              },
+              {
+                title: t('create'),
+                path: paths.dashboard.historyCard.new,
                 roles: ['admin'],
               },
             ],

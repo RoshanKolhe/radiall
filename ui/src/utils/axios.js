@@ -49,12 +49,17 @@ export const endpoints = {
     list: '/tool-types',
     filterList: (filter) => `/tool-types?${filter}`,
     details: (id) => `/tool-types/${id}`,
-    plan: (id) => `/tool-type-maintainances/by-tool-type/${id}`
+    plan: (id) => `/tool-type-maintainances/by-tool-type/${id}`,
   },
   revisionHistory: {
     list: '/revision-histories',
     filterList: (filter) => `/revision-histories?${filter}`,
     details: (id) => `/revision-histories/${id}`,
+  },
+  historyCard: {
+    list: '/history-cards',
+    filterList: (filter) => `/history-cards?${filter}`,
+    details: (id) => `/history-cards/${id}`,
   },
   manufacturer: {
     list: '/manufacturers',
@@ -94,16 +99,16 @@ export const endpoints = {
   },
   // INSTALLATION FORM
   installationForm: {
-    details: (toolId) => `/installation-form/form-by-toolId/${toolId}`
+    details: (toolId) => `/installation-form/form-by-toolId/${toolId}`,
   },
   // INTERNAL VALIDATION FORM
   internalValidationForm: {
     details: (toolId) => `/internal-validation-form/form-by-toolId/${toolId}`,
-    history: (id) => `/internal-validation-forms-history/${id}`
+    history: (id) => `/internal-validation-forms-history/${id}`,
   },
   // SCRAPPING FORM
   scrappingForm: {
-    details: (toolId) => `/scrapping-form/form-by-toolId/${toolId}`
+    details: (toolId) => `/scrapping-form/form-by-toolId/${toolId}`,
   },
   // TOOLS DEPARTMENT MASTER
   toolDepartment: {

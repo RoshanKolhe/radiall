@@ -32,6 +32,12 @@ const RevisionHistoryCreatePage = lazy(() => import('src/pages/dashboard/revisio
 const RevisionHistoryEditPage = lazy(() => import('src/pages/dashboard/revisionHistory/edit'));
 const RevisionHistoryViewPage = lazy(() => import('src/pages/dashboard/revisionHistory/view'));
 
+// HISTORY CARD
+const HistoryCardListPage = lazy(() => import('src/pages/dashboard/historyCard/list'));
+const HistoryCardCreatePage = lazy(() => import('src/pages/dashboard/historyCard/new'));
+const HistoryCardEditPage = lazy(() => import('src/pages/dashboard/historyCard/edit'));
+const HistoryCardViewPage = lazy(() => import('src/pages/dashboard/historyCard/view'));
+
 // MANUFACTURER
 const ManufacturerListPage = lazy(() => import('src/pages/dashboard/manufacturer/list'));
 const ManufacturerCreatePage = lazy(() => import('src/pages/dashboard/manufacturer/new'));
@@ -154,6 +160,16 @@ export const dashboardRoutes = [
           { path: 'new', element: <RevisionHistoryCreatePage /> },
           { path: ':id/edit', element: <RevisionHistoryEditPage /> },
           { path: ':id/view', element: <RevisionHistoryViewPage /> },
+        ],
+      },
+      {
+        path: 'historyCard',
+        children: [
+          { element: <HistoryCardListPage />, index: true },
+          { path: 'list', element: <HistoryCardListPage /> },
+          { path: 'new', element: <HistoryCardCreatePage /> },
+          { path: ':id/edit', element: <HistoryCardEditPage /> },
+          { path: ':id/view', element: <HistoryCardViewPage /> },
         ],
       },
       {

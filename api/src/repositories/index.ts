@@ -23,3 +23,4 @@ export * from './maintainance-entries.repository';
 export * from './internal-validation-history.repository';
 export * from './tool-type-maintainance.repository';
 export * from './revision-history.repository';
+export * from './history-card.repository';

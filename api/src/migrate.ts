@@ -34,6 +34,7 @@ export async function migrate(args: string[]) {
       'InternalValidationHistory',
       'ToolTypeMaintainance',
       'RevisionHistory',
+      'HistoryCard',
     ],
   });
 
