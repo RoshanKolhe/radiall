@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 // @mui
 import Container from '@mui/material/Container';
 // routes
@@ -7,9 +8,10 @@ import { useParams } from 'src/routes/hook';
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 //
-import { useGetInventory } from 'src/api/inventory';
+import { useGetInEntriesWithOutEntry, useGetInventory } from 'src/api/inventory';
 
 import InventoryInEntryForm from '../inventory-in-entry-form';
+import EntriesTable from '../entriesTable';
 
 // ----------------------------------------------------------------------
 
@@ -20,6 +22,7 @@ export default function InventoryInEntry() {
 
   const { id } = params;
   const { inventory: currentInventory } = useGetInventory(id);
+  const { entries } = useGetInEntriesWithOutEntry(id); 
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -43,7 +46,16 @@ export default function InventoryInEntry() {
         }}
       />
 
-      <InventoryInEntryForm currentInventory={currentInventory} />
+      {currentInventory?.status === 0 ? (
+        <InventoryInEntryForm currentInventory={currentInventory} />
+      ) : currentInventory?.status === 1 ? (
+        <EntriesTable entries={entries}/>
+      ) : (
+        <>
+          <InventoryInEntryForm currentInventory={currentInventory} />
+          <EntriesTable entries={entries}/>
+        </>
+      )}
     </Container>
   );
 }

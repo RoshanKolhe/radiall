@@ -17,9 +17,10 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
-import {InventoryInEntries} from '../models';
+import {InventoryInEntries, InventoryOutEntries} from '../models';
 import {
   InventoryInEntriesRepository,
+  InventoryOutEntriesRepository,
   InventoryOutEntryToolsRepository,
   ToolsRepository,
 } from '../repositories';
@@ -32,6 +33,8 @@ export class InventoryInEntriesController {
     public inventoryInEntriesRepository: InventoryInEntriesRepository,
     @repository(InventoryOutEntryToolsRepository)
     public inventoryOutEntryToolsRepository: InventoryOutEntryToolsRepository,
+    @repository(InventoryOutEntriesRepository)
+    public inventoryOutEntriesRepository: InventoryOutEntriesRepository,
   ) {}
 
   @post('/inventory-in-entries')
@@ -81,6 +84,8 @@ export class InventoryInEntriesController {
             inventoryOutEntriesId: inventoryInEntries.inventoryOutEntriesId,
           },
         );
+
+        await this.inventoryOutEntriesRepository.updateById(inventoryInEntries.inventoryOutEntriesId, {status: 1});
 
         await this.toolsRepository.updateById(res, {balanceQuantity: 1});
       }),
@@ -150,5 +155,19 @@ export class InventoryInEntriesController {
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
     await this.inventoryInEntriesRepository.deleteById(id);
+  }
+
+  //  Get inventory In entries with inventory out Id....
+  @get('/inventory-in-entries/by-out-entry-id/{id}')
+  async getInventoryInEntries(
+    @param.path.number('id') id : number
+  ):Promise<InventoryInEntries[]>{
+    try{
+      const inventoryInEntries = await this.inventoryInEntriesRepository.find({where : {inventoryOutEntriesId : id}, include : [{relation : 'receivedFromUser'}, {relation : 'returnByUser'}]});
+
+      return inventoryInEntries
+    }catch(error){
+      throw error;
+    }
   }
 }

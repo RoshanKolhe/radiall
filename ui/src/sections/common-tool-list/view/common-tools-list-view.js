@@ -112,13 +112,13 @@ export default function CommonToolsListView({
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-      <CustomBreadcrumbs
+      {breadCrumb && breadCrumb?.length > 0 && <CustomBreadcrumbs
         heading="List"
         links={breadCrumb}
         sx={{
           mb: { xs: 3, md: 5 },
         }}
-      />
+      />}
 
       <Card>
         <Tabs

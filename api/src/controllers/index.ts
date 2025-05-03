@@ -41,3 +41,5 @@ export * from './tool-type-maintainance.controller';
 export * from './maintainance-entries-user.controller';
 export * from './revision-history.controller';
 export * from './history-card.controller';
+export * from './maintainance-checklist.controller';
+export * from './analytics.controller';

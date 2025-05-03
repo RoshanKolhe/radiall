@@ -22,5 +22,6 @@ export * from './inventory-in-entries.model';
 export * from './maintainance-entries.model';
 export * from './internal-validation-history.model';
 export * from './tool-type-maintainance.model';
+export * from './maintainance-checklist.model';
 export * from './revision-history.model';
 export * from './history-card.model';

@@ -71,3 +71,25 @@ export function useGetInventorysWithFilter(filter) {
     refreshFilterInventorys, // Include the refresh function separately
   };
 }
+
+// ------------------------------------------------------------------------
+
+export function useGetInEntriesWithOutEntry(entryId) {
+  const URL = entryId ? endpoints.inventory.inEntries(entryId) : null;
+
+  const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher);
+
+  const refreshEntries = () => {
+    // Use the `mutate` function to trigger a revalidation
+    mutate();
+  };
+
+  return {
+    entries: data || [],
+    entriesLoading: isLoading,
+    entriesError: error,
+    enntriesValidating: isValidating,
+    entriesEmpty: !isLoading && !data?.length,
+    refreshEntries, // Include the refresh function separately
+  };
+}

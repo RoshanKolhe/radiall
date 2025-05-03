@@ -4,6 +4,7 @@ import * as Yup from 'yup';
 import { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useNavigate } from 'react-router';
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
 
@@ -24,6 +25,7 @@ import InventoryOutEntries from './inventory-out-entries-table';
 // ----------------------------------------------------------------------
 
 export default function InventoryNewEditForm({ currentInventory }) {
+  const navigate = useNavigate();
   const { user } = useAuthContext();
   const [userOptions, setUserOptions] = useState([]);
   const [issuedByUserOptions, setIssuedByUserOptions] = useState([]);
@@ -182,6 +184,7 @@ export default function InventoryNewEditForm({ currentInventory }) {
       console.log(inputData);
       await axiosInstance.post(`/inventory-out-entries`, inputData);
       enqueueSnackbar('Out Entry Created Successfully');
+      navigate(paths.dashboard.inventory.list);
     } catch (error) {
       console.error(error);
       enqueueSnackbar(typeof error === 'string' ? error : error.error.message, {

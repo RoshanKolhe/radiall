@@ -80,6 +80,7 @@ export const endpoints = {
     list: '/inventory-out-entries',
     filterList: (filter) => `/inventory-out-entries?${filter}`,
     details: (id) => `/inventory-out-entries/${id}`,
+    inEntries: (id) => `/inventory-in-entries/by-out-entry-id/${id}`
   },
   station: {
     list: '/stations',
@@ -115,6 +116,12 @@ export const endpoints = {
     list: '/tools-departments',
     filterList: (filter) => `/tools-departments?${filter}`,
     details: (id) => `/tools-departments/${id}`,
+  },
+  // MAINTAINANCE CHECKLIST
+  maintainanceChecklist: {
+    list: '/maintainance-checklists',
+    filterList: (filter) => `/maintainance-checklists?${filter}`,
+    details: (id) => `/maintainance-checklists/${id}`,
   },
   // MAINTAINANCE PLAN
   maintainancePlan: {
