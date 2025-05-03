@@ -14,7 +14,9 @@ import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 // routes
 import { paths } from 'src/routes/paths';
-import { useParams, useRouter } from 'src/routes/hook';
+import { useRouter } from 'src/routes/hook';
+import { RouterLink } from 'src/routes/components';
+// _mock
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
@@ -35,28 +37,19 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
-import { useGetInventorys, useGetInventorysWithFilter } from 'src/api/inventory';
+import { useGetMainatainanceChecklistPoints } from 'src/api/maintainance-checklist';
 import { _roles, COMMON_STATUS_OPTIONS } from 'src/utils/constants';
-import { useGetTool } from 'src/api/tools';
-import { Grid, Typography } from '@mui/material';
-import { format } from 'date-fns';
-import { RouterLink } from 'src/routes/components';
-import InventoryTableRow from '../inventory-table-row';
-import InventoryTableToolbar from '../inventory-table-toolbar';
-import InventoryTableFiltersResult from '../inventory-table-filters-result';
+import MaintainanceChecklistTableRow from '../maintainance-checklist-table-row';
+import MaintainanceChecklistTableToolbar from '../maintainance-checklist-table-toolbar';
+import MaintainanceChecklistTableFiltersResult from '../maintainance-checklist-table-filters-result';
 
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...COMMON_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: 'moNumber', label: 'MO Number' },
-  { id: 'moQuantity', label: 'Mo Qty' },
-  { id: 'department', label: 'Department' },
-  { id: 'user', label: 'Issued To' },
-  { id: 'issuedByUser', label: 'Issued By' },
-  { id: 'issuedDate', label: 'Issued Date Time' },
-  { id: 'returnDate', label: 'Returned Date' },
+  { id: 'checkpoint', label: 'Checkpoint', width: 180 },
+  { id: 'description', label: 'Description' },
   { id: 'createdAt', label: 'Created At' },
   { id: 'status', label: 'Status', width: 100 },
   { id: '', width: 88 },
@@ -70,12 +63,12 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export default function InventoryListView() {
-  const router = useRouter();
-
+export default function MaintainanceChecklistView() {
   const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc' });
 
   const settings = useSettingsContext();
+
+  const router = useRouter();
 
   const confirm = useBoolean();
 
@@ -83,8 +76,7 @@ export default function InventoryListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const { inventorys, refreshInventorys } =
-    useGetInventorys();
+  const { checklists } = useGetMainatainanceChecklistPoints();
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -114,11 +106,14 @@ export default function InventoryListView() {
     [table]
   );
 
-  const handleInEntry = useCallback(
-    (row) => {
-      router.push(paths.dashboard.inventory.inEntry(row.id));
+  const handleDeleteRow = useCallback(
+    (id) => {
+      const deleteRow = tableData.filter((row) => row.id !== id);
+      setTableData(deleteRow);
+
+      table.onUpdatePageDeleteRow(dataInPage.length);
     },
-    [router]
+    [dataInPage.length, table, tableData]
   );
 
   const handleDeleteRows = useCallback(() => {
@@ -132,6 +127,20 @@ export default function InventoryListView() {
     });
   }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
+  const handleEditRow = useCallback(
+    (id) => {
+      router.push(paths.dashboard.maintainanceChecklist.edit(id));
+    },
+    [router]
+  );
+
+  const handleViewRow = useCallback(
+    (id) => {
+      router.push(paths.dashboard.station.view(id));
+    },
+    [router]
+  );
+
   const handleFilterStatus = useCallback(
     (event, newValue) => {
       handleFilters('status', newValue);
@@ -144,10 +153,10 @@ export default function InventoryListView() {
   }, []);
 
   useEffect(() => {
-    if (inventorys) {
-      setTableData(inventorys);
+    if (checklists) {
+      setTableData(checklists);
     }
-  }, [inventorys]);
+  }, [checklists]);
 
   return (
     <>
@@ -156,17 +165,17 @@ export default function InventoryListView() {
           heading="List"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Inventory', href: paths.dashboard.inventory.root },
+            { name: 'Maintainance Checklist', href: paths.dashboard.maintainanceChecklist.root },
             { name: 'List' },
           ]}
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.inventory.new}
+              href={paths.dashboard.maintainanceChecklist.new}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              New Out Entry
+              New Checkpoint
             </Button>
           }
           sx={{
@@ -174,7 +183,7 @@ export default function InventoryListView() {
           }}
         />
 
-        <Card sx={{ marginTop: '10px' }}>
+        <Card>
           <Tabs
             value={filters.status}
             onChange={handleFilterStatus}
@@ -201,18 +210,16 @@ export default function InventoryListView() {
                     }
                   >
                     {tab.value === 'all' && tableData.length}
-                    {tab.value === '1' &&
-                      tableData.filter((inventory) => inventory.isActive).length}
+                    {tab.value === '1' && tableData.filter((station) => station.isActive).length}
 
-                    {tab.value === '0' &&
-                      tableData.filter((inventory) => !inventory.isActive).length}
+                    {tab.value === '0' && tableData.filter((station) => !station.isActive).length}
                   </Label>
                 }
               />
             ))}
           </Tabs>
 
-          <InventoryTableToolbar
+          <MaintainanceChecklistTableToolbar
             filters={filters}
             onFilters={handleFilters}
             //
@@ -220,7 +227,7 @@ export default function InventoryListView() {
           />
 
           {canReset && (
-            <InventoryTableFiltersResult
+            <MaintainanceChecklistTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
               //
@@ -276,11 +283,14 @@ export default function InventoryListView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <InventoryTableRow
+                      <MaintainanceChecklistTableRow
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}
-                        handleInEntry={handleInEntry}
+                        onSelectRow={() => table.onSelectRow(row.id)}
+                        onDeleteRow={() => handleDeleteRow(row.id)}
+                        onEditRow={() => handleEditRow(row.id)}
+                        onViewRow={() => handleViewRow(row.id)}
                       />
                     ))}
 
@@ -353,26 +363,26 @@ function applyFilter({ inputData, comparator, filters }) {
   inputData = stabilizedThis.map((el) => el[0]);
 
   if (name) {
-    inputData = inputData.filter((inventory) =>
-      Object.values(inventory).some((value) =>
+    inputData = inputData.filter((station) =>
+      Object.values(station).some((value) =>
         String(value).toLowerCase().includes(name.toLowerCase())
       )
     );
   }
 
   if (status !== 'all') {
-    inputData = inputData.filter((inventory) =>
-      status === '1' ? inventory.isActive : !inventory.isActive
+    inputData = inputData.filter((station) =>
+      status === '1' ? station.isActive : !station.isActive
     );
   }
 
   if (role.length) {
     inputData = inputData.filter(
-      (inventory) =>
-        inventory.permissions &&
-        inventory.permissions.some((inventoryRole) => {
-          console.log(inventoryRole);
-          const mappedRole = roleMapping[inventoryRole];
+      (station) =>
+        station.permissions &&
+        station.permissions.some((stationRole) => {
+          console.log(stationRole);
+          const mappedRole = roleMapping[stationRole];
           console.log('Mapped Role:', mappedRole); // Check the mapped role
           return mappedRole && role.includes(mappedRole);
         })

@@ -151,7 +151,7 @@ export default function InventoryInEntryForm({ currentInventory }) {
       {currentInventory && (
         <Card sx={{ p: 2, mb: 3 }}>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={4} display="flex" alignItems="center">
+            {/* <Grid item xs={12} sm={4} display="flex" alignItems="center">
               <Typography variant="subtitle2" sx={{ mr: 1 }}>
                 MO Part Number:
               </Typography>
@@ -181,7 +181,7 @@ export default function InventoryInEntryForm({ currentInventory }) {
               <Typography variant="body1">
                 {currentInventory?.tools?.supplier?.supplier || 'NA'}
               </Typography>
-            </Grid>
+            </Grid> */}
 
             <Grid item xs={12} sm={4} display="flex" alignItems="center">
               <Typography variant="subtitle2" sx={{ mr: 1 }}>

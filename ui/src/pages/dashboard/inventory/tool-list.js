@@ -1,6 +1,7 @@
 import { ListItemText } from '@mui/material';
 import { format } from 'date-fns';
 import { Helmet } from 'react-helmet-async';
+import { useParams } from 'react-router';
 import Label from 'src/components/label';
 import { useRouter } from 'src/routes/hook';
 import { paths } from 'src/routes/paths';
@@ -10,7 +11,10 @@ import CommonToolsListView from 'src/sections/common-tool-list/view/common-tools
 // ----------------------------------------------------------------------
 
 export default function InventoryToolListPage() {
+  const param = useParams();
   const router = useRouter();
+
+  const {id} = param;
 
   const TABLE_HEAD = [
     { id: 'partNumber', label: 'Tool part number' },

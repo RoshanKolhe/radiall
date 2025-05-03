@@ -6,34 +6,34 @@ import { paths } from 'src/routes/paths';
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 //
-import InventoryNewEditForm from '../inventory-new-edit-form';
+import CheckpointNewEditForm from '../checkpoint-new-edit-form';
 
 // ----------------------------------------------------------------------
 
-export default function InventoryCreateView() {
+export default function MaintainanceChecklistCreateView() {
   const settings = useSettingsContext();
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs
-        heading="Create a new Inventory"
+        heading="Create a new Mainatainance Checkpoint"
         links={[
           {
             name: 'Dashboard',
             href: paths.dashboard.root,
           },
           {
-            name: 'Inventory',
-            href: paths.dashboard.inventory.root,
+            name: 'Maintainance Checklist',
+            href: paths.dashboard.maintainanceChecklist.root,
           },
-          { name: 'New Inventory' },
+          { name: 'New Checkpoint' },
         ]}
         sx={{
           mb: { xs: 3, md: 5 },
         }}
       />
 
-      <InventoryNewEditForm />
+      <CheckpointNewEditForm />
     </Container>
   );
 }

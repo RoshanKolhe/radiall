@@ -33,6 +33,7 @@ export async function migrate(args: string[]) {
       'MaintainanceEntries',
       'InternalValidationHistory',
       'ToolTypeMaintainance',
+      'MaintainanceChecklist',
       'RevisionHistory',
       'HistoryCard',
     ],

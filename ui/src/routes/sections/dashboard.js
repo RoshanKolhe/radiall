@@ -113,6 +113,11 @@ const MaintainanceEntryCreatePage = lazy(() =>
   import('src/pages/dashboard/maintainance-plan/new-entry')
 );
 
+// MAINTAINANCE CHECKLIST
+const MaintainanceChecklistListPage = lazy(() => import('src/pages/dashboard/maintainance-checklist/list'));
+const MaintainanceChecklistCreatePage = lazy(() => import('src/pages/dashboard/maintainance-checklist/new'));
+const MaintainanceCheckpointEditPage = lazy(() => import('src/pages/dashboard/maintainance-checklist/edit'));
+
 // ----------------------------------------------------------------------
 
 export const dashboardRoutes = [
@@ -215,11 +220,22 @@ export const dashboardRoutes = [
       },
 
       {
+        path: 'maintainance-checklist',
+        children: [
+          { element: <MaintainanceChecklistListPage />, index: true },
+          { path: 'list', element: <MaintainanceChecklistListPage /> },
+          { path: 'new', element: <MaintainanceChecklistCreatePage /> },
+          { path: ':id/edit', element: <MaintainanceCheckpointEditPage /> },
+          { path: ':id/view', element: <StorageLocationViewPage /> },
+        ],
+      },
+
+      {
         path: 'inventory',
         children: [
-          { element: <InventoryToolListPage />, index: true },
-          { path: 'toolList', element: <InventoryToolListPage /> },
-          { path: ':id/list', element: <InventoryListPage /> },
+          { element: <InventoryListPage />, index: true },
+          // { path: 'toolList', element: <InventoryToolListPage /> },
+          { path: 'list', element: <InventoryListPage /> },
           { path: ':id', element: <InventoryInEntryPage /> },
           { path: 'new', element: <InventoryCreatePage /> },
         ],

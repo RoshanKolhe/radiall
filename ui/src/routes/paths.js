@@ -178,7 +178,7 @@ export const paths = {
       root: `${ROOTS.DASHBOARD}/inventory`,
       toolList: `${ROOTS.DASHBOARD}/inventory/toolList`,
       new: `${ROOTS.DASHBOARD}/inventory/new`,
-      list: (toolId) => `${ROOTS.DASHBOARD}/inventory/${toolId}/list`,
+      list: `${ROOTS.DASHBOARD}/inventory/list`,
       edit: (toolId, id) => `${ROOTS.DASHBOARD}/inventory/${toolId}/edit/${id}`,
       inEntry: (id) => `${ROOTS.DASHBOARD}/inventory/${id}`,
     },
@@ -190,6 +190,15 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/tools-department/list`,
       edit: (id) => `${ROOTS.DASHBOARD}/tools-department/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/tools-department/${id}/view`,
+    },
+
+    // MAINTAINANCE CHECKLIST MASTER
+    maintainanceChecklist: {
+      root: `${ROOTS.DASHBOARD}/maintainance-checklist`,
+      new: `${ROOTS.DASHBOARD}/maintainance-checklist/new`,
+      list: `${ROOTS.DASHBOARD}/maintainance-checklist/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/maintainance-checklist/${id}/edit`,
+      view: (id) => `${ROOTS.DASHBOARD}/maintainance-checklist/${id}/view`,
     },
 
     // MAINTAINANCE PLAN

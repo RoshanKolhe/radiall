@@ -137,7 +137,7 @@ export function useNavData() {
             children: [
               {
                 title: t('list'),
-                path: paths.dashboard.inventory.toolList,
+                path: paths.dashboard.inventory.list,
                 roles: ['admin'],
               },
             ],
@@ -284,6 +284,24 @@ export function useNavData() {
               {
                 title: t('create'),
                 path: paths.dashboard.station.new,
+                roles: ['admin'],
+              },
+            ],
+          },
+          {
+            title: t('Maintainance Checklist Master'),
+            path: paths.dashboard.maintainanceChecklist.root,
+            icon: ICONS.station,
+            roles: ['admin'],
+            children: [
+              {
+                title: t('list'),
+                path: paths.dashboard.maintainanceChecklist.list,
+                roles: ['admin'],
+              },
+              {
+                title: t('create'),
+                path: paths.dashboard.maintainanceChecklist.new,
                 roles: ['admin'],
               },
             ],

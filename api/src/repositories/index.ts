@@ -24,3 +24,4 @@ export * from './internal-validation-history.repository';
 export * from './tool-type-maintainance.repository';
 export * from './revision-history.repository';
 export * from './history-card.repository';
+export * from './maintainance-checklist.repository';
