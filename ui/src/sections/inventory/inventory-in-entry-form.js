@@ -3,6 +3,7 @@ import * as Yup from 'yup';
 import { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useNavigate } from 'react-router';
 // @mui
 import Card from '@mui/material/Card';
 import Grid from '@mui/material/Unstable_Grid2';
@@ -15,6 +16,7 @@ import { DatePicker } from '@mui/x-date-pickers';
 import axiosInstance from 'src/utils/axios';
 import { useSnackbar } from 'notistack';
 import InventoryOutToolsModal from './inventory-out-tools-modal';
+import { paths } from 'src/routes/paths';
 
 // ----------------------------------------------------------------------
 
@@ -24,6 +26,7 @@ const toolColumns = [
 ];
 
 export default function InventoryInEntryForm({ currentInventory }) {
+  const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const [userOptions, setUserOptions] = useState([]);
   const [isToolModalOpen, setIsToolModalOpen] = useState(false);
@@ -132,6 +135,7 @@ export default function InventoryInEntryForm({ currentInventory }) {
       reset();
       enqueueSnackbar('In Entry Submitted Successfully!');
       handleCloseToolModal();
+      navigate(paths.dashboard.inventory.list);
     } catch (error) {
       console.error(error);
       enqueueSnackbar(typeof error === 'string' ? error : error.error.message, {
