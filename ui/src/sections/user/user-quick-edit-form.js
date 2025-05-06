@@ -39,6 +39,11 @@ export default function UserQuickEditForm({ currentUser, open, onClose, refreshU
       .required('Phone number is required')
       .matches(/^[0-9]{10}$/, 'Phone number must be exactly 10 digits'),
     role: Yup.string().required('Role is required'),
+    designation: Yup.string().when('role', {
+      is: 'validator',
+      then: (schema) => schema.required('Designation is required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
     zipCode: Yup.string(),
     avatarUrl: Yup.mixed().nullable(),
     isActive: Yup.boolean(),
@@ -49,6 +54,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose, refreshU
       firstName: currentUser?.firstName || '',
       lastName: currentUser?.lastName || '',
       role: currentUser?.permissions[0] || '',
+      designation: currentUser?.designation || '',
       employeeId: currentUser?.employeeId || '',
       email: currentUser?.email || '',
       isActive: currentUser?.isActive ? '1' : '0' || '',
@@ -69,8 +75,11 @@ export default function UserQuickEditForm({ currentUser, open, onClose, refreshU
     reset,
     handleSubmit,
     control,
+    watch,
     formState: { isSubmitting },
   } = methods;
+
+  const values = watch();
 
   const onSubmit = handleSubmit(async (formData) => {
     try {
@@ -84,6 +93,9 @@ export default function UserQuickEditForm({ currentUser, open, onClose, refreshU
         employeeId: formData.employeeId,
         departmentId: Number(formData.department),
       };
+      if(formData.designation && formData.designation !== ''){
+        inputData.designation = formData.designation;
+      }
       await axiosInstance.patch(`/api/users/${currentUser.id}`, inputData);
       refreshUsers();
       reset();
@@ -140,16 +152,28 @@ export default function UserQuickEditForm({ currentUser, open, onClose, refreshU
             <RHFTextField type="number" name="phoneNumber" label="Phone Number" />
             <RHFTextField name="employeeId" label="Employee Id" />
             <RHFSelect fullWidth name="role" label="Role">
-              {[
-                { value: 'production_head', name: 'Production Head' },
-                { value: 'initiator', name: 'Initiator' },
-                { value: 'validator', name: 'Validator' },
-              ].map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.name}
-                </MenuItem>
-              ))}
-            </RHFSelect>
+                {[
+                  { value: 'admin', name: 'Admin' },
+                  { value: 'initiator', name: 'Initiator' },
+                  { value: 'validator', name: 'Validator' },
+                  { value: 'viewer', name: 'Viewer' },
+                ].map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.name}
+                  </MenuItem>
+                ))}
+              </RHFSelect>
+
+              {values.role === 'validator' && <RHFSelect fullWidth name="designation" label="Designation">
+                {[
+                  { value: 'production_head', name: 'Production Head' },
+                  { value: 'user', name: 'User' },
+                ].map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.name}
+                  </MenuItem>
+                ))}
+              </RHFSelect>}
             <RHFSelect fullWidth name="department" label="Department">
               {departments.map((option) => (
                 <MenuItem key={option.id} value={option.id}>
