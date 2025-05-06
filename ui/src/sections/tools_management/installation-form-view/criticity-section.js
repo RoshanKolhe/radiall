@@ -103,7 +103,8 @@ export default function CriticitySection({ currentForm, verificationForm, isInit
                 fieldName: question?.fieldName ?? "", 
                 answer: formData?.[question?.question] ?? "", 
             }));
-    
+            
+            console.log('updatedQuestionery', updatedQuestionery);
             const inputData = {
                 criticity: updatedQuestionery,
             };

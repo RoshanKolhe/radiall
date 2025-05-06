@@ -405,12 +405,12 @@ export class InstallationFormController {
     try{
       const { criticity } = requestBody;
 
-      const form = await this.installationFormRepository.findById(formId);
-
       await this.installationFormRepository.updateById(formId, {
         criticityQuestionery : criticity,
         isCriticitySectionDone : true,
       });
+
+      const form = await this.installationFormRepository.findById(formId);
 
       await this.checkFieldValues(form);
 

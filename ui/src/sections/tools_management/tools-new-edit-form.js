@@ -184,6 +184,8 @@ export default function ToolsNewEditForm({ currentTool }) {
         status: formData?.isActive === true ? 'Operational' : 'Non-Operational',
         installationStatus : 'pending',
         internalValidationStatus : 'pending',
+        isInternalValidationNeeded : formData?.isInternalValidationNeeded || true,
+        isMaintainancePlanNeeded : formData?.isMaintainancePlanNeeded || true,
       };
 
       if(formData?.individualSerialNumber && formData?.individualSerialNumber !== ''){
@@ -193,8 +195,6 @@ export default function ToolsNewEditForm({ currentTool }) {
       if(currentTool){
         inputData.calibration = formData.calibration;
         inputData.individualManagement = formData.individualManagement;
-        inputData.isMaintaincePlanNeeded = formData.isMaintainancePlanNeeded;
-        inputData.isInternalValidationNeeded = formData.isInternalValidationNeeded;
         inputData.installationChecklist = formData.installationChecklist;
         inputData.assetNumber = formData.assetNumber;
         inputData.criticalLevel = formData.criticalLevel;
