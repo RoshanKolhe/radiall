@@ -289,19 +289,19 @@ export function useNavData() {
             ],
           },
           {
-            title: t('Maintainance Checklist Master'),
+            title: t('Maintainance Instructions Master'),
             path: paths.dashboard.maintainanceChecklist.root,
             icon: ICONS.station,
             roles: ['admin'],
             children: [
               {
-                title: t('list'),
-                path: paths.dashboard.maintainanceChecklist.list,
+                title: t('level 1'),
+                path: paths.dashboard.maintainanceChecklist.list(1),
                 roles: ['admin'],
               },
               {
-                title: t('create'),
-                path: paths.dashboard.maintainanceChecklist.new,
+                title: t('level 2'),
+                path: paths.dashboard.maintainanceChecklist.list(2),
                 roles: ['admin'],
               },
             ],

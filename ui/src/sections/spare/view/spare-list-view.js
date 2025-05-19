@@ -1,5 +1,6 @@
 import isEqual from 'lodash/isEqual';
 import { useState, useCallback, useEffect } from 'react';
+import { useSnackbar } from 'notistack';
 // @mui
 import { alpha } from '@mui/material/styles';
 import Tab from '@mui/material/Tab';
@@ -38,8 +39,9 @@ import {
 import { useGetSparesWithFilter } from 'src/api/spare';
 import { _roles, COMMON_STATUS_OPTIONS } from 'src/utils/constants';
 import { useGetTool } from 'src/api/tools';
-import { Grid, Typography } from '@mui/material';
+import { Box, Grid, Typography } from '@mui/material';
 import { format } from 'date-fns';
+import axiosInstance from 'src/utils/axios';
 import SpareTableRow from '../spare-table-row';
 import SpareTableToolbar from '../spare-table-toolbar';
 import SpareTableFiltersResult from '../spare-table-filters-result';
@@ -72,6 +74,7 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export default function SpareListView() {
+  const { enqueueSnackbar } = useSnackbar();
   const params = useParams();
 
   const { id: toolId } = params;
@@ -94,7 +97,7 @@ export default function SpareListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const filter = JSON.stringify({ where: { toolId } });
+  const filter = JSON.stringify({ where: { toolsId : toolId } });
   const encodedFilter = encodeURIComponent(filter);
 
   const { tool } = useGetTool(toolId);
@@ -173,6 +176,33 @@ export default function SpareListView() {
     }
   }, [spares]);
 
+  const handleDownloadSpareList = async(id) => {
+    try {
+      const response = await axiosInstance.get(`/download-spare-list/${id}`, {
+        responseType: 'blob', 
+      });
+
+      const blob = new Blob([response.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'spare-list.xlsx'); 
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      enqueueSnackbar(`${error?.message || 'No records found'}`, {variant : 'error'});
+      console.error('Error while downloading spare list', error);
+    }
+  }
+
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -184,16 +214,22 @@ export default function SpareListView() {
             { name: 'List' },
           ]}
           action={
-            <Button
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-              onClick={() => {
-                setQuickEditRow(null);
-                quickEdit.onTrue();
-              }}
-            >
-              New Spare
-            </Button>
+            <Box sx={{width: '100%', textAlign: {xs: 'left', md: 'right'}, display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'end'}} component='div'>
+              <Button
+                variant="contained"
+                startIcon={<Iconify icon="mingcute:add-line" />}
+                onClick={() => {
+                  setQuickEditRow(null);
+                  quickEdit.onTrue();
+                }}
+              >
+                New Spare
+              </Button>
+              <Button sx={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'}} variant='contained' onClick={() => handleDownloadSpareList(tool?.id)} >
+                <Iconify icon="mdi:download" width={18}/>            
+                Download
+              </Button>
+            </Box>
           }
           sx={{
             mb: { xs: 3, md: 5 },

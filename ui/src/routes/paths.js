@@ -195,8 +195,8 @@ export const paths = {
     // MAINTAINANCE CHECKLIST MASTER
     maintainanceChecklist: {
       root: `${ROOTS.DASHBOARD}/maintainance-checklist`,
-      new: `${ROOTS.DASHBOARD}/maintainance-checklist/new`,
-      list: `${ROOTS.DASHBOARD}/maintainance-checklist/list`,
+      new:(level) => `${ROOTS.DASHBOARD}/maintainance-checklist/new/${level}`,
+      list: (level) => `${ROOTS.DASHBOARD}/maintainance-checklist/list/${level}`,
       edit: (id) => `${ROOTS.DASHBOARD}/maintainance-checklist/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/maintainance-checklist/${id}/view`,
     },

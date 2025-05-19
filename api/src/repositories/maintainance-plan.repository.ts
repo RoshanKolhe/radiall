@@ -22,8 +22,12 @@ export class MaintainancePlanRepository extends TimeStampRepositoryMixin<
 
   public readonly preparedByUser: BelongsToAccessor<User, typeof MaintainancePlan.prototype.id>;
 
+  public readonly responsibleUser: BelongsToAccessor<User, typeof MaintainancePlan.prototype.id>;
+
   constructor(@inject('datasources.radiall') dataSource: RadiallDataSource, @repository.getter('ToolsRepository') protected toolsRepositoryGetter: Getter<ToolsRepository>, @repository.getter('UserRepository') protected userRepositoryGetter: Getter<UserRepository>,) {
     super(MaintainancePlan, dataSource);
+    this.responsibleUser = this.createBelongsToAccessorFor('responsibleUser', userRepositoryGetter,);
+    this.registerInclusionResolver('responsibleUser', this.responsibleUser.inclusionResolver);
     this.preparedByUser = this.createBelongsToAccessorFor('preparedByUser', userRepositoryGetter,);
     this.registerInclusionResolver('preparedByUser', this.preparedByUser.inclusionResolver);
     this.tools = this.createBelongsToAccessorFor('tools', toolsRepositoryGetter,);

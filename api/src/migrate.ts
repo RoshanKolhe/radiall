@@ -36,6 +36,7 @@ export async function migrate(args: string[]) {
       'MaintainanceChecklist',
       'RevisionHistory',
       'HistoryCard',
+      'Notification'
     ],
   });
 

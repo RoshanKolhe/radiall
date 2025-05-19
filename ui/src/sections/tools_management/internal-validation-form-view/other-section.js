@@ -2,7 +2,7 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 import { useSnackbar } from 'notistack';
 import { Controller, useForm } from 'react-hook-form';
@@ -54,6 +54,10 @@ export default function OtherSection({ currentForm, verificationForm, userData, 
         date: Yup.string(),
     });
 
+    const parsedDate = useMemo(() => currentForm?.dimensionsQuestionery?.date
+        ? parse(currentForm.dimensionsQuestionery.date, 'dd/MM/yyyy', new Date())
+        : new Date(), [currentForm?.dimensionsQuestionery?.date]);
+
     const defaultValues = useMemo(() => ({
         finding: currentForm?.otherQuestionery?.finding || '',
         description: currentForm?.otherQuestionery?.description || '',
@@ -64,8 +68,8 @@ export default function OtherSection({ currentForm, verificationForm, userData, 
         moPartNumber: currentForm?.otherQuestionery?.moPartNumber || '',
         testingQuantity: currentForm?.otherQuestionery?.testingQuantity || undefined,
         totalQuantity: currentForm?.otherQuestionery?.totalQuantity || undefined,
-        date: currentForm?.otherQuestionery?.date ? format(new Date(currentForm?.otherQuestionery?.date), "dd MMMM yyyy, HH:mm") : format(new Date(), "dd MMMM yyyy, HH:mm"),
-    }), [currentForm]);
+        date: parsedDate ? format(new Date(parsedDate), "dd/MM/yyyy") : format(new Date(), "dd/MM/yyyy"),
+    }), [currentForm, parsedDate]);
 
     const methods = useForm({
         resolver: yupResolver(NewSupplierSchema),
@@ -164,11 +168,11 @@ export default function OtherSection({ currentForm, verificationForm, userData, 
                 otherSection: updatedQuestionery,
             };
 
-            const response = await axiosInstance.patch(`/update-complete-form/${currentForm?.id}`, inputData);
+            const response = await axiosInstance.patch(`/update-other-section/${currentForm?.id}`, inputData);
 
             if (response?.data?.success) {
                 enqueueSnackbar(response?.data?.message, { variant: 'success' });
-                navigate(paths.dashboard.tools.list);
+                // navigate(paths.dashboard.tools.list);
             } else {
                 enqueueSnackbar('Update failed', { variant: 'error' });
             }
@@ -429,9 +433,9 @@ export default function OtherSection({ currentForm, verificationForm, userData, 
                                             <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                                                 Save
                                             </LoadingButton>
-                                            <Button onClick={() => navigate(paths.dashboard.tools.list)} variant='contained'>
+                                            {/* <Button onClick={() => navigate(paths.dashboard.tools.list)} variant='contained'>
                                                 Cancel
-                                            </Button>
+                                            </Button> */}
                                         </>
                                     )}
                                 </Box>

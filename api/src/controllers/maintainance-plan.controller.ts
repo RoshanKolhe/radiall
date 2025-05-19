@@ -1,9 +1,9 @@
 import { repository } from "@loopback/repository";
-import { MaintainancePlanRepository, ToolsRepository, ToolTypeMaintainanceRepository } from "../repositories";
+import { MaintainanceChecklistRepository, MaintainancePlanRepository, ToolsRepository, ToolTypeMaintainanceRepository } from "../repositories";
 import { authenticate } from "@loopback/authentication";
 import { PermissionKeys } from "../authorization/permission-keys";
 import { get, getModelSchemaRef, HttpErrors, param, patch, post, requestBody, response } from "@loopback/rest";
-import { MaintainancePlan } from "../models";
+import { MaintainanceChecklist, MaintainancePlan } from "../models";
 
 export class MaintainancePlanController {
   constructor(
@@ -12,7 +12,9 @@ export class MaintainancePlanController {
     @repository(ToolsRepository)
     public toolsRepository: ToolsRepository,
     @repository(ToolTypeMaintainanceRepository)
-    public toolTypeMaintainanceRepository: ToolTypeMaintainanceRepository
+    public toolTypeMaintainanceRepository: ToolTypeMaintainanceRepository,
+    @repository(MaintainanceChecklistRepository)
+    public maintainanceChecklistRepository: MaintainanceChecklistRepository,
   ) {}
 
   // create new maintainance plan...
@@ -95,9 +97,8 @@ export class MaintainancePlanController {
   @get('/maintainance-plan-by-toolId/{toolId}')
   async getMaintainancePlanByToolId(
     @param.path.number('toolId') toolId: number
-  ): Promise<{success : boolean; message: string; data : {levelOnePlan: object | null, levelTwoPlan: MaintainancePlan | null}}>{
+  ): Promise<{success : boolean; message: string; data : {levelOnePlan: object | null, levelTwoPlan: object | null, levelOneInstructions: MaintainanceChecklist[], levelTwoInstructions: MaintainanceChecklist[]}}>{
     try{
-      console.log('toolId', toolId);
       const tool = await this.toolsRepository.findById(toolId);
 
       if(!tool){
@@ -106,20 +107,54 @@ export class MaintainancePlanController {
 
       let levelOnePlan = null;
       let levelTwoPlan = null;
-      if(tool?.toolTypeId){
-        levelOnePlan = await this.toolTypeMaintainanceRepository.findOne({where : {toolTypeId: tool?.toolTypeId}, include : [{relation : 'preparedByUser'}]});
+      if(tool?.levelOneMaintainanceId){
+        levelOnePlan = await this.maintainancePlanRepository.findById(tool.levelOneMaintainanceId, {include : [{relation : 'preparedByUser'}, {relation : 'responsibleUser'}]});
+        const maintainanceChecklistArray = await Promise.all(
+          levelOnePlan.maintainanceChecklistArray?.map(async (item) => {
+            const checkpoint = await this.maintainanceChecklistRepository.findById(item);
+            return checkpoint;
+          }) || []
+        );
+        
+        levelOnePlan = {
+          ...levelOnePlan,
+          maintainanceChecklistArray
+        }
       }
 
       if(tool?.levelTwoMaintainanceId){
-        levelTwoPlan = await this.maintainancePlanRepository.findById(tool.levelTwoMaintainanceId, {include : [{relation : 'preparedByUser'}]});
+        levelTwoPlan = await this.maintainancePlanRepository.findById(tool.levelTwoMaintainanceId, {include : [{relation : 'preparedByUser'}, {relation : 'responsibleUser'}]});
+        const maintainanceChecklistArray = await Promise.all(
+          levelTwoPlan.maintainanceChecklistArray?.map(async (item) => {
+            const checkpoint = await this.maintainanceChecklistRepository.findById(item);
+            return checkpoint;
+          }) || []
+        );
+        
+        levelTwoPlan = {
+          ...levelTwoPlan,
+          maintainanceChecklistArray
+        }
       }
+
+      const allInstructions = await this.maintainanceChecklistRepository.find();
+
+      const levelOneMaintainanceInstructions = allInstructions.filter(instruction =>
+        instruction.toolTypes?.includes(tool.toolTypeId)
+      );
+
+      const levelTwoMaintainanceInstructions = allInstructions.filter(instruction =>
+        instruction.isLevelTwoCheckpoint
+      );
 
       return{
         success : true,
         message : 'Maintainance plan data',
         data : {
           levelOnePlan : levelOnePlan,
-          levelTwoPlan : levelTwoPlan
+          levelTwoPlan : levelTwoPlan,
+          levelOneInstructions : levelOneMaintainanceInstructions,
+          levelTwoInstructions : levelTwoMaintainanceInstructions,
         }
       }
     }catch(error){

@@ -33,6 +33,6 @@ export class MaintainancePlanUserController {
   async getUser(
     @param.path.number('id') id: typeof MaintainancePlan.prototype.id,
   ): Promise<User> {
-    return this.maintainancePlanRepository.preparedByUser(id);
+    return this.maintainancePlanRepository.responsibleUser(id);
   }
 }

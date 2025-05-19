@@ -34,7 +34,7 @@ export const endpoints = {
   user: {
     list: '/api/users/list',
     notifications: '/notifications',
-    filterNotificationList: (filter) => `/notifications?${filter}`,
+    filterNotificationList: (filter) => `/notifications?filter=${filter}`,
     filterList: (filter) => `/api/users/list?${filter}`,
     details: (id) => `/api/users/${id}`,
     search: '/api/user/search',
@@ -73,7 +73,7 @@ export const endpoints = {
   },
   spare: {
     list: '/spares',
-    filterList: (filter) => `/spares?${filter}`,
+    filterList: (filter) => `/spares?filter=${filter}`,
     details: (id) => `/spares/${id}`,
   },
   inventory: {
@@ -120,7 +120,7 @@ export const endpoints = {
   // MAINTAINANCE CHECKLIST
   maintainanceChecklist: {
     list: '/maintainance-checklists',
-    filterList: (filter) => `/maintainance-checklists?${filter}`,
+    filterList: (filter) => `/maintainance-checklists?filter=${filter}`,
     details: (id) => `/maintainance-checklists/${id}`,
   },
   // MAINTAINANCE PLAN
@@ -128,4 +128,8 @@ export const endpoints = {
     details: (toolId) => `/maintainance-plan-by-toolId/${toolId}`,
     entries: (toolId) => `/maintainance-entries/${toolId}`,
   },
+  // NOTIFICATIONS
+  notifications: {
+    list: `/notifications`
+  }
 };

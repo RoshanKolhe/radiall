@@ -15,11 +15,23 @@ export class MaintainanceChecklist extends Entity {
   })
   checklistPoint: string;
 
+  // @property({
+  //   type: 'string',
+  //   required: true
+  // })
+  // description: string;
+
   @property({
-    type: 'string',
+    type: 'boolean',
     required: true
   })
-  description: string;
+  isLevelTwoCheckpoint: boolean;
+
+  @property({
+    type: 'array',
+    itemType: 'number'
+  })
+  toolTypes: number[];
 
   @property({
     type: 'date',

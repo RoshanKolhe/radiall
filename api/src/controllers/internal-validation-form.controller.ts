@@ -2,10 +2,11 @@ import { repository } from "@loopback/repository";
 import { authenticate, AuthenticationBindings } from "@loopback/authentication";
 import { get, HttpErrors, param, patch, post, requestBody } from "@loopback/rest";
 import { PermissionKeys } from "../authorization/permission-keys";
-import { ApprovalUsersRepository, InternalValidationFormRepository, InternalValidationHistoryRepository, ToolsRepository, UserRepository } from "../repositories";
+import { ApprovalUsersRepository, HistoryCardRepository, InternalValidationFormRepository, InternalValidationHistoryRepository, ToolsRepository, UserRepository } from "../repositories";
 import { UserProfile } from "@loopback/security";
 import { inject } from "@loopback/core";
 import { EventSchedular } from "../services/event-schedular.service";
+import { NotificationService } from "../services/notification.service";
 
 export class InternalValidationFormController {
   constructor(
@@ -21,6 +22,10 @@ export class InternalValidationFormController {
       public internalValidationHistoryRepository: InternalValidationHistoryRepository, 
       @inject('service.eventScheduler.service')
       public eventSchedulerService: EventSchedular,
+      @inject('service.notification.service')
+      public notificationService: NotificationService,
+      @repository(HistoryCardRepository)
+      public historyCardRepository: HistoryCardRepository
     ) {}
   
     // Get internal validation form of a tool with tool id...
@@ -484,12 +489,12 @@ export class InternalValidationFormController {
       }
     }
 
-    // last save
+    // update other section...
     @authenticate({
       strategy : 'jwt',
       options : {required : [PermissionKeys.ADMIN, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
     })
-    @patch('/update-complete-form/{id}')
+    @patch('/update-other-section/{id}')
     async updateInternalValidationForm(
       @param.path.number('id') formId: number,
       @requestBody({
@@ -592,20 +597,83 @@ export class InternalValidationFormController {
         if (otherSection) {
           await this.internalValidationFormRepository.updateById(formId, {
             otherQuestionery: otherSection,
-            isEditable: false,
           });
         }
     
         return {
           success: true,
-          message: 'Internal validation form completed',
+          message: 'form saved in draft',
         };
       } catch (error) {
         throw error;
       }
     }
-    
 
+    // update complete form...
+    @authenticate({
+      strategy : 'jwt',
+      options : {required : [PermissionKeys.ADMIN, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
+    })
+    @post('/save-internal-validation-form/{formId}')
+    async saveInternalValidationForm(
+      @inject(AuthenticationBindings.CURRENT_USER) currentUser: UserProfile,
+      @param.path.number('formId') formId: number
+    ) : Promise<{success: boolean; message: string}>{
+      try{
+        const form : any = await this.internalValidationFormRepository.findById(formId, {include : [{relation : 'tools'}]});
+
+        if(!form){
+          throw new HttpErrors.NotFound(`No internal validation form found`);
+        }
+
+        if(!form?.isFunctionalTestingSectionDone){
+          return{
+            success : false,
+            message : 'Please complete functional testing section'
+          }
+        }
+
+        if(!form?.isDimensionsSectionDone){
+          return{
+            success : false,
+            message : 'Please complete dimensions section'
+          }
+        }
+
+        await this.internalValidationFormRepository.updateById(formId, {
+          isEditable: false,
+        })
+
+        if(!form?.isUsersApprovalDone){
+          await this.notificationService.sendInternalValidationFormApproval(formId, [form?.userId]);
+        }
+
+        if(form?.isUsersApprovalDone && !form?.isAllValidatorsApprovalDone){
+            await this.notificationService.sendInternalValidationFormApproval(formId, form?.validatorsIds);
+        }
+
+        if(form?.isUsersApprovalDone && form?.isAllValidatorsApprovalDone && !form?.isAllProductionHeadsApprovalDone){
+            await this.notificationService.sendInternalValidationFormApproval(formId, form?.productionHeadIds);
+        }
+
+        await this.historyCardRepository.create({
+          toolsId : form.toolsId,
+          nature : 'Internal Validation created',
+          description: `Internal Validation form submitted for approval of tool part number: ${form?.tools.partNumber} and serial no: ${form?.tools.meanSerialNumber}`,
+          attendedBy: currentUser?.name,
+          date: new Date().toISOString(),
+          isActive: true,
+        });
+
+        return{
+          success : true,
+          message : 'Internal validation form completed'
+        }
+      }catch(error){
+        throw error;
+      }
+    }
+    
     // Check if all validators have approved
     async checkValidatorsApproval(ids: number[]): Promise<boolean> {
       try {
@@ -699,6 +767,14 @@ export class InternalValidationFormController {
         if(userApproval){
           await this.internalValidationFormRepository.updateById(formId, {isUsersApprovalDone : true});
         }
+
+        if(userApproval && !allValidatorsApproved && !allProductionHeadsApproved){
+          await this.notificationService.sendInternalValidationFormApproval(formId, form?.validatorsIds);
+        };
+
+        if(userApproval && allValidatorsApproved && !allProductionHeadsApproved){
+          await this.notificationService.sendInternalValidationFormApproval(formId, form?.productionHeadIds);
+        };
 
         if(allValidatorsApproved && allProductionHeadsApproved && userApproval){
           const updatedValues = {
@@ -822,14 +898,14 @@ export class InternalValidationFormController {
           throw new HttpErrors.BadRequest('User not found');
         }
   
-        const installationForm = await this.internalValidationFormRepository.findById(internalValidationFormId);
-        if (!installationForm) {
-          throw new HttpErrors.NotFound('Installation form for this tool not found');
+        const internalValidationForm = await this.internalValidationFormRepository.findById(internalValidationFormId);
+        if (!internalValidationForm) {
+          throw new HttpErrors.NotFound('Internal validation form for this tool not found');
         }
   
         const approvedUser = await this.approvalUsersRepository.findOne({
           where: {
-            internalValidationFormId: installationForm.id,
+            internalValidationFormId: internalValidationForm.id,
             userId: user.id
           }
         });
@@ -844,7 +920,7 @@ export class InternalValidationFormController {
   
         await this.internalValidationFormRepository.updateById(internalValidationFormId, {isEditable : true});
   
-        // send mail to initiator...
+        await this.notificationService.sendInternalValidationFormSaved(internalValidationFormId)
   
         return { success: true, message: 'Saved successfully.' };
   
@@ -852,5 +928,4 @@ export class InternalValidationFormController {
         throw error;
       }
     }
-
 }

@@ -27,7 +27,7 @@ export default function RevisionHistoryTableRow({
   onSelectRow,
   onDeleteRow,
 }) {
-  const { revision, date, author, reason, change, isActive, createdAt } = row;
+  const { revision, date, author, reason, change, isActive, createdAt, formName } = row;
   const confirm = useBoolean();
 
   const popover = usePopover();
@@ -38,7 +38,7 @@ export default function RevisionHistoryTableRow({
         {/* <TableCell padding="checkbox">
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell> */}
-
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{formName}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{revision}</TableCell>
 
         <TableCell>

@@ -25,3 +25,4 @@ export * from './tool-type-maintainance.model';
 export * from './maintainance-checklist.model';
 export * from './revision-history.model';
 export * from './history-card.model';
+export * from './notification.model';

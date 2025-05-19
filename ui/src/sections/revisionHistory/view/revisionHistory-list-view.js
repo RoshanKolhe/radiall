@@ -48,6 +48,7 @@ import RevisionHistoryTableFiltersResult from '../revisionHistory-table-filters-
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...COMMON_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
+  { id: 'formName', label: 'Form Name'},
   { id: 'revision', label: 'Revision No', width: 180 },
   { id: 'date', label: 'Date', width: 180 },
   { id: 'author', label: 'Author' },

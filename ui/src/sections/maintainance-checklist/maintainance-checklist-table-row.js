@@ -43,8 +43,8 @@ export default function MaintainanceChecklistTableRow({
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{checklistPoint}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{description}</TableCell>
-        <TableCell>
+        {/* <TableCell sx={{ whiteSpace: 'nowrap' }}>{description}</TableCell> */}
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
           <ListItemText
             primary={format(new Date(createdAt), 'dd MMM yyyy')}
             secondary={format(new Date(createdAt), 'p')}

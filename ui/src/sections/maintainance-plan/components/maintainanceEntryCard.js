@@ -147,7 +147,7 @@ export default function LevelMaintainanceEntryCard({maintainanceData, toolData})
             setValue('date', maintainanceData?.levelOnePlan?.createdAt ? format(new Date(maintainanceData?.levelOnePlan?.createdAt), 'dd MM yyyy') : '');
             setValue('description', maintainanceData?.levelOnePlan?.description || '');
             setValue('periodicity', maintainanceData?.levelOnePlan?.periodicity || '');
-            setValue('responsibleUser', maintainanceData?.levelOnePlan?.responsibleUser || '');
+            setValue('responsibleUser', `${maintainanceData?.levelOnePlan?.responsibleUser?.firstName} ${maintainanceData?.levelOnePlan?.responsibleUser?.lastName}` || '');
             setValue('preparedByUser', maintainanceData?.levelOnePlan?.preparedByUser || null);
         }
 
@@ -155,7 +155,7 @@ export default function LevelMaintainanceEntryCard({maintainanceData, toolData})
             setValue('date', maintainanceData?.levelTwoPlan?.createdAt ? format(new Date(maintainanceData?.levelTwoPlan?.createdAt), 'dd MM yyyy') : '');
             setValue('description', maintainanceData?.levelTwoPlan?.description || '');
             setValue('periodicity', maintainanceData?.levelTwoPlan?.periodicity || '');
-            setValue('responsibleUser', maintainanceData?.levelTwoPlan?.responsibleUser || '');
+            setValue('responsibleUser', `${maintainanceData?.levelTwoPlan?.responsibleUser?.firstName} ${maintainanceData?.levelTwoPlan?.responsibleUser?.lastName}` || '');
             setValue('preparedByUser', maintainanceData?.levelTwoPlan?.preparedByUser || null);
         }
     },[values.level, maintainanceData, setValue])

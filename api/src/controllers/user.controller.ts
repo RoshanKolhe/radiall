@@ -158,6 +158,9 @@ export class UserController {
       where: {
         id: currnetUser.id,
       },
+      include: [
+        {relation : 'department'}
+      ]
     });
     const userData = _.omit(user, 'password');
     return Promise.resolve({

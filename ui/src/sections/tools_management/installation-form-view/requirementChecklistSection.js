@@ -11,6 +11,7 @@ import { LoadingButton } from '@mui/lab';
 import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router';
 import { paths } from 'src/routes/paths';
+import { useAuthContext } from 'src/auth/hooks';
 
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -27,13 +28,15 @@ const VisuallyHiddenInput = styled('input')({
 });
 
 export default function RequirementChecklistSection({ currentForm, verificationForm, isInitiator }) {
+    const { user: currentUser } = useAuthContext();
     const navigate = useNavigate();
     const { enqueueSnackbar } = useSnackbar();
     const [checkList, setCheckList] = useState([]);
     const [usersData, setUsersData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-
+    console.log('currentUser', currentUser);
     useEffect(() => {
+        console.log(currentForm?.initiatorId,currentForm?.initiator)
         if(currentForm?.requirementChecklist?.length > 0){
             const list = currentForm?.requirementChecklist?.map((item) => ({
                 ...item,
@@ -41,11 +44,13 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                 nonCritical: item?.nonCritical || 'md',
                 toDo: item?.toDo || false,
                 done: item?.done || false,
-                actionOwner: item?.actionOwner ? item?.actionOwner : null
+                actionOwner: (currentForm?.initiatorId && currentForm?.initiator) ? getUserInfo(currentForm?.initiator) : getUserInfo(currentUser),
             }))
             setCheckList(list);
         };
-    }, [currentForm?.requirementChecklist])
+    }, [currentForm?.requirementChecklist, currentForm?.initiatorId, currentForm?.initiator, currentUser]);
+
+    console.log('checklist', checkList);
 
     const tableHeadNames = [
         { value: 'requirement', label: 'Requirement', visible: true },
@@ -112,7 +117,7 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                 id : user?.id,
                 firstName: user?.firstName,
                 lastName: user?.lastName,
-                role: user?.permissions?.[0] === 'validator' ? user?.designation : '' || user?.role || '',
+                role: user?.permissions?.[0] === 'validator' ? user?.designation : '' || user?.role || user?.permissions[0] || '',
                 email: user?.email,
                 department: user?.department
             }
@@ -127,15 +132,19 @@ export default function RequirementChecklistSection({ currentForm, verificationF
             const finalCheckList = checkList.map((item) => ({
                 requirement: item?.requirement,
                 isNeedUpload: item?.isNeedUpload,
+                isFieldChanging: item?.isFieldChanging,
+                fieldName: item?.fieldName,
                 critical: item.critical,
                 nonCritical: item.nonCritical,
                 toDo: item.toDo,
-                actionOwner: item?.actionOwner ? getUserInfo(item?.actionOwner) : null,
+                actionOwner: item?.actionOwner ? item?.actionOwner : null,
                 done: item?.done,
                 comment: item?.comment || '',
                 upload: item?.upload || '',
                 routes: item?.routes || null
             }))
+
+            console.log('final check list', finalCheckList);
             const inputData = {
                 requirementChecklist: finalCheckList,
             };
@@ -145,7 +154,7 @@ export default function RequirementChecklistSection({ currentForm, verificationF
             if(response?.data?.success){
                 enqueueSnackbar(response?.data?.message, {variant : 'success'});
                 setIsLoading(false);
-                navigate(paths.dashboard.tools.list);
+                // navigate(paths.dashboard.tools.list);
             }else{
                 enqueueSnackbar(response?.data?.message, {variant : 'error'});
             }
@@ -227,7 +236,6 @@ export default function RequirementChecklistSection({ currentForm, verificationF
         }
     };
 
-    
     return (
         <Card sx={{ p: 3, mt: 2 }}>
             <Grid item xs={12} md={12}>
@@ -319,36 +327,37 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                                 : (
                                     <p>{`${checkList[index]?.actionOwner?.firstName || ''} ${checkList[index]?.actionOwner?.lastName || ''}`}</p>
                                 ) : (
-                                    <Autocomplete
-                                        disabled={!!verificationForm || !isInitiator}
-                                        value={checkList[index]?.actionOwner || null}
-                                        options={usersData || []}
-                                        onInputChange={(event) => fetchUsers(event, setUsersData, 'validator', 'user')}
-                                        onChange={(event, inputvalue) => handleChangeValue(inputvalue, index, 'actionOwner')}
-                                        getOptionLabel={(option) => `${option?.firstName || ''} ${option?.lastName || ''}`}
-                                        isOptionEqualToValue={(option, value) => option?.id === value?.id}
-                                        filterOptions={(options, { inputValue }) =>
-                                            options?.filter((option) =>
-                                            option?.firstName?.toLowerCase().includes(inputValue.toLowerCase()) ||
-                                            option?.lastName?.toLowerCase().includes(inputValue.toLowerCase())
-                                            )
-                                        }
-                                        renderOption={(props, option) => (
-                                            <li {...props}>
-                                                <div>
-                                                    <Typography variant="subtitle2" fontWeight="bold">
-                                                        {`${option?.firstName} ${option?.lastName} (${option?.department?.name})`}
-                                                    </Typography>
-                                                    <Typography variant="body2" color="textSecondary">
-                                                        {`${option.email}`}
-                                                    </Typography>
-                                                </div>
-                                            </li>
-                                        )}
-                                        renderInput={(params) => (
-                                            <TextField {...params} label="Select User" variant="outlined" />
-                                        )}
-                                    />
+                                    // <Autocomplete
+                                    //     disabled={!!verificationForm || !isInitiator}
+                                    //     value={checkList[index]?.actionOwner || null}
+                                    //     options={usersData || []}
+                                    //     onInputChange={(event) => fetchUsers(event, setUsersData, 'validator', 'user')}
+                                    //     onChange={(event, inputvalue) => handleChangeValue(inputvalue, index, 'actionOwner')}
+                                    //     getOptionLabel={(option) => `${option?.firstName || ''} ${option?.lastName || ''}`}
+                                    //     isOptionEqualToValue={(option, value) => option?.id === value?.id}
+                                    //     filterOptions={(options, { inputValue }) =>
+                                    //         options?.filter((option) =>
+                                    //         option?.firstName?.toLowerCase().includes(inputValue.toLowerCase()) ||
+                                    //         option?.lastName?.toLowerCase().includes(inputValue.toLowerCase())
+                                    //         )
+                                    //     }
+                                    //     renderOption={(props, option) => (
+                                    //         <li {...props}>
+                                    //             <div>
+                                    //                 <Typography variant="subtitle2" fontWeight="bold">
+                                    //                     {`${option?.firstName} ${option?.lastName} (${option?.department?.name})`}
+                                    //                 </Typography>
+                                    //                 <Typography variant="body2" color="textSecondary">
+                                    //                     {`${option.email}`}
+                                    //                 </Typography>
+                                    //             </div>
+                                    //         </li>
+                                    //     )}
+                                    //     renderInput={(params) => (
+                                    //         <TextField {...params} label="Select User" variant="outlined" />
+                                    //     )}
+                                    // />
+                                    <p>{`${checkList[index]?.actionOwner?.firstName || ''} ${checkList[index]?.actionOwner?.lastName || ''}`}</p>
                                 )}
                                 </TableCell>
                                 <TableCell>
@@ -396,7 +405,7 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                                 <TableCell>
                                 {requirement?.isNeedUpload ? 
                                     !requirement?.upload ? (
-                                    (!verificationForm || !!isInitiator) ? 
+                                    (!verificationForm && !!isInitiator) ? 
                                     (
                                         <Button
                                             component="label"
@@ -432,7 +441,7 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                                         >
                                             VIEW
                                         </p>
-                                        {(!verificationForm || !!isInitiator) && 
+                                        {(!verificationForm && !!isInitiator) && 
                                             (
                                                 <>
                                                     <IconButton onClick={() => handleDeleteFile(index)}>
@@ -498,9 +507,9 @@ export default function RequirementChecklistSection({ currentForm, verificationF
                             <LoadingButton variant="contained" loading={isLoading} onClick={() => onSubmit()}>
                                 Save
                             </LoadingButton>
-                            <Button onClick={() => navigate(paths.dashboard.tools.list)} variant='contained'>
+                            {/* <Button onClick={() => navigate(paths.dashboard.tools.list)} variant='contained'>
                                 Cancel
-                            </Button>
+                            </Button> */}
                         </>
                     )}
                 </Box>

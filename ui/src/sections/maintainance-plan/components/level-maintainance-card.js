@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router';
 import { paths } from 'src/routes/paths';
 
 // -----------------------------------------------------------------------------------------------------------------
-export default function LevelMaintainanceCard({maintainanceData, levelNo, toolData}){
+export default function LevelMaintainanceCard({maintainanceData, levelNo, toolData, instructions, maintainanceInstructions}){
     const { user: currentUser } = useAuthContext();
     const { enqueueSnackbar } = useSnackbar();
     const navigate = useNavigate();
@@ -26,7 +26,8 @@ export default function LevelMaintainanceCard({maintainanceData, levelNo, toolDa
     const maintainanceSchema = Yup.object().shape({
         level: Yup.number().required('Please Select level'),
         periodicity: Yup.number().required('Periodicity is required'),
-        responsibleUser: Yup.string().required('Responsible user is required'),
+        responsibleUser: Yup.object().nullable().required('Responsible user is required'),
+        maintainanceInstructionsList : Yup.array().min(1,'Maintainance Instructions are required'),
         preparedByUser: Yup.object().nullable().required('Prepared By User is required'),
         description: Yup.string().required('Description is required'),
         date: Yup.string().required('Date is required'),
@@ -36,12 +37,13 @@ export default function LevelMaintainanceCard({maintainanceData, levelNo, toolDa
     () => ({
         level: maintainanceData?.level ? maintainanceData?.level : levelNo || '',
         periodicity: maintainanceData?.periodicity || 0,
-        responsibleUser: '',
+        responsibleUser: null,
         preparedByUser:null,
         description: maintainanceData?.description || '',
         date: maintainanceData?.createdAt ? format(new Date(maintainanceData?.createdAt), 'dd MM yyyy') : format(new Date(), 'dd MM yyyy'),
+        maintainanceInstructionsList: (maintainanceData && maintainanceData?.maintainanceChecklistArray?.length > 0) ?  maintainanceData?.maintainanceChecklistArray : maintainanceInstructions
     }),
-    [maintainanceData, levelNo]
+    [maintainanceData, levelNo, maintainanceInstructions]
     );
 
     const methods = useForm({
@@ -58,36 +60,37 @@ export default function LevelMaintainanceCard({maintainanceData, levelNo, toolDa
         formState: { isSubmitting },
     } = methods;
 
+    const values = watch();
+
     const onSubmit = handleSubmit(async (formData) => {
     try {
-        console.info('DATA', formData);
+        const inputData = {
+            toolsId: maintainanceData?.toolsId || toolData?.id,
+            level: formData?.level,
+            description: formData?.description,
+            responsibleUserId: formData?.responsibleUser?.id,
+            preparedByUserId: formData?.preparedByUser?.id,
+            periodicity: formData?.periodicity,
+            isActive: true,
+            maintainanceChecklistArray: formData?.maintainanceInstructionsList?.map((item) => item.id)
+            };
 
-      const inputData = {
-        toolsId: maintainanceData?.toolsId || toolData?.id,
-        level: formData?.level,
-        description: formData?.description,
-        responsibleUser: formData?.responsibleUser,
-        preparedByUserId: formData?.preparedByUser?.id,
-        periodicity: formData?.periodicity,
-        isActive: true,
-      };
-
-      if (!maintainanceData) {
-        await axiosInstance.post('/maintainance-plan/create', inputData);
-      } else {
-        await axiosInstance.patch(`/maintainance-plan/update/${maintainanceData?.id}`, inputData);
-      }
-      enqueueSnackbar(maintainanceData ? 'Update success!' : 'Create success!');
-      if(levelNo === 2){
-        navigate(paths.dashboard.maintainancePlan.toolList);
-      }
-      
-    } catch (error) {
-        console.error(error);
-        enqueueSnackbar(typeof error === 'string' ? error : error.error.message, {
-            variant: 'error',
-        });
-    }
+        if (!maintainanceData) {
+            await axiosInstance.post('/maintainance-plan/create', inputData);
+        } else {
+            await axiosInstance.patch(`/maintainance-plan/update/${maintainanceData?.id}`, inputData);
+        }
+            enqueueSnackbar(maintainanceData ? 'Update success!' : 'Create success!');
+        if(levelNo === 2){
+            navigate(paths.dashboard.maintainancePlan.toolList);
+        }
+        
+        } catch (error) {
+            console.error(error);
+            enqueueSnackbar(typeof error === 'string' ? error : error.error.message, {
+                variant: 'error',
+            });
+        }
     });
 
     // for autocomplete
@@ -97,6 +100,7 @@ export default function LevelMaintainanceCard({maintainanceData, levelNo, toolDa
             if (event && event?.target?.value && event.target.value.length >= 3) {
                 let filter = {
                     where: {
+                        departmentId: 5,
                         or: [
                             { email: { like: `%${event.target.value}%` } },
                             { firstName: { like: `%${event.target.value}%` } },
@@ -110,6 +114,7 @@ export default function LevelMaintainanceCard({maintainanceData, levelNo, toolDa
                     filter = {
                         where: {
                             permissions : [role],
+                            departmentId : 5,
                             or: [
                                 { email: { like: `%${event.target.value}%` } },
                                 { firstName: { like: `%${event.target.value}%` } },
@@ -151,6 +156,16 @@ export default function LevelMaintainanceCard({maintainanceData, levelNo, toolDa
         }
     }, [maintainanceData, currentUser, defaultValues, reset, setValue]);
 
+   useEffect(() => {
+  if (values.maintainanceInstructionsList && values.maintainanceInstructionsList.length > 0) {
+    const descriptionString = values.maintainanceInstructionsList
+      .map((item, index) => `${index + 1}. ${item.checklistPoint}`)
+      .join('\n');
+
+    setValue('description', descriptionString);
+  }
+}, [values.maintainanceInstructionsList, setValue]);
+
     return(
         <FormProvider methods={methods} onSubmit={onSubmit}>
             <Card sx={{ p: 3, mt: 2 }}>
@@ -171,9 +186,29 @@ export default function LevelMaintainanceCard({maintainanceData, levelNo, toolDa
                             <RHFTextField name='periodicity' label='Periodicity' type='number'/>
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        {/* <Grid item xs={12} sm={6}>
                             <RHFTextField name='responsibleUser' label='Responsible User' />
-                        </Grid>
+                        </Grid> */}
+
+                        <Grid item xs={12} sm={6}>
+                            <RHFAutocomplete
+                                name="responsibleUser"
+                                label="Responsible User"
+                                options={usersData || []}
+                                onInputChange={(event) => fetchUsers(event, setUsersData, 'initiator')}
+                                getOptionLabel={(option) => `${option?.firstName} ${option?.lastName}` || ''}
+                                isOptionEqualToValue={(option, value) => option?.id === value.id}
+                                filterOptions={(options, { inputValue }) =>
+                                    options?.filter((option) => option?.firstName?.toLowerCase().includes(inputValue?.toLowerCase()) || option?.lastName?.toLowerCase().includes(inputValue?.toLowerCase()))
+                                }
+                                renderOption={(props, option) => (
+                                    <li {...props}>
+                                        <Typography variant="subtitle2">{`${option?.firstName} ${option?.lastName}`}</Typography>
+                                    </li>
+                                )}
+
+                            />
+                        </Grid>                        
 
                         <Grid item xs={12} sm={6}>
                             <RHFAutocomplete
@@ -201,7 +236,30 @@ export default function LevelMaintainanceCard({maintainanceData, levelNo, toolDa
                         </Grid>
 
                         <Grid item xs={12} md={12}>
-                            <RHFTextField name='description' label='Description' multiline rows={3}/>
+                            <RHFAutocomplete
+                                multiple
+                                name="maintainanceInstructionsList"
+                                label="Maintainance Instructions"
+                                options={instructions || []}
+                                getOptionLabel={(option) => `${option?.checklistPoint}` || ''}
+                                isOptionEqualToValue={(option, value) => option?.id === value.id}
+                                filterOptions={(options, { inputValue }) =>
+                                    options?.filter((option) => option?.checklistPoint?.toLowerCase().includes(inputValue?.toLowerCase()))
+                                }
+                                renderOption={(props, option) => (
+                                    <li {...props}>
+                                        <div>
+                                            <Typography variant="subtitle2" fontWeight="bold">
+                                                {`${option?.checklistPoint}`}
+                                            </Typography>
+                                        </div>
+                                    </li>
+                                )}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} md={12}>
+                            <RHFTextField disabled name='description' label='Description' multiline rows={3}/>
                         </Grid>
                     </Grid>
                     <Stack alignItems="flex-end" sx={{ mt: 3 }}>
@@ -219,4 +277,6 @@ LevelMaintainanceCard.propTypes = {
     maintainanceData : PropTypes.object,
     levelNo: PropTypes.number,
     toolData: PropTypes.object,
+    instructions: PropTypes.array,
+    maintainanceInstructions: PropTypes.array,
 }

@@ -8,7 +8,8 @@ import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 //
 import { useGetMaintainanceChecklistById } from 'src/api/maintainance-checklist';
-import CheckpointNewEditForm from '../checkpoint-new-edit-form';
+import CheckpointLevelOneNewEditForm from '../maintainance-level-one-checkpoint-new-edit-form';
+import CheckpointLevelTwoNewEditForm from '../maintainance-level-two-checkpoint-new-edit-form';
 
 // ----------------------------------------------------------------------
 
@@ -31,7 +32,7 @@ export default function MaintainanceChecklistEditView() {
             href: paths.dashboard.root,
           },
           {
-            name: 'Maintainance Checklist',
+            name: 'Maintainance Instructions',
             href: paths.dashboard.maintainanceChecklist.root,
           },
           {
@@ -43,7 +44,7 @@ export default function MaintainanceChecklistEditView() {
         }}
       />
 
-      <CheckpointNewEditForm currentCheckpoint={currentCheckpoint} />
+      {!currentCheckpoint?.isLevelTwoCheckpoint ? <CheckpointLevelOneNewEditForm currentCheckpoint={currentCheckpoint} /> : <CheckpointLevelTwoNewEditForm currentCheckpoint={currentCheckpoint} />}
     </Container>
   );
 }

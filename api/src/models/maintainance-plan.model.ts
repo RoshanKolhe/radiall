@@ -15,28 +15,28 @@ export class MaintainancePlan extends Entity {
   toolsId: number;
 
   @property({
-    type : 'number',
-    required : true
+    type: 'number',
+    required: true
   })
   level: number;
 
   @property({
-    type : 'string',
-    required : true
+    type: 'string',
+    required: true
   })
   description: string;
 
   @property({
-    type : 'number',
-    required : true
+    type: 'array',
+    itemType: 'number'
   })
-  periodicity: number;
+  maintainanceChecklistArray: number[];
 
   @property({
-    type : 'string',
-    required : true
-  })  
-  responsibleUser: string;
+    type: 'number',
+    required: true
+  })
+  periodicity: number;
 
   @belongsTo(() => User)
   preparedByUserId: number;
@@ -47,7 +47,7 @@ export class MaintainancePlan extends Entity {
   lastMaintainanceDate?: Date;
 
   @property({
-    type : 'string'
+    type: 'string'
   })
   status: string;
 
@@ -82,6 +82,9 @@ export class MaintainancePlan extends Entity {
     type: 'string',
   })
   remark?: string;
+
+  @belongsTo(() => User)
+  responsibleUserId: number;
 
   constructor(data?: Partial<MaintainancePlan>) {
     super(data);

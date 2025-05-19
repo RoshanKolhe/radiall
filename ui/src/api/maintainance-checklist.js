@@ -47,27 +47,27 @@ export function useGetMaintainanceChecklistById(id) {
 
 // ----------------------------------------------------------------------
 
-// export function useGetStationsWithFilter(filter) {
-//   let URL;
-//   if (filter) {
-//     URL = endpoints.station.filterList(filter);
-//   } else {
-//     URL = endpoints.station.list;
-//   }
+export function useGetMaintainanceChecklistWithFilter(filter) {
+  let URL;
+  if (filter) {
+    URL = endpoints.maintainanceChecklist.filterList(filter);
+  } else {
+    URL = endpoints.maintainanceChecklist.list;
+  }
 
-//   const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher);
+  const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher);
 
-//   const refreshFilterStations = () => {
-//     // Use the `mutate` function to trigger a revalidation
-//     mutate();
-//   };
+  const refreshMaintainanceChecklists = () => {
+    // Use the `mutate` function to trigger a revalidation
+    mutate();
+  };
 
-//   return {
-//     filteredStations: data || [],
-//     filteredStationsLoading: isLoading,
-//     filteredStationsError: error,
-//     filteredStationsValidating: isValidating,
-//     filteredStationsEmpty: !isLoading && !data?.length,
-//     refreshFilterStations, // Include the refresh function separately
-//   };
-// }
+  return {
+    maintainanceChecklists: data || [],
+    maintainanceChecklistsLoading: isLoading,
+    maintainanceChecklistsError: error,
+    maintainanceChecklistsValidating: isValidating,
+    maintainanceChecklistsEmpty: !isLoading && !data?.length,
+    refreshMaintainanceChecklists, // Include the refresh function separately
+  };
+}

@@ -70,11 +70,11 @@ export default function FormSection({ currentForm, verificationForm, userData, i
                 // nonCritical: item?.nonCritical || 'md',
                 toDo: item?.toDo || false,
                 done: item?.done || false,
-                actionOwner: item?.actionOwner ? item?.actionOwner : null
+                actionOwner: (currentForm.initiatorId && currentForm?.initiator) ? getUserInfo(currentForm.initiator) : getUserInfo(currentUser)
             }))
             setCheckList(list);
         };
-    }, [currentForm?.requirementChecklist])
+    }, [currentForm?.requirementChecklist, currentForm?.initiator, currentForm?.initiatorId, currentUser])
 
     const NewSupplierSchema = Yup.object().shape({
         partNumber: Yup.string().required('Part Number is required'),
@@ -94,7 +94,7 @@ export default function FormSection({ currentForm, verificationForm, userData, i
         serialNumber: currentForm?.tools?.meanSerialNumber ?? '',
         manufacturer: currentForm?.tools?.manufacturer?.manufacturer ?? '',
         supplier: currentForm?.tools?.supplier?.supplier ?? '',
-        creationDate: currentForm?.tools?.createdAt ? format(new Date(currentForm?.tools?.createdAt), "dd MMMM yyyy, HH:mm") : '',
+        creationDate: currentForm?.tools?.createdAt ? format(new Date(currentForm?.tools?.createdAt), "dd/MM/yyyy") : '',
         justification: currentForm?.justification,
         initiator: null,
         user: null,
@@ -545,36 +545,37 @@ export default function FormSection({ currentForm, verificationForm, userData, i
                                             : (
                                                 <p>{`${checkList[index]?.actionOwner?.firstName || ''} ${checkList[index]?.actionOwner?.lastName || ''}`}</p>
                                             ) : (
-                                                <Autocomplete
-                                                    disabled={!!verificationForm || !isInitiator}
-                                                    value={checkList[index]?.actionOwner || null}
-                                                    options={usersData || []}
-                                                    onInputChange={(event) => fetchUsers(event, setUsersData, 'validator', 'user')}
-                                                    onChange={(event, inputvalue) => handleChangeValue(inputvalue, index, 'actionOwner')}
-                                                    getOptionLabel={(option) => `${option?.firstName || ''} ${option?.lastName || ''}`}
-                                                    isOptionEqualToValue={(option, value) => option?.id === value?.id}
-                                                    filterOptions={(options, { inputValue }) =>
-                                                        options?.filter((option) =>
-                                                        option?.firstName?.toLowerCase().includes(inputValue.toLowerCase()) ||
-                                                        option?.lastName?.toLowerCase().includes(inputValue.toLowerCase())
-                                                        )
-                                                    }
-                                                    renderOption={(props, option) => (
-                                                        <li {...props}>
-                                                            <div>
-                                                                <Typography variant="subtitle2" fontWeight="bold">
-                                                                    {`${option?.firstName} ${option?.lastName} (${option?.department?.name})`}
-                                                                </Typography>
-                                                                <Typography variant="body2" color="textSecondary">
-                                                                    {`${option.email}`}
-                                                                </Typography>
-                                                            </div>
-                                                        </li>
-                                                    )}
-                                                    renderInput={(params) => (
-                                                        <TextField {...params} label="Select User" variant="outlined" />
-                                                    )}
-                                                />
+                                                // <Autocomplete
+                                                //     disabled={!!verificationForm || !isInitiator}
+                                                //     value={checkList[index]?.actionOwner || null}
+                                                //     options={usersData || []}
+                                                //     onInputChange={(event) => fetchUsers(event, setUsersData, 'validator', 'user')}
+                                                //     onChange={(event, inputvalue) => handleChangeValue(inputvalue, index, 'actionOwner')}
+                                                //     getOptionLabel={(option) => `${option?.firstName || ''} ${option?.lastName || ''}`}
+                                                //     isOptionEqualToValue={(option, value) => option?.id === value?.id}
+                                                //     filterOptions={(options, { inputValue }) =>
+                                                //         options?.filter((option) =>
+                                                //         option?.firstName?.toLowerCase().includes(inputValue.toLowerCase()) ||
+                                                //         option?.lastName?.toLowerCase().includes(inputValue.toLowerCase())
+                                                //         )
+                                                //     }
+                                                //     renderOption={(props, option) => (
+                                                //         <li {...props}>
+                                                //             <div>
+                                                //                 <Typography variant="subtitle2" fontWeight="bold">
+                                                //                     {`${option?.firstName} ${option?.lastName} (${option?.department?.name})`}
+                                                //                 </Typography>
+                                                //                 <Typography variant="body2" color="textSecondary">
+                                                //                     {`${option.email}`}
+                                                //                 </Typography>
+                                                //             </div>
+                                                //         </li>
+                                                //     )}
+                                                //     renderInput={(params) => (
+                                                //         <TextField {...params} label="Select User" variant="outlined" />
+                                                //     )}
+                                                // />
+                                                <p>{`${checkList[index]?.actionOwner?.firstName || ''} ${checkList[index]?.actionOwner?.lastName || ''}`}</p>
                                             )}
                                             </TableCell>
                                             <TableCell>

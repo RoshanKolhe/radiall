@@ -37,6 +37,12 @@ export class RevisionHistory extends Entity {
     type: 'string',
     required: true,
   })
+  formName: string;
+
+  @property({
+    type: 'string',
+    required: true,
+  })
   change: string;
 
   @property({

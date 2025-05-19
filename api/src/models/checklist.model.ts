@@ -42,6 +42,17 @@ export class Checklist extends Entity {
   isNeedUpload: boolean;
 
   @property({
+    type: 'boolean',
+    required: true
+  })
+  isFieldChanging: boolean;
+
+  @property({
+    type: 'string',
+  })
+  fieldName: string;
+
+  @property({
     type: 'date',
   })
   createdAt?: Date;

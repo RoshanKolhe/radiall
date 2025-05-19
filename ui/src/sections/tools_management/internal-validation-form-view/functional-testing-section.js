@@ -2,7 +2,7 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 import { useSnackbar } from 'notistack';
 import { Controller, useForm } from 'react-hook-form';
@@ -51,18 +51,22 @@ export default function FunctionalTestingSection({ currentForm, verificationForm
         totalQuantity: Yup.number().required('Total quantity is required')
     });
 
+    const parsedDate = useMemo(() => currentForm?.functionalTestingQuestionery?.date
+        ? parse(currentForm.functionalTestingQuestionery.date, 'dd/MM/yyyy', new Date())
+        : new Date(), [currentForm?.functionalTestingQuestionery?.date]);
+
     const defaultValues = useMemo(() => ({
         finding: currentForm?.functionalTestingQuestionery?.finding || '',
         description: currentForm?.functionalTestingQuestionery?.description || '',
         result: currentForm?.functionalTestingQuestionery?.result || false,
         evidences: currentForm?.functionalTestingQuestionery?.evidences || [],
         controlledBy: null,
-        date: currentForm?.functionalTestingQuestionery?.date ? format(new Date(currentForm?.functionalTestingQuestionery?.date), "dd MMMM yyyy, HH:mm") : format(new Date(), "dd MMMM yyyy, HH:mm"),
+        date: parsedDate ? format(new Date(parsedDate), "dd/MM/yyyy") : format(new Date(), "dd/MM/yyyy"),
         moNumber: currentForm?.functionalTestingQuestionery?.moNumber || '',
         moPartNumber: currentForm?.functionalTestingQuestionery?.moPartNumber || '',
         testingQuantity: currentForm?.functionalTestingQuestionery?.testingQuantity || '',
         totalQuantity: currentForm?.functionalTestingQuestionery?.totalQuantity || ''
-    }), [currentForm]);
+    }), [currentForm, parsedDate]);
 
     const methods = useForm({
         resolver: yupResolver(NewSupplierSchema),

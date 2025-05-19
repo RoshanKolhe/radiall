@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import {  useEffect, useMemo } from 'react';
+import {  useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
@@ -17,34 +17,47 @@ import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, {
   RHFTextField,
   RHFSelect,
+  RHFAutocomplete,
 } from 'src/components/hook-form';
-import {  MenuItem } from '@mui/material';
+import {  MenuItem, Typography } from '@mui/material';
 import { COMMON_STATUS_OPTIONS, } from 'src/utils/constants';
 import axiosInstance from 'src/utils/axios';
+import { useGetToolTypes } from 'src/api/toolType';
 // ----------------------------------------------------------------------
 
-export default function CheckpointNewEditForm({ currentCheckpoint }) {
+export default function CheckpointLevelOneNewEditForm({ currentCheckpoint }) {
   const router = useRouter();
-
+  const { toolTypes } = useGetToolTypes();
   const { enqueueSnackbar } = useSnackbar();
+  const [ toolTypesData, setToolTypesData ] = useState([]);
 
-  const NewStationSchema = Yup.object().shape({
+  useEffect(() => {
+    if(toolTypes && toolTypes.length > 0){
+      setToolTypesData(toolTypes);
+    }
+  },[toolTypes])
+
+  const NewChecklistSchema = Yup.object().shape({
     checkpoint: Yup.string().required('Checkpoint Name is required'),
-    description: Yup.string(),
+    toolTypes: Yup.array()
+      .of(Yup.object().shape({}))
+      .min(1, 'At least one Tool Type is required'),
+    // description: Yup.string(),
     isActive: Yup.boolean(),
   });
 
   const defaultValues = useMemo(
     () => ({
       checkpoint: currentCheckpoint?.checklistPoint || '',
-      description: currentCheckpoint?.description || '',
+      // description: currentCheckpoint?.description || '',
+      toolTypes: currentCheckpoint?.toolTypes || [],
       isActive: currentCheckpoint?.isActive ? '1' : '0' || '1',
     }),
     [currentCheckpoint]
   );
 
   const methods = useForm({
-    resolver: yupResolver(NewStationSchema),
+    resolver: yupResolver(NewChecklistSchema),
     defaultValues,
   });
 
@@ -65,7 +78,9 @@ export default function CheckpointNewEditForm({ currentCheckpoint }) {
 
       const inputData = {
         checklistPoint: formData.checkpoint,
-        description: formData.description,
+        isLevelTwoCheckpoint: false,
+        toolTypes: formData?.toolTypes?.map((item) => item?.id) || [],
+        // description: formData.description,
         isActive: currentCheckpoint ? formData.isActive : true,
       };
 
@@ -76,7 +91,7 @@ export default function CheckpointNewEditForm({ currentCheckpoint }) {
       }
       reset();
       enqueueSnackbar(currentCheckpoint ? 'Update success!' : 'Create success!');
-      router.push(paths.dashboard.maintainanceChecklist.list);
+      router.push(paths.dashboard.maintainanceChecklist.list(1));
     } catch (error) {
       console.error(error);
       enqueueSnackbar(typeof error === 'string' ? error : error.error.message, {
@@ -113,13 +128,36 @@ export default function CheckpointNewEditForm({ currentCheckpoint }) {
               )}
 
               <Grid item xs={12} sm={6}>
-                <RHFTextField name="checkpoint" label="Checkpoint Name" />
+                <RHFTextField name="checkpoint" label="Instruction" />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              {/* <Grid item xs={12} sm={6}>
                 <RHFTextField name="description" label="Description" />
+              </Grid> */}
+
+              <Grid item xs={12} md={6}>
+                <RHFAutocomplete
+                    multiple
+                    name="toolTypes"
+                    label="Tool Type"
+                    options={toolTypesData || []}
+                    getOptionLabel={(option) => `${option?.toolType}` || ''}
+                    isOptionEqualToValue={(option, value) => option?.id === value.id}
+                    filterOptions={(options, { inputValue }) =>
+                        options?.filter((option) => option?.toolType?.toLowerCase().includes(inputValue?.toLowerCase()))
+                    }
+                    renderOption={(props, option) => (
+                        <li {...props}>
+                            <div>
+                                <Typography variant="subtitle2" fontWeight="bold">
+                                    {`${option?.toolType}`}
+                                </Typography>
+                            </div>
+                        </li>
+                    )}
+                />
               </Grid>
-            </Grid>
+            </Grid> 
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
@@ -133,6 +171,6 @@ export default function CheckpointNewEditForm({ currentCheckpoint }) {
   );
 }
 
-CheckpointNewEditForm.propTypes = {
+CheckpointLevelOneNewEditForm.propTypes = {
   currentCheckpoint: PropTypes.object,
 };

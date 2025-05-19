@@ -185,7 +185,7 @@ export default function ToolsNewEditForm({ currentTool }) {
         installationStatus : 'pending',
         internalValidationStatus : 'pending',
         isInternalValidationNeeded : formData?.isInternalValidationNeeded || true,
-        isMaintaincePlanNeeded : formData?.isMaintainancePlanNeeded || true,    // corrected field name.
+        isMaintaincePlanNeeded : formData?.isMaintainancePlanNeeded || false,    // corrected field name.
       };
 
       if(formData?.individualSerialNumber && formData?.individualSerialNumber !== ''){

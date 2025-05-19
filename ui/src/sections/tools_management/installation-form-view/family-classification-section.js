@@ -14,7 +14,6 @@ import QuestionerySection from './components/questionery';
 // ----------------------------------------------------------------------
 
 export default function FamilyClassificationSection({ currentForm, verificationForm, isInitiator }) {
-
     const { user: currentUser } = useAuthContext();
     const { enqueueSnackbar } = useSnackbar();
     const [usersData, setUsersData] = useState([]);
@@ -65,7 +64,7 @@ export default function FamilyClassificationSection({ currentForm, verificationF
             serialNumber: currentForm?.tools?.meanSerialNumber ?? '',
             manufacturer: currentForm?.tools?.manufacturer?.manufacturer ?? '',
             supplier: currentForm?.tools?.supplier?.supplier ?? '',
-            creationDate: currentForm?.tools?.createdAt ? format(new Date(currentForm?.tools?.createdAt), "dd MMMM yyyy, HH:mm") : '',
+            creationDate: currentForm?.tools?.createdAt ? format(new Date(currentForm?.tools?.createdAt), "dd/MM/yyyy") : '',
             initiator: null,
             user: null,
             productionHeads: null,

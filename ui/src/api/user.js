@@ -38,15 +38,17 @@ export function useGetNotifications(filter) {
 
   const refreshNotifications = () => {
     // Use the `mutate` function to trigger a revalidation
-    mutate();
+    mutate(URL);
   };
 
   return {
-    notifications: data || [],
+    notifications: data?.notifications || [],
+    unreadCount: data?.unreadCount || 0,
+    allCount: data?.allCount || 0,
     notificationsLoading: isLoading,
     notificationsError: error,
     notificationsValidating: isValidating,
-    notificationsEmpty: !isLoading && !data?.length,
+    notificationsEmpty: !isLoading && !data?.notifications?.length,
     refreshNotifications, // Include the refresh function separately
   };
 }

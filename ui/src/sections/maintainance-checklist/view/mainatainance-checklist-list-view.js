@@ -1,5 +1,6 @@
 import isEqual from 'lodash/isEqual';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useParams } from 'react-router';
 // @mui
 import { alpha } from '@mui/material/styles';
 import Tab from '@mui/material/Tab';
@@ -37,7 +38,7 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
-import { useGetMainatainanceChecklistPoints } from 'src/api/maintainance-checklist';
+import { useGetMainatainanceChecklistPoints, useGetMaintainanceChecklistWithFilter } from 'src/api/maintainance-checklist';
 import { _roles, COMMON_STATUS_OPTIONS } from 'src/utils/constants';
 import MaintainanceChecklistTableRow from '../maintainance-checklist-table-row';
 import MaintainanceChecklistTableToolbar from '../maintainance-checklist-table-toolbar';
@@ -48,9 +49,9 @@ import MaintainanceChecklistTableFiltersResult from '../maintainance-checklist-t
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...COMMON_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: 'checkpoint', label: 'Checkpoint', width: 180 },
-  { id: 'description', label: 'Description' },
-  { id: 'createdAt', label: 'Created At' },
+  { id: 'checkpoint', label: 'Instruction', width: 180 },
+  // { id: 'description', label: 'Description' },
+  { id: 'createdAt', label: 'Created At', width: 150 },
   { id: 'status', label: 'Status', width: 100 },
   { id: '', width: 88 },
 ];
@@ -65,7 +66,9 @@ const defaultFilters = {
 
 export default function MaintainanceChecklistView() {
   const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc' });
-
+  const params = useParams();
+  const {level} = params;
+  const numericLevel = Number(level);
   const settings = useSettingsContext();
 
   const router = useRouter();
@@ -76,7 +79,15 @@ export default function MaintainanceChecklistView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const { checklists } = useGetMainatainanceChecklistPoints();
+  const filterString = useMemo(() => {
+    const filterObject = numericLevel === 1
+      ? { where: { isLevelTwoCheckpoint: false } }
+      : { where: { isLevelTwoCheckpoint: true } };
+
+    return encodeURIComponent(JSON.stringify(filterObject));
+  }, [numericLevel]);
+
+  const { maintainanceChecklists, refreshMaintainanceChecklists } = useGetMaintainanceChecklistWithFilter(filterString);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -153,10 +164,10 @@ export default function MaintainanceChecklistView() {
   }, []);
 
   useEffect(() => {
-    if (checklists) {
-      setTableData(checklists);
+    if (maintainanceChecklists) {
+      setTableData(maintainanceChecklists);
     }
-  }, [checklists]);
+  }, [maintainanceChecklists]);
 
   return (
     <>
@@ -165,17 +176,17 @@ export default function MaintainanceChecklistView() {
           heading="List"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Maintainance Checklist', href: paths.dashboard.maintainanceChecklist.root },
+            { name: 'Maintainance Instructions', href: paths.dashboard.maintainanceChecklist.root },
             { name: 'List' },
           ]}
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.maintainanceChecklist.new}
+              href={paths.dashboard.maintainanceChecklist.new(level)}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              New Checkpoint
+              New Instruction
             </Button>
           }
           sx={{

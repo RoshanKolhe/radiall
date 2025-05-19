@@ -1,13 +1,14 @@
 import { DefaultTransactionalRepository, Filter, IsolationLevel, repository } from "@loopback/repository";
 import { inject } from "@loopback/core";
-import { authenticate } from "@loopback/authentication";
+import { authenticate, AuthenticationBindings } from "@loopback/authentication";
 import { PermissionKeys } from "../authorization/permission-keys";
 import { get, getModelSchemaRef, HttpErrors, param, patch, post, requestBody, response } from "@loopback/rest";
 import { RadiallDataSource } from "../datasources";
-import { ChecklistRepository, InstallationFormRepository, InternalValidationFormRepository, QuestioneryRepository, ScrappingFormRepository, ToolsRepository } from "../repositories";
+import { ChecklistRepository, HistoryCardRepository, InstallationFormRepository, InternalValidationFormRepository, QuestioneryRepository, ScrappingFormRepository, ToolsRepository } from "../repositories";
 import { Tools } from "../models";
 import { QuestionSectionKeys } from "../questionery-section/questionery-section";
 import { FormNameKeys } from "../form-name/form-name";
+import {UserProfile} from '@loopback/security';
 
 export class ToolsManagementController {
   constructor(
@@ -25,6 +26,8 @@ export class ToolsManagementController {
     public internalValidationFormRepository : InternalValidationFormRepository,
     @repository(ScrappingFormRepository)
     public scrappingFormRepository : ScrappingFormRepository,
+    @repository(HistoryCardRepository)
+    public historyCardRepository : HistoryCardRepository,
   ) {}
 
   // creation of tool for tool entry form...
@@ -44,6 +47,7 @@ export class ToolsManagementController {
     content: {'application/json': {schema: getModelSchemaRef(Tools)}},
   })
   async create(
+    @inject(AuthenticationBindings.CURRENT_USER) currentUser : UserProfile,
     @requestBody({
       content: {
         'application/json': {
@@ -121,6 +125,8 @@ export class ToolsManagementController {
           requirementChecklist: requirementChecklist?.map((requirement : any) => ({
             requirement: requirement?.requirement,
             isNeedUpload: requirement?.isNeedUpload,
+            isFieldChanging: requirement?.isFieldChanging,
+            fieldName: requirement?.fieldName || '',
             critical: requirement?.critical,
             nonCritical: requirement?.nonCritical,
             toDo: undefined,
@@ -214,6 +220,14 @@ export class ToolsManagementController {
         await this.scrappingFormRepository.create(scrappingFormData);
       }
 
+      await this.historyCardRepository.create({
+        toolsId : savedTool.id,
+        nature : 'New Tool created',
+        description: `New Tool Created of part no: ${savedTool?.partNumber} and serial no: ${savedTool?.meanSerialNumber}`,
+        attendedBy: currentUser?.name,
+        date: new Date().toISOString(),
+        isActive: true,
+      });
       await tx.commit(); 
       return { success: true, message: 'Tool created successfully' };
     } catch (error) {
@@ -329,6 +343,7 @@ export class ToolsManagementController {
     description: 'ToolType PATCH success',
   })
   async updateById(
+    @inject(AuthenticationBindings.CURRENT_USER) currentUser: UserProfile,
     @param.path.number('id') id: number,
     @requestBody({
       content: {
@@ -343,8 +358,16 @@ export class ToolsManagementController {
     message: string;
   }> {
     try {
+      const savedTool = await this.toolsRepository.findById(id);
       await this.toolsRepository.updateById(id, toolData);
-
+      await this.historyCardRepository.create({
+        toolsId : id,
+        nature : 'Tool Data update',
+        description: `Tool data updated of part no: ${savedTool?.partNumber} and serial no: ${savedTool?.meanSerialNumber}`,
+        attendedBy: currentUser?.name,
+        date: new Date().toISOString(),
+        isActive: true,
+      });
       return {
         success: true,
         message: 'update success',

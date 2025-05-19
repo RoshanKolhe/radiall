@@ -2,7 +2,7 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 import { useSnackbar } from 'notistack';
 import { Controller, useForm } from 'react-hook-form';
@@ -62,12 +62,16 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
         date: Yup.string(),
     });
 
+    const parsedDate = useMemo(() => currentForm?.dimensionsQuestionery?.date
+        ? parse(currentForm.dimensionsQuestionery.date, 'dd/MM/yyyy', new Date())
+        : new Date(), [currentForm?.dimensionsQuestionery?.date]);
+
     const defaultValues = useMemo(() => ({
         partNumber: currentForm?.tools?.partNumber ?? '',
         serialNumber: currentForm?.tools?.meanSerialNumber ?? '',
         manufacturer: currentForm?.tools?.manufacturer?.manufacturer ?? '',
         supplier: currentForm?.tools?.supplier?.supplier ?? '',
-        creationDate: currentForm?.tools?.createdAt ? format(new Date(currentForm?.tools?.createdAt), "dd MMMM yyyy, HH:mm") : '',
+        creationDate: currentForm?.tools?.createdAt ? format(new Date(currentForm?.tools?.createdAt), "dd/MM/yyyy") : '',
         initiator: null,
         user: null,
         productionHeads: null,
@@ -76,8 +80,8 @@ export default function DimensionsSection({ currentForm, verificationForm, userD
         result: currentForm?.dimensionsQuestionery?.result || false,
         evidences: currentForm?.dimensionsQuestionery?.evidences || [],
         controlledBy: null,
-        date: currentForm?.dimensionsQuestionery?.date ? format(new Date(currentForm?.tools?.createdAt), "dd MMMM yyyy, HH:mm") : format(new Date(), "dd MMMM yyyy, HH:mm"),
-    }), [currentForm]);
+        date: parsedDate ? format(new Date(parsedDate), "dd/MM/yyyy") : format(new Date(), "dd/MM/yyyy"),
+    }), [currentForm, parsedDate]);
 
     const methods = useForm({
         resolver: yupResolver(NewSupplierSchema),

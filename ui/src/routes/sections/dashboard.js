@@ -223,8 +223,8 @@ export const dashboardRoutes = [
         path: 'maintainance-checklist',
         children: [
           { element: <MaintainanceChecklistListPage />, index: true },
-          { path: 'list', element: <MaintainanceChecklistListPage /> },
-          { path: 'new', element: <MaintainanceChecklistCreatePage /> },
+          { path: 'list/:level', element: <MaintainanceChecklistListPage /> },
+          { path: 'new/:level', element: <MaintainanceChecklistCreatePage /> },
           { path: ':id/edit', element: <MaintainanceCheckpointEditPage /> },
           { path: ':id/view', element: <StorageLocationViewPage /> },
         ],

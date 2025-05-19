@@ -31,7 +31,7 @@ export default function ToolsTableRow({
   onDeleteRow,
 }) {
   const navigate = useNavigate();
-  const { individualSerialNumber, meanSerialNumber, partNumber, modelNumber, productionMeans, isMaintaincePlanNeeded, calibration, manufacturer, supplier, toolFamily, criticalLevel, installationChecklist, technicalDrawing, quantity, assetNumber, createdAt, installationStatus, isActive, internalValidationStatus, status, storageLocation, toolsDepartment, station, remark, isInternalValidationNeeded } = row;
+  const { individualSerialNumber, id, meanSerialNumber, partNumber, modelNumber, productionMeans, isMaintaincePlanNeeded, calibration, manufacturer, supplier, toolFamily, criticalLevel, installationChecklist, technicalDrawing, quantity, assetNumber, createdAt, installationStatus, isActive, internalValidationStatus, status, storageLocation, toolsDepartment, station, remark, isInternalValidationNeeded } = row;
 
   const confirm = useBoolean();
 
@@ -54,11 +54,12 @@ export default function ToolsTableRow({
         {/* <TableCell padding="checkbox">
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell> */}
-        <TableCell sx={{ whiteSpace: 'nowrap', pr:'110px'  }}>{meanSerialNumber}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap', pr:'150px'}}>{id}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{partNumber}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{modelNumber}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{productionMeans}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{quantity}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap', pr:'150px' }}>{meanSerialNumber || 'NA'}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap', pr:'150px' }}>{individualSerialNumber || 'NA'}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{assetNumber || 'NA'}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{installationChecklist || 'NA'}</TableCell>

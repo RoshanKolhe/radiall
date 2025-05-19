@@ -43,3 +43,7 @@ export * from './revision-history.controller';
 export * from './history-card.controller';
 export * from './maintainance-checklist.controller';
 export * from './analytics.controller';
+export * from './reports.controller';
+export * from './notification.controller';
+export * from './notification-user.controller';
+export * from './history-card-tools.controller';

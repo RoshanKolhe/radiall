@@ -28,6 +28,7 @@ export default function RevisionHistoryNewEditForm({ currentRevisionHistory }) {
   const { enqueueSnackbar } = useSnackbar();
 
   const NewRevisionHistorySchema = Yup.object().shape({
+    formName: Yup.string().required('Form name is required'),
     revision: Yup.number().required('Revision is required').min(1, 'Minimum Should Be 1'),
     date: Yup.string().required('Date is required'),
     author: Yup.string().required('Author is required'),
@@ -38,6 +39,7 @@ export default function RevisionHistoryNewEditForm({ currentRevisionHistory }) {
 
   const defaultValues = useMemo(
     () => ({
+      formName: currentRevisionHistory?.formName || '', 
       revision: currentRevisionHistory?.revision || '',
       date: currentRevisionHistory?.date || '',
       author: currentRevisionHistory?.author || '',
@@ -66,8 +68,6 @@ export default function RevisionHistoryNewEditForm({ currentRevisionHistory }) {
 
   const onSubmit = handleSubmit(async (formData) => {
     try {
-      console.info('DATA', formData);
-
       if (!currentRevisionHistory) {
         await axiosInstance.post('/revision-histories', formData);
       } else {
@@ -111,6 +111,21 @@ export default function RevisionHistoryNewEditForm({ currentRevisionHistory }) {
                 </>
               )}
 
+              <Grid item xs={12} md={6}>
+                <RHFSelect name='formName' label='Form Name'>
+                    <MenuItem value='Installation Form'>Installation Form</MenuItem>
+                    <MenuItem value='Internal Validation Form'>Internal Validation Form</MenuItem>
+                    <MenuItem value='Scrapping Form'>Scrapping Form</MenuItem>
+                    <MenuItem value='Production Means Masterlist'>Production Means Masterlist</MenuItem>
+                    <MenuItem value='Maintainance Plan'>Maintainance Plan</MenuItem>
+                    <MenuItem value='Maintainance Schedule'>Maintainance Schedule</MenuItem>
+                    <MenuItem value='History Card'>History Card</MenuItem>
+                    <MenuItem value='Spare List'>Spare List</MenuItem>
+                    <MenuItem value='Master Spare List'>Master Spare List</MenuItem>
+                </RHFSelect>
+              </Grid>
+
+
               <Grid item xs={12} sm={6}>
                 <RHFTextField name="revision" label="Revision No" type="number" />
               </Grid>
@@ -122,10 +137,12 @@ export default function RevisionHistoryNewEditForm({ currentRevisionHistory }) {
                   render={({ field, fieldState: { error } }) => (
                     <DatePicker
                       label="Date"
-                      value={new Date(field.value)}
+                      value={field.value ? new Date(field.value) : null}
                       onChange={(newValue) => {
                         field.onChange(newValue);
                       }}
+                      format="dd/MM/yyyy"
+                      maxDate={new Date()}
                       slotProps={{
                         textField: {
                           fullWidth: true,

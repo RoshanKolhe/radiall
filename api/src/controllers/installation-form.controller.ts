@@ -1,11 +1,12 @@
 import { relation, repository } from "@loopback/repository";
-import { ApprovalUsersRepository, InstallationFormRepository, ToolsRepository, UserRepository } from "../repositories";
+import { ApprovalUsersRepository, HistoryCardRepository, InstallationFormRepository, ToolsRepository, UserRepository } from "../repositories";
 import { authenticate, AuthenticationBindings } from "@loopback/authentication";
 import {UserProfile} from '@loopback/security';
 import { PermissionKeys } from "../authorization/permission-keys";
 import { get, HttpErrors, param, patch, post, requestBody } from "@loopback/rest";
 import { InstallationForm } from "../models";
 import { inject } from "@loopback/core";
+import { NotificationService } from "../services/notification.service";
 
 export class InstallationFormController {
   constructor(
@@ -17,6 +18,10 @@ export class InstallationFormController {
     public approvalUsersRepository : ApprovalUsersRepository,
     @repository(ToolsRepository)
     public toolsRepository : ToolsRepository,
+    @inject('service.notification.service')
+    public notificationService : NotificationService ,
+    @repository(HistoryCardRepository)
+    public historyCardRepository : HistoryCardRepository,
   ) {}
 
   // Get installation form of a tool with tool id...
@@ -45,7 +50,7 @@ export class InstallationFormController {
               ]
             }
           },
-          { relation : 'initiator'},
+          { relation : 'initiator', scope: {include : [{relation: 'department'}]}},
           { relation : 'user', scope : {include : [{relation : 'user', scope : {include : [{relation : 'department'}]}}]}}
         ]
       });
@@ -411,7 +416,6 @@ export class InstallationFormController {
       });
 
       const form = await this.installationFormRepository.findById(formId);
-
       await this.checkFieldValues(form);
 
       return{
@@ -446,6 +450,12 @@ export class InstallationFormController {
                     },
                     isNeedUpload: {
                       type: 'boolean',
+                    },
+                    isFieldChanging: {
+                      type: 'boolean',
+                    },
+                    fieldName: {
+                      type: 'string',
                     },
                     critical: {
                       type: 'string',
@@ -502,6 +512,8 @@ export class InstallationFormController {
       requirementChecklist: Array<{
         requirement: string;
         isNeedUpload: boolean;
+        isFieldChanging: boolean;
+        fieldName: string;
         critical: string;
         nonCritical: string;
         toDo: boolean;
@@ -528,25 +540,90 @@ export class InstallationFormController {
 
       const form = await this.installationFormRepository.findById(formId);
 
-      if(form && (!form.isFamilyClassificationSectionDone || !form.isCriticitySectionDone)){
-        return{
-          success : false,
-          message : 'Please Complete all sections'
-        }
-      }
-
       await this.installationFormRepository.updateById(formId, {
         requirementChecklist : requirementChecklist,
         isRequirementChecklistSectionDone : true,
-        isEditable : false,
       });
 
-      // make function to send notification and emails to validators for approval...
+      const formData = await this.installationFormRepository.findById(form.id);
+
+      await this.checkChecklistFieldValues(formData);
 
       return{
         success : true,
-        message : 'Installation form completed'
+        message : 'Form saved in draft'
       }
+    }catch(error){
+      throw error;
+    }
+  }
+
+  // final save...
+  @authenticate({
+    strategy: 'jwt',
+    options: {required: [PermissionKeys.ADMIN, PermissionKeys.INITIATOR, PermissionKeys.VALIDATOR]}
+  })
+  @post('/save-installation-form/{formId}')
+  async saveInstallationForm(
+    @inject(AuthenticationBindings.CURRENT_USER) currentUser: UserProfile,
+    @param.path.number('formId') formId: number
+  ):Promise<{success: boolean; message: string}>{
+    try{
+      const form : any = await this.installationFormRepository.findById(formId, {include : [{relation : 'tools'}]});
+
+      if(!form){
+        throw new HttpErrors.NotFound('No installation form found');
+      }
+
+      if(!form.isCriticitySectionDone){
+        return{
+          success: false,
+          message: 'Criticity Section is not completed'
+        }
+      }
+
+      if(!form.isFamilyClassificationSectionDone){
+        return{
+          success: false,
+          message: 'Family Classification section is not completed'
+        }
+      }
+
+      if(!form.isRequirementChecklistSectionDone){
+        return{
+          success: false,
+          message: 'Requirement Checklist section is not completed'
+        }
+      }
+
+      await this.installationFormRepository.updateById(form.id, {isEditable : false});
+
+       if(!form?.isUsersApprovalDone){
+        await this.notificationService.sendInstallationFormApproval(formId, [form?.userId]);
+      }
+
+      if(form?.isUsersApprovalDone && !form?.isAllValidatorsApprovalDone){
+          await this.notificationService.sendInstallationFormApproval(formId, form?.validatorsIds);
+      }
+
+      if(form?.isUsersApprovalDone && form?.isAllValidatorsApprovalDone && !form?.isAllProductionHeadsApprovalDone){
+          await this.notificationService.sendInstallationFormApproval(formId, form?.productionHeadIds);
+      }
+
+      await this.historyCardRepository.create({
+        toolsId : form.toolsId,
+        nature : 'Installation Form created',
+        description: `Installation form submitted for approval of tool part number: ${form?.tools.partNumber} and serial no: ${form?.tools.meanSerialNumber}`,
+        attendedBy: currentUser?.name,
+        date: new Date().toISOString(),
+        isActive: true,
+      });
+
+      return{
+        success: true,
+        message: 'Installation Form Completed'
+      }
+
     }catch(error){
       throw error;
     }
@@ -660,6 +737,33 @@ export class InstallationFormController {
     }
   }
 
+  // check requirement checklist value
+  async checkChecklistFieldValues(form: InstallationForm): Promise<void>{
+    try{
+      if(form){
+        const fieldValues = form?.requirementChecklist
+        ?.filter((question) => question?.isFieldChanging)
+        ?.map((question) => ({
+          fieldValue: question?.fieldName,
+          answer: question?.done
+        }));
+      
+        if (fieldValues?.length > 0) {
+          const updatedValues: Record<string, any> = fieldValues.reduce((acc, field) => {
+            acc[field.fieldValue] = field.answer;
+            return acc;
+          }, {} as Record<string, any>);
+
+          console.log('updatedValues', updatedValues);
+        
+          await this.toolsRepository.updateById(form?.toolsId, updatedValues);
+        }          
+      }
+    }catch(error){
+      throw error
+    }
+  }
+
   // Check form approval status
   async checkFormApproveStatus(formId: number): Promise<void> {
     try {
@@ -686,6 +790,14 @@ export class InstallationFormController {
       if(userApproval){
         await this.installationFormRepository.updateById(formId, {isUsersApprovalDone : true});
       }
+
+      if(userApproval && !allValidatorsApproved && !allProductionHeadsApproved){
+        await this.notificationService.sendInstallationFormApproval(formId, form?.validatorsIds);
+      };
+
+      if(userApproval && allValidatorsApproved && !allProductionHeadsApproved){
+        await this.notificationService.sendInstallationFormApproval(formId, form?.productionHeadIds);
+      };
 
       if(allValidatorsApproved && allProductionHeadsApproved && userApproval){
         await this.checkFieldValues(form);
@@ -830,7 +942,7 @@ export class InstallationFormController {
 
       await this.installationFormRepository.updateById(installationFormId, {isEditable : true});
 
-      // send mail to initiator...
+      await this.notificationService.sendInstallationFormSaved(installationFormId)
 
       return { success: true, message: 'Saved successfully.' };
 

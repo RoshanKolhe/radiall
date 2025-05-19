@@ -1,4 +1,5 @@
-import {Entity, model, property} from '@loopback/repository';
+import {Entity, model, property, belongsTo} from '@loopback/repository';
+import {Tools} from './tools.model';
 
 @model()
 export class HistoryCard extends Entity {
@@ -59,6 +60,9 @@ export class HistoryCard extends Entity {
     required: true,
   })
   isActive: boolean;
+
+  @belongsTo(() => Tools)
+  toolsId: number;
 
   constructor(data?: Partial<HistoryCard>) {
     super(data);

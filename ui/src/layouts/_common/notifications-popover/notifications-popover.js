@@ -1,5 +1,5 @@
 import { m } from 'framer-motion';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 // @mui
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
@@ -16,39 +16,21 @@ import Typography from '@mui/material/Typography';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useResponsive } from 'src/hooks/use-responsive';
-// _mock
-import { _notifications } from 'src/_mock';
+import axiosInstance from 'src/utils/axios';
+import { useAuthContext } from 'src/auth/hooks';
 // components
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { varHover } from 'src/components/animate';
+import { useGetNotifications } from 'src/api/user';
 //
 import NotificationItem from './notification-item';
 
 // ----------------------------------------------------------------------
 
-const TABS = [
-  {
-    value: 'all',
-    label: 'All',
-    count: 22,
-  },
-  {
-    value: 'unread',
-    label: 'Unread',
-    count: 12,
-  },
-  {
-    value: 'archived',
-    label: 'Archived',
-    count: 10,
-  },
-];
-
-// ----------------------------------------------------------------------
-
 export default function NotificationsPopover() {
+  const {user : currentUser}  = useAuthContext();
   const drawer = useBoolean();
 
   const smUp = useResponsive('up', 'sm');
@@ -59,17 +41,52 @@ export default function NotificationsPopover() {
     setCurrentTab(newValue);
   }, []);
 
-  const [notifications, setNotifications] = useState(_notifications);
+  const [notificationsData, setNotificationsData] = useState([]);
+  const [unreadCountData, setUnreadCountData] = useState(0);
+  const [allCountData, setAllCountData] = useState(0);
+  const filterString = currentTab === 'unread'
+  ? { where: { and: [{ status: 0 }, { userId: currentUser?.id }] } }
+  : { where: { userId: currentUser?.id } };
 
-  const totalUnRead = notifications.filter((item) => item.isUnRead === true).length;
+  const filterObject = encodeURIComponent(JSON.stringify(filterString));
 
-  const handleMarkAllAsRead = () => {
-    setNotifications(
-      notifications.map((notification) => ({
-        ...notification,
-        isUnRead: false,
-      }))
-    );
+  const { notifications, unreadCount, allCount, refreshNotifications } = useGetNotifications(filterObject);
+
+  useEffect(() => {
+    if(notifications){
+      setNotificationsData(notifications);
+      if(unreadCount){
+        setUnreadCountData(unreadCount);
+      }else{
+        setUnreadCountData(0)
+      }
+
+      if(allCount){
+        setAllCountData(allCount);
+      }else{
+        setAllCountData(0);
+      }
+      
+    }
+  },[notifications, unreadCount, allCount])
+
+  const totalUnRead = notificationsData?.filter((item) => item.status === 0).length;
+
+  const handleMarkAllAsRead = async () => {
+    try{
+      const response = await axiosInstance.patch('/notifications/mark-as-read');
+      if(response?.data?.success){
+        setNotificationsData(
+          notificationsData?.map((notification) => ({
+            ...notification,
+            status: 1,
+          }))
+        );
+        refreshNotifications();
+      }
+    }catch(error){
+      console.error('error while marking messages as read :', error);
+    }
   };
 
   const renderHead = (
@@ -96,7 +113,7 @@ export default function NotificationsPopover() {
 
   const renderTabs = (
     <Tabs value={currentTab} onChange={handleChangeTab}>
-      {TABS.map((tab) => (
+      {[{value: 'all',label: 'All',count: allCountData},{value: 'unread',label: 'Unread',count: unreadCountData}].map((tab) => (
         <Tab
           key={tab.value}
           iconPosition="end"
@@ -127,8 +144,8 @@ export default function NotificationsPopover() {
   const renderList = (
     <Scrollbar>
       <List disablePadding>
-        {notifications.map((notification) => (
-          <NotificationItem key={notification.id} notification={notification} />
+        {notificationsData.map((notification) => (
+          <NotificationItem key={notification.id} notification={notification} drawer={drawer}/>
         ))}
       </List>
     </Scrollbar>
@@ -171,20 +188,20 @@ export default function NotificationsPopover() {
           sx={{ pl: 2.5, pr: 1 }}
         >
           {renderTabs}
-          <IconButton onClick={handleMarkAllAsRead}>
+          {/* <IconButton onClick={handleMarkAllAsRead}>
             <Iconify icon="solar:settings-bold-duotone" />
-          </IconButton>
+          </IconButton> */}
         </Stack>
 
         <Divider />
 
         {renderList}
 
-        <Box sx={{ p: 1 }}>
+        {/* <Box sx={{ p: 1 }}>
           <Button fullWidth size="large">
             View All
           </Button>
-        </Box>
+        </Box> */}
       </Drawer>
     </>
   );

@@ -87,6 +87,8 @@ export class InstallationForm extends Entity {
       email: string;
       department: object;
     };
+    isFieldChanging: boolean;
+    fieldName: string;
     done: boolean;
     comment: string;
     upload: string;
