@@ -277,7 +277,7 @@ export default function ToolsNewEditForm({ currentTool }) {
       }else{
         setValue('serialNumber', 1);
         setAllowEdit(true);
-        enqueueSnackbar('No tool found with same part number found, you can create new one',{variant : 'info'});
+        enqueueSnackbar('No tool with this part number was found. You can proceed to create a new one.',{variant : 'info'});
       }
     }catch(error){
       console.error(error);

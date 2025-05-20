@@ -384,9 +384,10 @@ function applyFilter({ inputData, comparator, filters }) {
   const { name, status, role } = filters;
   const stabilizedThis = inputData.map((el, index) => [el, index]);
   const roleMapping = {
-    production_head: 'Production Head',
+    admin: 'Admin',
     initiator: 'Initiator',
     validator: 'Validator',
+    viewer: 'Viewer',
   };
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);

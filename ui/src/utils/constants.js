@@ -373,7 +373,7 @@ export const COMMON_STATUS_OPTIONS = [
   { value: '0', label: 'Non-Active' },
 ];
 
-export const _roles = ['Production Head', 'Validator', 'Initiator'];
+export const _roles = ['Admin','Validator','Initiator','Viewer'];
 
 export const formatTime = (isoString) => {
   const date = new Date(isoString);

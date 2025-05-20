@@ -110,8 +110,6 @@ function Searchbar() {
       <IconButton onClick={search.onTrue}>
         <Iconify icon="eva:search-fill" />
       </IconButton>
-
-      {mdUp && <Label sx={{ px: 0.75, fontSize: 12, color: 'text.secondary' }}>⌘K</Label>}
     </Stack>
   );
 
@@ -152,7 +150,6 @@ function Searchbar() {
                 <Iconify icon="eva:search-fill" width={24} sx={{ color: 'text.disabled' }} />
               </InputAdornment>
             }
-            endAdornment={<Label sx={{ letterSpacing: 1, color: 'text.secondary' }}>esc</Label>}
             inputProps={{
               sx: { typography: 'h6' },
             }}

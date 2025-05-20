@@ -61,7 +61,7 @@ const TABLE_HEAD = [
   { id: 'comment', label: 'Comment' },
   { id: 'createdAt', label: 'Created At' },
   { id: 'status', label: 'Status', width: 100 },
-  { id: 'alaram', label: 'Alaram', width: 100 },
+  { id: 'alarm', label: 'Alarm', width: 100 },
   { id: '', width: 88 },
 ];
 

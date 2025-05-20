@@ -22,7 +22,7 @@ export class MyUserService implements UserService<User, Credentials> {
       },
     });
     if (!getUser) {
-      throw new HttpErrors.BadRequest('User not found');
+      throw new HttpErrors.BadRequest('Invalid credentials');
     }
 
     if (!getUser.password) {
@@ -42,7 +42,7 @@ export class MyUserService implements UserService<User, Credentials> {
     if (passswordCheck) {
       return getUser;
     }
-    throw new HttpErrors.BadRequest('password doesnt match');
+    throw new HttpErrors.BadRequest('Invalid credentials');
   }
 
   convertToUserProfile(user: User): UserProfile {

@@ -92,7 +92,7 @@ export default function ModernForgotPasswordView() {
         }}
       >
         <Iconify icon="eva:arrow-ios-back-fill" width={16} />
-        Return to sign in
+        Return to Login
       </Link>
     </Stack>
   );

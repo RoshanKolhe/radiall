@@ -6,6 +6,7 @@ import { AuthGuard } from 'src/auth/guard';
 import DashboardLayout from 'src/layouts/dashboard';
 // components
 import { LoadingScreen } from 'src/components/loading-screen';
+import { RolesAuthRoute } from 'src/hooks/RolesAuthRoute';
 
 // ----------------------------------------------------------------------
 
@@ -138,11 +139,44 @@ export const dashboardRoutes = [
       {
         path: 'user',
         children: [
-          { element: <UserListPage />, index: true },
-          { path: 'list', element: <UserListPage /> },
-          { path: 'new', element: <UserCreatePage /> },
-          { path: ':id/edit', element: <UserEditPage /> },
-          { path: ':id/view', element: <UserViewPage /> },
+          { 
+            element: 
+            (
+              <RolesAuthRoute roles={['admin']}>
+                <UserListPage />
+              </RolesAuthRoute>
+            ),
+            index: true 
+          },
+          { path: 'list', 
+            element: 
+            (
+              <RolesAuthRoute roles={['admin']}>
+                <UserListPage />
+              </RolesAuthRoute>
+            )
+          },
+          { path: 'new', 
+            element:(
+              <RolesAuthRoute roles={['admin']}>
+                <UserCreatePage /> 
+              </RolesAuthRoute>
+            ) 
+          },
+          { path: ':id/edit', 
+             element:(
+              <RolesAuthRoute roles={['admin']}>
+                <UserEditPage /> 
+              </RolesAuthRoute>
+            ) 
+          },
+          { path: ':id/view', 
+             element:(
+              <RolesAuthRoute roles={['admin']}>
+                <UserViewPage /> 
+              </RolesAuthRoute>
+            ) 
+          },
           { path: 'account', element: <UserAccountPage /> },
         ],
       },
