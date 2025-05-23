@@ -1,5 +1,5 @@
 import { relation, repository } from "@loopback/repository";
-import { ApprovalUsersRepository, InstallationFormRepository, InternalValidationFormRepository, ScrappingFormRepository, SpareRepository, ToolsRepository } from "../repositories";
+import { ApprovalUsersRepository, InstallationFormRepository, InternalValidationFormRepository, MaintainancePlanRepository, ScrappingFormRepository, SpareRepository, ToolsRepository } from "../repositories";
 import { get, HttpErrors, param, post, response, ResponseObject, RestBindings } from "@loopback/rest";
 import { inject } from "@loopback/core";
 import ExcelJS from 'exceljs';
@@ -21,6 +21,8 @@ export class ReportsController {
     public approvalUsersRepository : ApprovalUsersRepository,
     @repository(ScrappingFormRepository)
     private scrappingFormRepository : ScrappingFormRepository,
+    @repository(MaintainancePlanRepository)
+    private maintainancePlanRepository : MaintainancePlanRepository
   ) {}
 
   // internal validation report...
@@ -570,6 +572,70 @@ export class ReportsController {
 
     }catch(error){
       throw error;
+    }
+  }
+
+  // maintainance plan
+  @get('/download-maintainance-plan/{toolId}')
+  async downloadMaintainancePlanReport(
+    @param.path.number('toolId') toolId : number,
+    @inject(RestBindings.Http.RESPONSE) response: ResponseObject,
+  ){
+    try{
+      const tool : any = await this.toolsRepository.findById(toolId, {include: [{relation: 'manufacturer'}, {relation: 'supplier'}]});
+      if(!tool){
+        throw new HttpErrors.NotFound("No tool found");
+      }
+      const levelOneMaintainancePlan : any = await this.maintainancePlanRepository.findById(tool.levelOneMaintainanceId, {include: [{relation: 'responsibleUser'}]});
+      const levelTwoMaintainancePlan : any = await this.maintainancePlanRepository.findById(tool.levelTwoMaintainanceId, {include: [{relation: 'responsibleUser'}]});
+
+      const templatePath = path.join(__dirname, '../../.sandbox/maintainance_plan.xlsx');
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.readFile(templatePath);
+      const worksheet = workbook.getWorksheet(1);
+      
+      if(!worksheet){
+        throw new HttpErrors.BadRequest('Error while fetching template');
+      }
+
+      worksheet.getCell('C1').value = `PREVENTIVE MAINTENANCE PLAN - ${tool.description.toUpperCase()}`;
+      worksheet.getCell('C3').value = tool.partNumber;
+      worksheet.getCell('H3').value = tool.manufacturer.manufacturer;
+      worksheet.getCell('C4').value = tool.meanSerialNumber;
+      worksheet.getCell('H4').value = tool.supplier?.supplier;
+      worksheet.getCell('C5').value = tool.assetNumber ? tool.assetNumber : 'NA';
+      worksheet.getCell('H5').value = tool.storageLocation;
+      worksheet.getCell('M5').value = tool.createdAt;
+
+      // level one
+      if(levelOneMaintainancePlan){
+        worksheet.getCell('B9').value = `${levelOneMaintainancePlan.periodicity} Days`;
+        worksheet.getCell('D9').value = `${levelOneMaintainancePlan.responsibleUser.firstName} ${levelOneMaintainancePlan.responsibleUser.lastName}`;
+        worksheet.getCell('F9').value = `${levelOneMaintainancePlan.description}`;
+      }
+
+      // level two
+      if(levelTwoMaintainancePlan){
+        worksheet.getCell('B10').value = `${levelTwoMaintainancePlan.periodicity} Days`;
+        worksheet.getCell('D10').value = `${levelTwoMaintainancePlan.responsibleUser.firstName} ${levelTwoMaintainancePlan.responsibleUser.lastName}`;
+        worksheet.getCell('F10').value = `${levelTwoMaintainancePlan.description}`;
+      }
+      response.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+      response.setHeader(
+        'Content-Disposition',
+        'attachment; filename=maintainance-plan.xlsx',
+      );
+  
+      const res = response as any;
+      await workbook.xlsx.write(res);
+  
+      response.end();
+      return;
+    }catch(error){
+
     }
   }
 }
